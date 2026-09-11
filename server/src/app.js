@@ -7,6 +7,8 @@ import { checkConnection } from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import academicRoutes from './routes/academicRoutes.js';
 
 const createApp = () => {
   const app = express();
@@ -41,6 +43,8 @@ const createApp = () => {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/users', userRoutes);
+  app.use('/api', academicRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
