@@ -32,6 +32,21 @@ export const findById = async (id) => {
   return rows[0] ?? null;
 };
 
+const SCHEDULING_FILTER = `(publish_at IS NULL OR publish_at <= NOW()) AND (expires_at IS NULL OR expires_at > NOW())`;
+const SCHEDULING_FILTER_ALIAS = `(a.publish_at IS NULL OR a.publish_at <= NOW()) AND (a.expires_at IS NULL OR a.expires_at > NOW())`;
+
+export const getEffectiveStatus = (announcement) => {
+  if (!announcement) return 'draft';
+  const now = new Date();
+  const publishAt = announcement.publish_at ? new Date(announcement.publish_at) : null;
+  const expiresAt = announcement.expires_at ? new Date(announcement.expires_at) : null;
+
+  if (announcement.status === 'draft') return 'draft';
+  if (publishAt && publishAt > now) return 'scheduled';
+  if (expiresAt && expiresAt <= now) return 'expired';
+  return announcement.status || 'draft';
+};
+
 export const listAnnouncements = async ({ type, author_id, status, limit = 50, offset = 0 } = {}) => {
   const conditions = [];
   const params = [];
@@ -49,6 +64,8 @@ export const listAnnouncements = async ({ type, author_id, status, limit = 50, o
     conditions.push(`a.status = $${params.length}`);
   }
 
+conditions.push(SCHEDULING_FILTER_ALIAS);
+
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   params.push(limit);
@@ -56,17 +73,17 @@ export const listAnnouncements = async ({ type, author_id, status, limit = 50, o
   params.push(offset);
   const offsetParam = params.length;
 
-const { rows } = await query(
+  const { rows } = await query(
     `SELECT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
        FROM announcements a
        LEFT JOIN users u ON u.id = a.author_id
        ${where}
        ORDER BY a.created_at DESC
        LIMIT $${limitParam} OFFSET $${offsetParam}`,
-    params
-  );
-  return rows;
-};
+     params
+   );
+   return rows;
+ };
 
 export const listForStudent = async ({ userId, section_id, course_id, limit = 50, offset = 0 } = {}) => {
   const conditions = [];
@@ -91,13 +108,13 @@ export const listForStudent = async ({ userId, section_id, course_id, limit = 50
   const offsetParam = params.length;
 
   const targetConditions = conditions.join(' OR ');
-  const { rows } = await query(
+const { rows } = await query(
     `SELECT DISTINCT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
        FROM announcements a
        LEFT JOIN announcement_targets at ON at.announcement_id = a.id
        LEFT JOIN users u ON u.id = a.author_id
-       WHERE a.status = 'published'
-         AND (a.publish_at IS NULL OR a.publish_at <= NOW())
+WHERE a.status = 'published'
+          AND ${SCHEDULING_FILTER_ALIAS}
          AND (
            a.type = 'general'
            OR (
@@ -107,8 +124,8 @@ export const listForStudent = async ({ userId, section_id, course_id, limit = 50
          )
        ORDER BY a.created_at DESC
        LIMIT $${limitParam} OFFSET $${offsetParam}`,
-    params
-  );
+     params
+   );
   return rows;
 };
 
@@ -206,6 +223,8 @@ export const countAnnouncements = async ({ type, author_id, status } = {}) => {
     conditions.push(`status = $${params.length}`);
   }
 
+  conditions.push(SCHEDULING_FILTER);
+
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   const { rows } = await query(
@@ -222,8 +241,9 @@ export const findPublishedGeneral = async ({ limit = 20 } = {}) => {
       WHERE type = 'general'
         AND status = 'published'
         AND (publish_at IS NULL OR publish_at <= NOW())
-      ORDER BY created_at DESC
-      LIMIT $1`,
+        AND (expires_at IS NULL OR expires_at > NOW())
+       ORDER BY created_at DESC
+       LIMIT $1`,
     [limit]
   );
   return { rows };

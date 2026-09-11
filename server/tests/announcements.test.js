@@ -1,6 +1,7 @@
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
+import { Readable } from "node:stream";
 
 import config from "../src/config/env.js";
 import createApp from "../src/app.js";
@@ -585,20 +586,129 @@ describe("announcement endpoints", () => {
     assert.ok(Array.isArray(body.announcements));
   });
 
-  it("GET /api/announcements/tv returns only published general announcements", async () => {
-    const res = await getJson(baseUrl, "/api/announcements/tv", null);
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.ok(body.announcements);
-    assert.ok(Array.isArray(body.announcements));
-    body.announcements.forEach((a) => {
-      assert.ok("id" in a);
-      assert.ok("title" in a);
-      assert.ok("content" in a);
-      assert.ok(!("author_id" in a), "Should not include author_id");
-      assert.ok(!("publish_at" in a), "Should not include publish_at");
-      assert.ok(!("expires_at" in a), "Should not include expires_at");
-      assert.ok(!("status" in a), "Should not include status");
+it("GET /api/announcements/tv returns only published general announcements", async () => {
+     const res = await getJson(baseUrl, "/api/announcements/tv", null);
+     assert.equal(res.status, 200);
+     const body = await res.json();
+     assert.ok(body.announcements);
+     assert.ok(Array.isArray(body.announcements));
+     body.announcements.forEach((a) => {
+       assert.ok("id" in a);
+       assert.ok("title" in a);
+       assert.ok("content" in a);
+       assert.ok(!("author_id" in a), "Should not include author_id");
+       assert.ok(!("publish_at" in a), "Should not include publish_at");
+       assert.ok(!("expires_at" in a), "Should not include expires_at");
+       assert.ok(!("status" in a), "Should not include status");
+     });
+   });
+
+  it("Image upload valid JPEG → 201 with image_url", async () => {
+    const jpegBuffer = Buffer.from([
+      0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00,
+      0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
+    ]);
+    const boundary = '----formdata-test';
+    const body = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="image"; filename="test.jpg"\r\nContent-Type: image/jpeg\r\n\r\n` +
+      jpegBuffer.toString('binary') +
+      `\r\n--${boundary}--\r\n`
+    );
+    const res = await fetch(`${baseUrl}/api/announcements/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+      },
+      body,
     });
+    assert.equal(res.status, 201);
+    const data = await res.json();
+    assert.ok(data.image_url);
+    assert.ok(data.image_url.startsWith('/uploads/announcements/'));
+    assert.ok(data.image_url.endsWith('.jpg'));
+  });
+
+  it("Image upload oversized file → 400", async () => {
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
+    const boundary = '----formdata-test2';
+    const body = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="image"; filename="large.jpg"\r\nContent-Type: image/jpeg\r\n\r\n` +
+      largeBuffer.toString('binary') +
+      `\r\n--${boundary}--\r\n`
+    );
+    const res = await fetch(`${baseUrl}/api/announcements/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+      },
+      body,
+    });
+    assert.equal(res.status, 400);
+    const data = await res.json();
+    assert.equal(data.status, 400);
+  });
+
+  it("Image upload wrong MIME type → 400", async () => {
+    const gifBuffer = Buffer.from([
+      0x47, 0x49, 0x46, 0x38, 0x39, 0x61,
+      0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00,
+      0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00,
+      0x21, 0xF9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00,
+      0x2C, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01,
+      0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00, 0x3B,
+    ]);
+    const boundary = '----formdata-test3';
+    const body = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="image"; filename="test.gif"\r\nContent-Type: image/gif\r\n\r\n` +
+      gifBuffer.toString('binary') +
+      `\r\n--${boundary}--\r\n`
+    );
+    const res = await fetch(`${baseUrl}/api/announcements/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+      },
+      body,
+    });
+    assert.equal(res.status, 400);
+    const data = await res.json();
+    assert.equal(data.status, 400);
+  });
+
+  it("Scheduled announcement (publish_at in future) → status='scheduled', NOT in feed", async () => {
+    const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await postJson(baseUrl, "/api/announcements/general", {
+      title: "Scheduled Announcement",
+      content: "This should be scheduled.",
+      publish_at: futureDate,
+    }, adminToken);
+    assert.equal(res.status, 201);
+    const body = await res.json();
+    assert.equal(body.announcement.status, "scheduled");
+
+    const feedRes = await getJson(baseUrl, "/api/announcements", teacherToken);
+    const feedBody = await feedRes.json();
+    const titles = feedBody.announcements.map((a) => a.title);
+    assert.ok(!titles.includes("Scheduled Announcement"), "Scheduled announcement should NOT appear in feed");
+  });
+
+  it("Expired announcement (expires_at in past) → NOT in feed", async () => {
+    const pastDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+    const res = await postJson(baseUrl, "/api/announcements/general", {
+      title: "Expired Announcement",
+      content: "This should be expired.",
+      expires_at: pastDate,
+    }, adminToken);
+    assert.equal(res.status, 201);
+    const body = await res.json();
+    assert.equal(body.announcement.status, "published");
+
+    const feedRes = await getJson(baseUrl, "/api/announcements", teacherToken);
+    const feedBody = await feedRes.json();
+    const titles = feedBody.announcements.map((a) => a.title);
+    assert.ok(!titles.includes("Expired Announcement"), "Expired announcement should NOT appear in feed");
   });
 });

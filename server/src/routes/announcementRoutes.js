@@ -10,7 +10,9 @@ import {
   updateAnnouncement,
   deleteAnnouncement,
   tvAnnouncements,
+  uploadAnnouncementImage,
 } from '../controllers/announcementController.js';
+import { uploadImage, handleUploadError } from '../middleware/upload.js';
 
 const router = Router();
 const adminOrTeacher = [authenticate, requireRole('admin', 'teacher')];
@@ -20,6 +22,7 @@ router.post('/announcements/general', adminOrTeacher, createGeneralAnnouncement)
 router.post('/announcements/class', adminOrTeacher, createClassAnnouncement);
 router.get('/announcements', authenticated, listAnnouncements);
 router.get('/announcements/tv', tvAnnouncements);
+router.post('/announcements/upload-image', adminOrTeacher, uploadImage, handleUploadError, uploadAnnouncementImage);
 router.get('/announcements/:id', authenticated, getAnnouncement);
 router.put('/announcements/:id', authenticated, updateAnnouncement);
 router.delete('/announcements/:id', authenticated, deleteAnnouncement);

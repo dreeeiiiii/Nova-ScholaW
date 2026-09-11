@@ -63,6 +63,14 @@ const Dashboard = () => {
               Create Announcement
             </Link>
           )}
+          {(user.role === 'teacher' || user.role === 'admin') && (
+            <Link
+              to="/announcements/manage"
+              className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
+            >
+              Manage Announcements
+            </Link>
+          )}
         </nav>
         <div className="mt-8 flex justify-center">
           <button

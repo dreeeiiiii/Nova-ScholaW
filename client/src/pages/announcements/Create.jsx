@@ -1,23 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import AudiencePicker from '../../components/AudiencePicker.jsx';
 
-const CreateAnnouncement = ({ onSuccess, onCancel }) => {
+const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [type, setType] = useState('general');
-  const [imageUrl, setImageUrl] = useState('');
-  const [publishAt, setPublishAt] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
-  const [targets, setTargets] = useState({ section_ids: [], course_ids: [], student_ids: [] });
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [content, setContent] = useState(initialData?.content || '');
+  const [type, setType] = useState(initialData?.type || 'general');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.image_url || '');
+  const [publishAt, setPublishAt] = useState(initialData?.publish_at ? new Date(initialData.publish_at).toISOString().slice(0, 16) : '');
+  const [expiresAt, setExpiresAt] = useState(initialData?.expires_at ? new Date(initialData.expires_at).toISOString().slice(0, 16) : '');
+  const [targets, setTargets] = useState(initialData?.targets || { section_ids: [], course_ids: [], student_ids: [] });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [showTargets, setShowTargets] = useState(false);
+  const [showTargets, setShowTargets] = useState(true);
 
   const isClass = type === 'class';
 
@@ -27,6 +29,20 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
       setTargets({ section_ids: [], course_ids: [], student_ids: [] });
     }
   }, [type]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -45,24 +61,38 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
       return;
     }
 
-    const payload = {
-      title: title.trim(),
-      content: content.trim(),
-      type,
-      image_url: imageUrl.trim() || undefined,
-      publish_at: publishAt || undefined,
-      expires_at: expiresAt || undefined,
-    };
-
-    if (isClass) {
-      payload.section_ids = targets.section_ids;
-      payload.course_ids = targets.course_ids;
-      payload.student_ids = targets.student_ids;
-    }
-
     try {
-      const endpoint = type === 'general' ? '/api/announcements/general' : '/api/announcements/class';
-      const res = await api.post(endpoint, payload);
+      let imageUrl = '';
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        const res = await api.post('/api/announcements/upload-image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        imageUrl = res.data.image_url;
+      }
+
+      const payload = {
+        title: title.trim(),
+        content: content.trim(),
+        type,
+        image_url: imageUrl || undefined,
+        publish_at: publishAt || undefined,
+        expires_at: expiresAt || undefined,
+      };
+
+      if (isClass) {
+        payload.section_ids = targets.section_ids;
+        payload.course_ids = targets.course_ids;
+        payload.student_ids = targets.student_ids;
+      }
+
+      if (initialData) {
+        await api.put(`/announcements/${initialData.id}`, payload);
+      } else {
+        const endpoint = type === 'general' ? '/api/announcements/general' : '/api/announcements/class';
+        await api.post(endpoint, payload);
+      }
       onSuccess();
       navigate('/announcements');
     } catch (err) {
@@ -74,7 +104,9 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-lg border border-slate-200">
-      <h2 className="mb-4 text-lg font-bold text-slate-900">Create Announcement</h2>
+      <h2 className="mb-4 text-lg font-bold text-slate-900">
+        {initialData ? 'Edit Announcement' : 'Create Announcement'}
+      </h2>
 
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -133,17 +165,28 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
         </div>
 
         <div>
-          <label htmlFor="ann-image" className="block text-sm font-medium text-slate-700">
-            Image URL (optional)
-          </label>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Image</label>
           <input
-            id="ann-image"
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://example.com/image.jpg"
-            className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+            ref={fileInputRef}
+            id="ann-image-file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleImageChange}
+            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
           />
+          <p className="mt-1 text-xs text-slate-400">JPEG, PNG, or WebP. Max 10 MB.</p>
+          {imagePreview && (
+            <div className="mt-2 relative">
+              <img src={imagePreview} alt="Preview" className="h-48 object-cover rounded-lg border border-slate-200" />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 rounded-full bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -158,6 +201,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
               onChange={(e) => setPublishAt(e.target.value)}
               className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
             />
+            <p className="mt-1 text-xs text-slate-400">Leave empty to publish immediately</p>
           </div>
           <div>
             <label htmlFor="ann-expires" className="block text-sm font-medium text-slate-700">
@@ -174,7 +218,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
         </div>
 
         {showTargets && (
-          <AudiencePicker onSelect={setTargets} />
+          <AudiencePicker onSelect={setTargets} initialData={targets} />
         )}
 
         <div className="flex justify-end gap-3 pt-2">
@@ -190,7 +234,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel }) => {
             disabled={saving}
             className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving…' : `Create ${type} Announcement`}
+            {saving ? 'Saving…' : (initialData ? 'Update' : `Create ${type} Announcement`)}
           </button>
         </div>
       </form>

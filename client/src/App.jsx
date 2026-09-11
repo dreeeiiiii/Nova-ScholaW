@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard.jsx';
 import Users from './pages/admin/Users.jsx';
 import Announcements from './pages/Announcements.jsx';
 import CreateAnnouncement from './pages/announcements/Create.jsx';
+import EditAnnouncement from './pages/announcements/Edit.jsx';
+import ManagePage from './pages/announcements/ManagePage.jsx';
 import TvDisplay from './pages/TvDisplay.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
@@ -41,6 +43,22 @@ const App = () => {
         element={
           <ProtectedRoute roles={['teacher', 'admin']}>
             <CreateAnnouncement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/announcements/:id/edit"
+        element={
+          <ProtectedRoute roles={['teacher', 'admin']}>
+            <EditAnnouncement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/announcements/manage"
+        element={
+          <ProtectedRoute roles={['teacher', 'admin']}>
+            <ManagePage />
           </ProtectedRoute>
         }
       />

@@ -46,6 +46,10 @@ const Announcements = () => {
     fetchAnnouncements();
   };
 
+  const handleDeleteSuccess = () => {
+    fetchAnnouncements();
+  };
+
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
@@ -65,6 +69,14 @@ const Announcements = () => {
               >
                 {showCreate ? 'Cancel' : '+ Create Announcement'}
               </button>
+            )}
+            {isTeacherOrAdmin && (
+              <Link
+                to="/announcements/manage"
+                className="rounded-lg bg-slate-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              >
+                Manage
+              </Link>
             )}
             <span className="inline-block rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300">
               {user?.role}
@@ -110,7 +122,7 @@ const Announcements = () => {
         ) : (
           <div className="space-y-4">
             {announcements.map((a) => (
-              <AnnouncementCard key={a.id} announcement={a} />
+              <AnnouncementCard key={a.id} announcement={a} onDelete={handleDeleteSuccess} />
             ))}
           </div>
         )}

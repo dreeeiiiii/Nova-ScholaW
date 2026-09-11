@@ -1,4 +1,5 @@
 import * as announcementRepo from '../models/announcementModel.js';
+import { uploadImage, handleUploadError } from '../middleware/upload.js';
 
 const parseId = (raw) => {
   const id = Number(raw);
@@ -364,6 +365,19 @@ export const tvAnnouncements = async (req, res, next) => {
       created_at,
     }));
     return res.json({ announcements: sanitized });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const uploadAnnouncementImage = async (req, res, next) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ status: 400, message: 'No image file provided.' });
+    }
+    const imageUrl = `/uploads/announcements/${file.filename}`;
+    return res.status(201).json({ image_url: imageUrl });
   } catch (err) {
     return next(err);
   }

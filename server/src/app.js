@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import config from './config/env.js';
 import { checkConnection } from './config/db.js';
@@ -10,6 +12,8 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import academicRoutes from './routes/academicRoutes.js';
 import announcementRoutes from './routes/announcementRoutes.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const createApp = () => {
   const app = express();
@@ -42,6 +46,8 @@ const createApp = () => {
       timestamp: new Date().toISOString(),
     });
   });
+
+  app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
