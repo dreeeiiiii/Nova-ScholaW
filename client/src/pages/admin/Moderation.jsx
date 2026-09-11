@@ -99,7 +99,7 @@ const Moderation = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-4 sm:px-6">
           <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
             ← Dashboard
           </Link>
@@ -107,7 +107,7 @@ const Moderation = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {error && (
           <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
@@ -156,7 +156,7 @@ const Moderation = () => {
                     {item.uploader_name || item.uploader_email || 'Unknown uploader'} •{' '}
                     {item.category_name || 'Uncategorized'} • {formatDate(item.created_at)}
                   </p>
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                     <button
                       type="button"
                       onClick={() => setPreview(item)}

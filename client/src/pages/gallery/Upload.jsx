@@ -138,7 +138,7 @@ const Upload = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
-        <div className="mx-auto flex max-w-3xl items-center gap-4 px-6 py-4">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-4 px-4 py-4 sm:px-6">
           <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
             ← Dashboard
           </Link>
@@ -146,8 +146,8 @@ const Upload = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-6 py-8">
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
           {error && (
             <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
@@ -257,7 +257,7 @@ const Upload = () => {
               </div>
             )}
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
               <Link
                 to="/gallery/mine"
                 className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100"

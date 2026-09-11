@@ -132,7 +132,7 @@ const Gallery = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
               ← Dashboard
@@ -148,7 +148,7 @@ const Gallery = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Search + filters */}
         <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
           <input
@@ -162,7 +162,7 @@ const Gallery = () => {
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:w-auto"
             >
               <option value="">All categories</option>
               {categories.map((c) => (
@@ -174,7 +174,7 @@ const Gallery = () => {
             <select
               value={year}
               onChange={(e) => setYear(e.target.value)}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:w-auto"
             >
               <option value="">All years</option>
               {YEAR_OPTIONS.map((y) => (
@@ -183,7 +183,7 @@ const Gallery = () => {
                 </option>
               ))}
             </select>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {[
                 { value: '', label: 'All' },
                 { value: 'image', label: 'Images' },

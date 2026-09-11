@@ -39,6 +39,10 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
       fs.unlink(file.path, () => {});
       return res.status(400).json({ status: 400, message: 'title is required.' });
     }
+    // The gallery_media table stores a single `caption` column (no separate
+    // title). Preserve the uploader-entered title: prefer the description, but
+    // fall back to the title so the title is never silently dropped.
+    const caption = description.trim() !== '' ? description.trim() : title.trim();
 
     const mediaType = determineMediaType(file);
     await validateUploadedFile(file, mediaType);
@@ -50,7 +54,7 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
         `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
          VALUES ($1, $2, $3, $4, $5, $6, 'pending')
          RETURNING id, uploader_id, category_id, media_type, file_url, original_filename, caption, duration_seconds, status, reviewed_by, reviewed_at, rejection_reason, created_at, updated_at`,
-        [req.user.id, categoryId, mediaType, fileUrl, file.originalname, description]
+        [req.user.id, categoryId, mediaType, fileUrl, file.originalname, caption]
       );
 
       await audit(req, 'gallery.upload', 'gallery_media', rows[0].id, {

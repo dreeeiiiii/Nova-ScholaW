@@ -53,7 +53,7 @@ const Announcements = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
               ← Dashboard
@@ -85,7 +85,7 @@ const Announcements = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {showCreate && isTeacherOrAdmin && (
           <div className="mb-8">
             <CreateAnnouncement onSuccess={handleCreateSuccess} onCancel={() => setShowCreate(false)} />
@@ -93,7 +93,7 @@ const Announcements = () => {
         )}
 
         {isTeacherOrAdmin && (
-          <div className="mb-6 flex gap-2">
+          <div className="mb-6 flex flex-wrap gap-2">
             {['', 'general', 'class'].map((type) => (
               <button
                 key={type}

@@ -104,7 +104,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
   const totalSelected = selectedSectionIds.length + selectedCourseIds.length + selectedStudents.length;
 
   return (
-    <div className="space-y-4 rounded-lg border border-slate-300 bg-white p-4">
+    <div className="space-y-4 rounded-lg border border-slate-300 bg-white p-3 sm:p-4">
       <h4 className="font-semibold text-slate-800">Target Audience</h4>
 
       <div>
@@ -118,7 +118,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
                 onChange={() => toggleSection(s.id)}
                 className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
-              <span className="text-sm text-slate-700">{s.name}</span>
+              <span className="text-sm text-slate-700 break-words">{s.name}</span>
             </label>
           ))}
           {sections.length === 0 && (
@@ -138,7 +138,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
                 onChange={() => toggleCourse(c.id)}
                 className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
-              <span className="text-sm text-slate-700">{c.name}</span>
+              <span className="text-sm text-slate-700 break-words">{c.name}</span>
             </label>
           ))}
           {courses.length === 0 && (
@@ -162,8 +162,8 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
           {studentOptions.length > 0 && (
             <div className="space-y-1 max-h-40 overflow-y-auto rounded-lg border border-slate-200 p-2">
               {studentOptions.map((s) => (
-                <div key={s.id} className="flex items-center justify-between px-2 py-1 hover:bg-slate-50 rounded">
-                  <span className="text-sm text-slate-700">{s.full_name} ({s.email})</span>
+                <div key={s.id} className="flex flex-col gap-2 px-2 py-1 hover:bg-slate-50 rounded sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm text-slate-700 break-words">{s.full_name} ({s.email})</span>
                   <button
                     type="button"
                     onClick={() => addStudent(s)}

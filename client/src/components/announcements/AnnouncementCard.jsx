@@ -54,8 +54,8 @@ const AnnouncementCard = ({ announcement, onDelete }) => {
   };
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between gap-4">
+    <div className="rounded-xl bg-white p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <h3 className="text-lg font-bold text-slate-900">{announcement.title}</h3>
@@ -71,14 +71,14 @@ const AnnouncementCard = ({ announcement, onDelete }) => {
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-700 mb-3">{announcement.content}</p>
+          <p className="text-sm text-slate-700 mb-3 break-words">{announcement.content}</p>
           <div className="flex items-center gap-4 text-xs text-slate-500">
             <span>By {announcement.author_name || announcement.author?.full_name || 'Unknown'}</span>
             <span>{new Date(announcement.created_at).toLocaleString()}</span>
           </div>
         </div>
         {canModify && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-row gap-2 sm:flex-col sm:shrink-0">
             <button
               type="button"
               onClick={handleEdit}

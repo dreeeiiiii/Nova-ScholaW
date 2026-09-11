@@ -8,6 +8,10 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  // When rendered as a standalone route (/announcements/create or :id/edit),
+  // no callbacks are passed — fall back to navigating back to the feed.
+  const handleSuccess = onSuccess || (() => navigate('/announcements'));
+  const handleCancel = onCancel || (() => navigate('/announcements'));
 
   const [title, setTitle] = useState(initialData?.title || '');
   const [content, setContent] = useState(initialData?.content || '');
@@ -93,8 +97,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
         const endpoint = type === 'general' ? '/announcements/general' : '/announcements/class';
         await api.post(endpoint, payload);
       }
-      onSuccess();
-      navigate('/announcements');
+      handleSuccess();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create announcement.');
     } finally {
@@ -147,7 +150,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Type</label>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             {['general', 'class'].map((t) => (
               <label key={t} className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -221,10 +224,10 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
           <AudiencePicker onSelect={setTargets} initialData={targets} />
         )}
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleCancel}
             className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
           >
             Cancel

@@ -44,7 +44,7 @@ const ManagePage = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
             <button
               type="button"
@@ -61,7 +61,7 @@ const ManagePage = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="mb-6 flex flex-wrap gap-3">
           <select
             value={typeFilter}
@@ -104,16 +104,16 @@ const ManagePage = () => {
               <div className="col-span-2">Actions</div>
             </div>
             {announcements.map((a) => (
-              <div key={a.id} className="grid grid-cols-12 gap-4 items-center rounded-lg border border-slate-200 bg-white p-4 hover:shadow-sm transition-shadow">
-                <div className="col-span-4">
-                  <span className="font-medium text-slate-900">{a.title}</span>
+              <div key={a.id} className="grid grid-cols-1 gap-2 rounded-lg border border-slate-200 bg-white p-4 hover:shadow-sm transition-shadow sm:grid-cols-12 sm:gap-4 sm:items-center">
+                <div className="sm:col-span-4">
+                  <span className="font-medium text-slate-900 break-words">{a.title}</span>
                 </div>
-                <div className="col-span-1">
+                <div className="flex items-center gap-2 sm:col-span-1">
                   <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${a.type === 'general' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800'}`}>
                     {a.type}
                   </span>
                 </div>
-                <div className="col-span-1">
+                <div className="sm:col-span-1">
                   <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
                     a.status === 'published' ? 'bg-green-100 text-green-800' :
                     a.status === 'scheduled' ? 'bg-amber-100 text-amber-800' :
@@ -123,13 +123,13 @@ const ManagePage = () => {
                     {a.status}
                   </span>
                 </div>
-                <div className="col-span-2 text-sm text-slate-600">
+                <div className="text-sm text-slate-600 break-words sm:col-span-2">
                   {a.publish_at ? new Date(a.publish_at).toLocaleString() : '—'}
                 </div>
-                <div className="col-span-2 text-sm text-slate-600">
+                <div className="text-sm text-slate-600 break-words sm:col-span-2">
                   {new Date(a.created_at).toLocaleString()}
                 </div>
-                <div className="col-span-2 flex gap-2">
+                <div className="flex flex-wrap gap-2 sm:col-span-2">
                   <button
                     type="button"
                     onClick={() => navigate(`/announcements/${a.id}/edit`)}
@@ -153,6 +153,27 @@ const ManagePage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {total > limit && (
+          <div className="mt-4 flex items-center justify-between">
+            <button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ← Prev
+            </button>
+            <span className="text-sm text-slate-400">Page {page} of {Math.max(1, Math.ceil(total / limit))}</span>
+            <button
+              type="button"
+              disabled={page >= Math.ceil(total / limit)}
+              onClick={() => setPage((p) => p + 1)}
+              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next →
+            </button>
           </div>
         )}
       </main>

@@ -28,8 +28,10 @@ const AuditLogs = () => {
   const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState('');
   const [entityFilter, setEntityFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
   const [appliedAction, setAppliedAction] = useState('');
   const [appliedEntity, setAppliedEntity] = useState('');
+  const [appliedUserId, setAppliedUserId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -40,6 +42,7 @@ const AuditLogs = () => {
       const params = { limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE };
       if (appliedAction) params.action = appliedAction;
       if (appliedEntity) params.entity_type = appliedEntity;
+      if (appliedUserId) params.user_id = appliedUserId;
       const res = await api.get('/audit-logs', { params });
       setLogs(res.data.logs || []);
       setTotal(res.data.total ?? 0);
@@ -48,7 +51,7 @@ const AuditLogs = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, appliedAction, appliedEntity]);
+  }, [page, appliedAction, appliedEntity, appliedUserId]);
 
   useEffect(() => {
     fetchLogs();
@@ -59,13 +62,16 @@ const AuditLogs = () => {
     setPage(1);
     setAppliedAction(actionFilter.trim());
     setAppliedEntity(entityFilter.trim());
+    setAppliedUserId(userFilter.trim());
   };
 
   const clearFilters = () => {
     setActionFilter('');
     setEntityFilter('');
+    setUserFilter('');
     setAppliedAction('');
     setAppliedEntity('');
+    setAppliedUserId('');
     setPage(1);
   };
 
@@ -74,7 +80,7 @@ const AuditLogs = () => {
   return (
     <div className="min-h-screen bg-slate-900">
       <header className="border-b border-slate-800 bg-slate-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
               ← Dashboard
@@ -87,9 +93,9 @@ const AuditLogs = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <form onSubmit={applyFilters} className="mb-6 flex flex-wrap items-end gap-3">
-          <div>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <form onSubmit={applyFilters} className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="w-full sm:w-auto">
             <label htmlFor="audit-action" className="block text-xs font-medium text-slate-400">Action</label>
             <input
               id="audit-action"
@@ -97,10 +103,10 @@ const AuditLogs = () => {
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
               placeholder="e.g. announcement.create"
-              className="mt-1 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 sm:w-auto"
             />
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <label htmlFor="audit-entity" className="block text-xs font-medium text-slate-400">Entity type</label>
             <input
               id="audit-entity"
@@ -108,7 +114,19 @@ const AuditLogs = () => {
               value={entityFilter}
               onChange={(e) => setEntityFilter(e.target.value)}
               placeholder="e.g. announcement"
-              className="mt-1 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 sm:w-auto"
+            />
+          </div>
+          <div className="w-full sm:w-auto">
+            <label htmlFor="audit-user" className="block text-xs font-medium text-slate-400">User ID</label>
+            <input
+              id="audit-user"
+              type="text"
+              inputMode="numeric"
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
+              placeholder="e.g. 3"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 sm:w-28"
             />
           </div>
           <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">

@@ -37,18 +37,29 @@ const TvDisplay = () => {
     return () => clearInterval(interval);
   }, [announcements]);
 
-  if (announcements.length === 0) {
+  if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-slate-900">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent mx-auto" />
-          <p className="text-xl text-slate-400">No announcements to display</p>
+          <p className="text-xl text-slate-400">Loading announcements…</p>
         </div>
       </div>
     );
   }
 
-  const current = announcements[currentIndex];
+  if (announcements.length === 0) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-slate-900 p-6 text-center">
+        <div>
+          <p className="text-2xl font-bold text-white">Nova Schola Hub</p>
+          <p className="mt-2 text-xl text-slate-400">No announcements to display</p>
+        </div>
+      </div>
+    );
+  }
+
+  const current = announcements[currentIndex % announcements.length];
 
   return (
     <div className="flex h-screen w-full flex-col bg-slate-900">
@@ -59,17 +70,17 @@ const TvDisplay = () => {
         </span>
       </div>
 
-      <div className="flex h-full items-center justify-center p-12">
+      <div className="flex h-full items-center justify-center p-6 sm:p-12">
         <div className="max-w-4xl w-full text-center">
           {current.image_url && (
             <img
               src={current.image_url}
               alt=""
-              className="mx-auto mb-8 max-h-64 rounded-xl object-cover shadow-lg"
+              className="mx-auto mb-6 max-h-40 rounded-xl object-cover shadow-lg sm:mb-8 sm:max-h-64"
             />
           )}
-          <h1 className="mb-6 text-5xl font-bold text-white">{current.title}</h1>
-          <p className="text-2xl text-slate-300 leading-relaxed">{current.content}</p>
+          <h1 className="mb-4 text-3xl font-bold text-white sm:mb-6 sm:text-5xl break-words">{current.title}</h1>
+          <p className="text-lg text-slate-300 leading-relaxed sm:text-2xl break-words">{current.content}</p>
           <div className="mt-8">
             <div className="mx-auto h-2 w-48 rounded-full bg-slate-700">
               <div
