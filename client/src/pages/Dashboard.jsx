@@ -1,5 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import AdminDashboard from './dashboard/AdminDashboard.jsx';
+import TeacherDashboard from './dashboard/TeacherDashboard.jsx';
+import StudentDashboard from './dashboard/StudentDashboard.jsx';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -15,99 +18,57 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
-      <div className="max-w-lg w-full text-center p-10 bg-white rounded-2xl shadow-2xl">
-        <h1 className="text-3xl font-bold text-indigo-700">Dashboard</h1>
-        <p className="mt-4 text-base text-slate-700">
-          Welcome,{' '}
-          <span className="font-semibold text-slate-900">{user.full_name}</span>{' '}
-          <span className="inline-block ml-1 rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium uppercase tracking-wide text-indigo-700">
-            {user.role}
-          </span>
-        </p>
-        <p className="mt-3 text-sm text-slate-500">
-          Auth is working — more dashboard content coming soon.
-        </p>
-        {user.role === 'admin' && (
-          <div className="mt-6">
-            <Link
-              to="/admin/users"
-              className="inline-block rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            >
-              Manage Users
-            </Link>
-            <div className="mt-3">
-              <a
-                href="/tv"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block rounded-lg bg-slate-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400"
-              >
-                TV Display URL: /tv
-              </a>
-            </div>
+    <div className="min-h-screen bg-slate-900">
+      <header className="border-b border-slate-800 bg-slate-900">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <h1 className="text-xl font-bold text-white">Dashboard</h1>
+            <p className="mt-0.5 text-sm text-slate-400">
+              Welcome, <span className="font-semibold text-slate-200">{user.full_name}</span>{' '}
+              <span className="ml-1 inline-block rounded-full bg-indigo-600 px-3 py-0.5 text-xs font-medium uppercase tracking-wide text-white">
+                {user.role}
+              </span>
+            </p>
           </div>
-        )}
-        <nav className="mt-6 flex flex-col gap-2">
-          <Link
-            to="/announcements"
-            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          >
-            Announcements
-          </Link>
-          {(user.role === 'teacher' || user.role === 'admin') && (
-            <Link
-              to="/announcements/create"
-              className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            >
-              Create Announcement
+          <div className="flex flex-wrap items-center gap-2">
+            <Link to="/announcements" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800">
+              Announcements
             </Link>
-          )}
-          {(user.role === 'teacher' || user.role === 'admin') && (
-            <Link
-              to="/announcements/manage"
-              className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
-            >
-              Manage Announcements
+            <Link to="/gallery" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800">
+              Gallery
             </Link>
-          )}
-          <Link
-            to="/gallery"
-            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          >
-            Gallery
-          </Link>
-          <Link
-            to="/gallery/upload"
-            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          >
-            Upload Media
-          </Link>
-          <Link
-            to="/gallery/mine"
-            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          >
-            My Uploads
-          </Link>
-          {user.role === 'admin' && (
-            <Link
-              to="/admin/moderation"
-              className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
+            <a href="/tv" target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800">
+              TV Display
+            </a>
+            {user.role === 'admin' && (
+              <>
+                <Link to="/admin/users" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800">
+                  Users
+                </Link>
+                <Link to="/admin/moderation" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800">
+                  Moderation
+                </Link>
+                <Link to="/admin/audit-logs" className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800">
+                  Audit Logs
+                </Link>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600"
             >
-              Moderate Gallery
-            </Link>
-          )}
-        </nav>
-        <div className="mt-8 flex justify-center">
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="rounded-lg bg-slate-800 px-6 py-2.5 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          >
-            Log out
-          </button>
+              Log out
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-6 py-8">
+        {user.role === 'admin' && <AdminDashboard />}
+        {user.role === 'teacher' && <TeacherDashboard />}
+        {user.role === 'student' && <StudentDashboard />}
+      </main>
     </div>
   );
 };

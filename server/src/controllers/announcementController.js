@@ -1,5 +1,6 @@
 import * as announcementRepo from '../models/announcementModel.js';
 import { uploadImage, handleUploadError } from '../middleware/upload.js';
+import { audit } from '../services/auditService.js';
 
 const parseId = (raw) => {
   const id = Number(raw);
@@ -75,6 +76,8 @@ export const createGeneralAnnouncement = async (req, res, next) => {
       publish_at,
       expires_at,
     });
+
+    await audit(req, 'announcement.create', 'announcement', announcement.id, { type: 'general', title });
 
     return res.status(201).json({ announcement });
   } catch (err) {
@@ -154,6 +157,12 @@ export const createClassAnnouncement = async (req, res, next) => {
       }
 
       await client.query('COMMIT');
+
+      await audit(req, 'announcement.create', 'announcement', announcement.id, {
+        type: 'class',
+        title,
+        targets: { section_ids, course_ids, student_ids },
+      });
 
       return res.status(201).json({ announcement, targets });
     } catch (err) {
@@ -347,6 +356,8 @@ export const updateAnnouncement = async (req, res, next) => {
       targets = await announcementRepo.getTargets(id);
     }
 
+    await audit(req, 'announcement.update', 'announcement', id, { updated_fields: Object.keys(fields) });
+
     return res.json({ announcement, targets });
   } catch (err) {
     return next(err);
@@ -400,6 +411,7 @@ export const deleteAnnouncement = async (req, res, next) => {
     }
 
     await announcementRepo.deleteAnnouncement(id);
+    await audit(req, 'announcement.delete', 'announcement', id, { title: existing.title, type: existing.type });
     return res.json({ message: 'Announcement deleted.' });
   } catch (err) {
     return next(err);

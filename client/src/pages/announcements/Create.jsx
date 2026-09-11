@@ -66,7 +66,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
       if (imageFile) {
         const formData = new FormData();
         formData.append('image', imageFile);
-        const res = await api.post('/api/announcements/upload-image', formData, {
+        const res = await api.post('/announcements/upload-image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrl = res.data.image_url;
@@ -90,7 +90,7 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
       if (initialData) {
         await api.put(`/announcements/${initialData.id}`, payload);
       } else {
-        const endpoint = type === 'general' ? '/api/announcements/general' : '/api/announcements/class';
+        const endpoint = type === 'general' ? '/announcements/general' : '/announcements/class';
         await api.post(endpoint, payload);
       }
       onSuccess();

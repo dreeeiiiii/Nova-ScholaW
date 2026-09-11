@@ -3,6 +3,7 @@ import config from '../config/env.js';
 import * as userRepo from '../models/userModel.js';
 import { hashPassword } from '../utils/password.js';
 import { isNstEmail, normalizeEmail } from '../utils/nstEmail.js';
+import { audit } from '../services/auditService.js';
 
 const ROLE_LIST = ['admin', 'teacher', 'student'];
 
@@ -149,6 +150,8 @@ export const createUser = async (req, res, next) => {
       course_id,
     });
 
+    await audit(req, 'user.create', 'user', user.id, { email, role, full_name: fullName });
+
     return res.status(201).json({
       message: 'User created successfully.',
       user: sanitizeUser(user),
@@ -191,6 +194,7 @@ export const updateUser = async (req, res, next) => {
     }
 
     const user = await userRepo.updateUser(id, fields);
+    await audit(req, 'user.update', 'user', id, { updated_fields: Object.keys(fields) });
     return res.json({ user: sanitizeUser(user) });
   } catch (err) {
     return next(err);
@@ -216,6 +220,7 @@ export const deactivateUser = async (req, res, next) => {
     }
 
     const user = await userRepo.deactivateUser(id);
+    await audit(req, 'user.deactivate', 'user', id, null);
     return res.json({ message: 'User deactivated.', user: sanitizeUser(user) });
   } catch (err) {
     return next(err);
@@ -235,6 +240,7 @@ export const activateUser = async (req, res, next) => {
     }
 
     const user = await userRepo.activateUser(id);
+    await audit(req, 'user.activate', 'user', id, null);
     return res.json({ message: 'User activated.', user: sanitizeUser(user) });
   } catch (err) {
     return next(err);

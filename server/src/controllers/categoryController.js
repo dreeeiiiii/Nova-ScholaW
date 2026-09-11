@@ -1,3 +1,4 @@
+import { audit } from '../services/auditService.js';
 import { query } from '../config/db.js';
 import {
   listCategories,
@@ -39,6 +40,7 @@ export const createCategoryHandler = async (req, res, next) => {
       description: description?.trim() || null,
       created_by: req.user.id,
     });
+    await audit(req, 'category.create', 'category', category.id, { name: category.name });
     return res.status(201).json({ category });
   } catch (err) {
     if (err.code === '23505') {
@@ -69,6 +71,7 @@ export const updateCategoryHandler = async (req, res, next) => {
       name: name?.trim(),
       description: description?.trim(),
     });
+    await audit(req, 'category.update', 'category', id, { name: category?.name });
     return res.json({ category });
   } catch (err) {
     if (err.code === '23505') {
@@ -93,6 +96,7 @@ export const deleteCategoryHandler = async (req, res, next) => {
     // Per spec (Task 37 + DATABASE_SCHEMA.sql ON DELETE SET NULL):
     // deleting a category leaves media intact with category_id → NULL.
     await deleteCategory(id);
+    await audit(req, 'category.delete', 'category', id, { name: existing.name });
     return res.json({ message: 'Category deleted.' });
   } catch (err) {
     return next(err);

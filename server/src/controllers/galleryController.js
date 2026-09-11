@@ -2,6 +2,7 @@ import { query } from '../config/db.js';
 import fs from 'node:fs';
 import { uploadMedia, handleGalleryUploadError } from '../middleware/galleryUpload.js';
 import { validateUploadedFile } from '../utils/validateMedia.js';
+import { audit } from '../services/auditService.js';
 
 const parseId = (raw) => {
   const id = Number(raw);
@@ -51,6 +52,12 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
          RETURNING id, uploader_id, category_id, media_type, file_url, original_filename, caption, duration_seconds, status, reviewed_by, reviewed_at, rejection_reason, created_at, updated_at`,
         [req.user.id, categoryId, mediaType, fileUrl, file.originalname, description]
       );
+
+      await audit(req, 'gallery.upload', 'gallery_media', rows[0].id, {
+        media_type: mediaType,
+        category_id: categoryId,
+        original_filename: file.originalname,
+      });
 
       return res.status(201).json({ media: rows[0] });
     } catch (dbErr) {
@@ -115,6 +122,8 @@ export const approveMedia = async (req, res, next) => {
       [req.user.id, id]
     );
 
+    await audit(req, 'gallery.approve', 'gallery_media', id, null);
+
     return res.json({ media: rows[0] });
   } catch (err) {
     return next(err);
@@ -152,6 +161,8 @@ export const rejectMedia = async (req, res, next) => {
        RETURNING id, uploader_id, category_id, media_type, file_url, original_filename, caption, duration_seconds, status, reviewed_by, reviewed_at, rejection_reason, created_at, updated_at`,
       [req.user.id, rejection_reason, id]
     );
+
+    await audit(req, 'gallery.reject', 'gallery_media', id, { rejection_reason });
 
     return res.json({ media: rows[0] });
   } catch (err) {

@@ -1,6 +1,7 @@
 import { query } from '../config/db.js';
 import { signToken } from '../utils/jwt.js';
 import { comparePassword } from '../utils/password.js';
+import { audit } from '../services/auditService.js';
 
 const GENERIC_LOGIN_ERROR = 'Invalid email or password.';
 const DEACTIVATED_MESSAGE = 'This account has been deactivated. Please contact the administrator.';
@@ -26,14 +27,17 @@ export const login = async (req, res, next) => {
     const validPassword = user ? await comparePassword(password, user.password_hash) : false;
 
     if (!user || !validPassword) {
+      await audit(req, 'auth.login_failure', 'auth', null, { email });
       return res.status(401).json({ status: 401, message: GENERIC_LOGIN_ERROR });
     }
 
     if (!user.is_active) {
+      await audit(req, 'auth.login_failure', 'auth', user.id, { email, reason: 'deactivated' });
       return res.status(403).json({ status: 403, message: DEACTIVATED_MESSAGE });
     }
 
     await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
+    await audit(req, 'auth.login_success', 'auth', user.id, { email });
 
     const token = signToken({ userId: user.id, role: user.role });
 

@@ -14,6 +14,8 @@ import academicRoutes from './routes/academicRoutes.js';
 import announcementRoutes from './routes/announcementRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import auditLogRoutes from './routes/auditLogRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -57,6 +59,8 @@ const createApp = () => {
   app.use('/api', announcementRoutes);
   app.use('/api/gallery', galleryRoutes);
   app.use('/api/categories', categoryRoutes);
+  app.use('/api', dashboardRoutes);
+  app.use('/api', auditLogRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

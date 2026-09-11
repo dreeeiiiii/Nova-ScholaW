@@ -11,6 +11,7 @@ import Gallery from './pages/Gallery.jsx';
 import Upload from './pages/gallery/Upload.jsx';
 import MyUploads from './pages/gallery/MyUploads.jsx';
 import Moderation from './pages/admin/Moderation.jsx';
+import AuditLogs from './pages/admin/AuditLogs.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 const App = () => {
@@ -89,6 +90,14 @@ const App = () => {
         element={
           <ProtectedRoute roles={['admin']}>
             <Moderation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/audit-logs"
+        element={
+          <ProtectedRoute roles={['admin']}>
+            <AuditLogs />
           </ProtectedRoute>
         }
       />
