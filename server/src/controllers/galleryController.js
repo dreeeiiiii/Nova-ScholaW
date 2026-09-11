@@ -44,14 +44,22 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
 
     const fileUrl = getFileUrl(file);
 
-    const { rows } = await query(
-      `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'pending')
-       RETURNING id, uploader_id, category_id, media_type, file_url, original_filename, caption, duration_seconds, status, reviewed_by, reviewed_at, rejection_reason, created_at, updated_at`,
-      [req.user.id, categoryId, mediaType, fileUrl, file.originalname, description]
-    );
+    try {
+      const { rows } = await query(
+        `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+         RETURNING id, uploader_id, category_id, media_type, file_url, original_filename, caption, duration_seconds, status, reviewed_by, reviewed_at, rejection_reason, created_at, updated_at`,
+        [req.user.id, categoryId, mediaType, fileUrl, file.originalname, description]
+      );
 
-    return res.status(201).json({ media: rows[0] });
+      return res.status(201).json({ media: rows[0] });
+    } catch (dbErr) {
+      if (dbErr.code === '23503') {
+        fs.unlink(file.path, () => {});
+        return res.status(400).json({ status: 400, message: 'category_id does not exist.' });
+      }
+      throw dbErr;
+    }
   } catch (err) {
     if (err.message && (err.message.includes('Invalid file type') || err.message.includes('File too large') || err.message.includes('Could not validate') || err.message.includes('Could not determine') || err.message.includes('Unknown media type'))) {
       return res.status(400).json({ status: 400, message: err.message });
@@ -66,7 +74,7 @@ export const listPendingMedia = async (req, res, next) => {
       `SELECT gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
               gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
               gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.created_at, gm.updated_at,
-              c.name AS category_name, u.full_name AS uploader_name
+              c.name AS category_name, u.full_name AS uploader_name, u.email AS uploader_email
          FROM gallery_media gm
          LEFT JOIN categories c ON c.id = gm.category_id
          LEFT JOIN users u ON u.id = gm.uploader_id
@@ -168,10 +176,152 @@ export const myUploads = async (req, res, next) => {
   }
 };
 
+export const browseGallery = async (req, res, next) => {
+  try {
+    const { category_id, year, month, media_type, limit = 20, offset = 0 } = req.query;
+
+    const conditions = [`gm.status = 'approved'`];
+    const params = [];
+    let paramIndex = 1;
+
+    if (category_id) {
+      params.push(category_id);
+      conditions.push(`gm.category_id = $${paramIndex++}`);
+    }
+    if (year) {
+      params.push(year);
+      conditions.push(`EXTRACT(YEAR FROM gm.created_at) = $${paramIndex++}`);
+    }
+    if (month) {
+      params.push(month);
+      conditions.push(`EXTRACT(MONTH FROM gm.created_at) = $${paramIndex++}`);
+    }
+    if (media_type) {
+      params.push(media_type);
+      conditions.push(`gm.media_type = $${paramIndex++}`);
+    }
+
+    const limitNum = Math.min(Number(limit) || 20, 100);
+    const offsetNum = Number(offset) || 0;
+
+    params.push(limitNum);
+    const limitParam = params.length;
+    params.push(offsetNum);
+    const offsetParam = params.length;
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const { rows: media } = await query(
+      `SELECT gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
+              gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
+              gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.created_at, gm.updated_at,
+              c.name AS category_name, u.full_name AS uploader_name, u.email AS uploader_email
+         FROM gallery_media gm
+         LEFT JOIN categories c ON c.id = gm.category_id
+         LEFT JOIN users u ON u.id = gm.uploader_id
+         ${whereClause}
+         ORDER BY gm.created_at DESC
+         LIMIT $${limitParam} OFFSET $${offsetParam}`,
+      params
+    );
+
+    const { rows: countRows } = await query(
+      `SELECT COUNT(*)::int AS total
+         FROM gallery_media gm
+         ${whereClause}`,
+      params.slice(0, paramIndex - 1)
+    );
+
+    return res.json({ media, total: countRows[0].total });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getGalleryItem = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    const { rows } = await query(
+      `SELECT gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
+              gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
+              gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.created_at, gm.updated_at,
+              c.name AS category_name, u.full_name AS uploader_name, u.email AS uploader_email
+         FROM gallery_media gm
+         LEFT JOIN categories c ON c.id = gm.category_id
+         LEFT JOIN users u ON u.id = gm.uploader_id
+        WHERE gm.id = $1 AND gm.status = 'approved'`,
+      [id]
+    );
+
+    if (!rows[0]) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    return res.json({ media: rows[0] });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const searchGallery = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.trim() === '') {
+      return res.status(400).json({ status: 400, message: 'q query parameter is required.' });
+    }
+
+    const searchTerm = `%${q.trim()}%`;
+    const limit = 50;
+
+    const { rows: media } = await query(
+      `SELECT gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
+              gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
+              gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.created_at, gm.updated_at,
+              c.name AS category_name, u.full_name AS uploader_name, u.email AS uploader_email
+         FROM gallery_media gm
+         LEFT JOIN categories c ON c.id = gm.category_id
+         LEFT JOIN users u ON u.id = gm.uploader_id
+        WHERE gm.status = 'approved'
+          AND (
+            gm.caption ILIKE $1
+            OR gm.original_filename ILIKE $1
+            OR c.name ILIKE $1
+          )
+         ORDER BY gm.created_at DESC
+         LIMIT $2`,
+      [searchTerm, limit]
+    );
+
+    const { rows: countRows } = await query(
+      `SELECT COUNT(*)::int AS total
+         FROM gallery_media gm
+         LEFT JOIN categories c ON c.id = gm.category_id
+        WHERE gm.status = 'approved'
+          AND (
+            gm.caption ILIKE $1
+            OR gm.original_filename ILIKE $1
+            OR c.name ILIKE $1
+          )`,
+      [searchTerm]
+    );
+
+    return res.json({ media, total: countRows[0].total });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export default {
   uploadMediaHandler,
   listPendingMedia,
   approveMedia,
   rejectMedia,
   myUploads,
+  browseGallery,
+  getGalleryItem,
+  searchGallery,
 };
