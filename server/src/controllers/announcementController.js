@@ -352,6 +352,23 @@ export const updateAnnouncement = async (req, res, next) => {
   }
 };
 
+export const tvAnnouncements = async (req, res, next) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
+    const { rows } = await announcementRepo.findPublishedGeneral({ limit });
+    const sanitized = rows.map(({ id, title, content, image_url, created_at }) => ({
+      id,
+      title,
+      content,
+      image_url,
+      created_at,
+    }));
+    return res.json({ announcements: sanitized });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const deleteAnnouncement = async (req, res, next) => {
   try {
     const id = parseId(req.params.id);

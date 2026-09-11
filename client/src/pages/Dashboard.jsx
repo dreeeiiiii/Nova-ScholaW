@@ -36,8 +36,34 @@ const Dashboard = () => {
             >
               Manage Users
             </Link>
+            <div className="mt-3">
+              <a
+                href="/tv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-lg bg-slate-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              >
+                TV Display URL: /tv
+              </a>
+            </div>
           </div>
         )}
+        <nav className="mt-6 flex flex-col gap-2">
+          <Link
+            to="/announcements"
+            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          >
+            Announcements
+          </Link>
+          {(user.role === 'teacher' || user.role === 'admin') && (
+            <Link
+              to="/announcements/create"
+              className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            >
+              Create Announcement
+            </Link>
+          )}
+        </nav>
         <div className="mt-8 flex justify-center">
           <button
             type="button"

@@ -9,6 +9,7 @@ import {
   getAnnouncement,
   updateAnnouncement,
   deleteAnnouncement,
+  tvAnnouncements,
 } from '../controllers/announcementController.js';
 
 const router = Router();
@@ -18,6 +19,7 @@ const authenticated = [authenticate];
 router.post('/announcements/general', adminOrTeacher, createGeneralAnnouncement);
 router.post('/announcements/class', adminOrTeacher, createClassAnnouncement);
 router.get('/announcements', authenticated, listAnnouncements);
+router.get('/announcements/tv', tvAnnouncements);
 router.get('/announcements/:id', authenticated, getAnnouncement);
 router.put('/announcements/:id', authenticated, updateAnnouncement);
 router.delete('/announcements/:id', authenticated, deleteAnnouncement);

@@ -38,15 +38,15 @@ export const listAnnouncements = async ({ type, author_id, status, limit = 50, o
 
   if (type) {
     params.push(type);
-    conditions.push(`type = $${params.length}`);
+    conditions.push(`a.type = $${params.length}`);
   }
   if (author_id) {
     params.push(author_id);
-    conditions.push(`author_id = $${params.length}`);
+    conditions.push(`a.author_id = $${params.length}`);
   }
   if (status) {
     params.push(status);
-    conditions.push(`status = $${params.length}`);
+    conditions.push(`a.status = $${params.length}`);
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -56,11 +56,12 @@ export const listAnnouncements = async ({ type, author_id, status, limit = 50, o
   params.push(offset);
   const offsetParam = params.length;
 
-  const { rows } = await query(
-    `SELECT ${ANNOUNCEMENT_COLUMNS}
-       FROM announcements
+const { rows } = await query(
+    `SELECT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
+       FROM announcements a
+       LEFT JOIN users u ON u.id = a.author_id
        ${where}
-       ORDER BY created_at DESC
+       ORDER BY a.created_at DESC
        LIMIT $${limitParam} OFFSET $${offsetParam}`,
     params
   );
@@ -91,9 +92,10 @@ export const listForStudent = async ({ userId, section_id, course_id, limit = 50
 
   const targetConditions = conditions.join(' OR ');
   const { rows } = await query(
-    `SELECT DISTINCT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}
+    `SELECT DISTINCT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
        FROM announcements a
        LEFT JOIN announcement_targets at ON at.announcement_id = a.id
+       LEFT JOIN users u ON u.id = a.author_id
        WHERE a.status = 'published'
          AND (a.publish_at IS NULL OR a.publish_at <= NOW())
          AND (
@@ -211,6 +213,20 @@ export const countAnnouncements = async ({ type, author_id, status } = {}) => {
     params
   );
   return rows[0].total;
+};
+
+export const findPublishedGeneral = async ({ limit = 20 } = {}) => {
+  const { rows } = await query(
+    `SELECT id, title, content, image_url, created_at
+       FROM announcements
+      WHERE type = 'general'
+        AND status = 'published'
+        AND (publish_at IS NULL OR publish_at <= NOW())
+      ORDER BY created_at DESC
+      LIMIT $1`,
+    [limit]
+  );
+  return { rows };
 };
 
 export const findWithTargets = async (id) => {
