@@ -9,6 +9,7 @@ import notFound from './middleware/notFound.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import academicRoutes from './routes/academicRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
 
 const createApp = () => {
   const app = express();
@@ -45,6 +46,7 @@ const createApp = () => {
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api', academicRoutes);
+  app.use('/api', announcementRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
