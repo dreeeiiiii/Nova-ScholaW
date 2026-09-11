@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 import config from './config/env.js';
+import { checkConnection } from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 
@@ -19,11 +20,20 @@ const createApp = () => {
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-  app.all('/api/health', (req, res) => {
+  app.all('/api/health', async (req, res) => {
+    let database = 'connected';
+    try {
+      await checkConnection();
+    } catch (err) {
+      database = 'disconnected';
+      console.error('[health] database check failed:', err.message);
+    }
+
     res.json({
       status: 'ok',
       service: 'novaschola-server',
       environment: config.nodeEnv,
+      database,
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
     });
