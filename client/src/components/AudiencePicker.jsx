@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import api from '../services/api.js';
 
 const AudiencePicker = ({ onSelect, initialData = {} }) => {
@@ -7,6 +8,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
   const [studentSearch, setStudentSearch] = useState('');
   const [studentOptions, setStudentOptions] = useState([]);
   const [searchTimer, setSearchTimer] = useState(null);
+  const prefersReduced = useReducedMotion();
 
   const [selectedSectionIds, setSelectedSectionIds] = useState(initialData.section_ids || []);
   const [selectedCourseIds, setSelectedCourseIds] = useState(initialData.course_ids || []);
@@ -16,10 +18,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
 
   const loadReferenceData = useCallback(async () => {
     try {
-      const [secRes, couRes] = await Promise.all([
-        api.get('/sections'),
-        api.get('/courses'),
-      ]);
+      const [secRes, couRes] = await Promise.all([api.get('/sections'), api.get('/courses')]);
       setSections(secRes.data.sections || []);
       setCourses(couRes.data.courses || []);
     } catch {
@@ -27,9 +26,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
     }
   }, []);
 
-  useEffect(() => {
-    loadReferenceData();
-  }, [loadReferenceData]);
+  useEffect(() => { loadReferenceData(); }, [loadReferenceData]);
 
   const searchStudents = useCallback(async (query) => {
     if (!query || query.length < 2) {
@@ -39,9 +36,7 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
     try {
       const res = await api.get('/users', { params: { role: 'student', search: query } });
       const users = res.data.users || [];
-      const filtered = users.filter(
-        (u) => !selectedStudents.find((s) => s.id === u.id)
-      );
+      const filtered = users.filter((u) => !selectedStudents.find((s) => s.id === u.id));
       setStudentOptions(filtered);
     } catch {
       setStudentOptions([]);
@@ -97,58 +92,58 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
     });
   }, [selectedSectionIds, selectedCourseIds, selectedStudents, onSelect]);
 
-  useEffect(() => {
-    emitSelection();
-  }, [emitSelection]);
+  useEffect(() => { emitSelection(); }, [emitSelection]);
 
   const totalSelected = selectedSectionIds.length + selectedCourseIds.length + selectedStudents.length;
 
+  const inputCls = 'clay-input w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted';
+
   return (
-    <div className="space-y-4 rounded-lg border border-slate-300 bg-white p-3 sm:p-4">
-      <h4 className="font-semibold text-slate-800">Target Audience</h4>
+    <div className="space-y-4 rounded-clay bg-primary/5 p-3 sm:p-4">
+      <h4 className="font-heading font-bold text-text-main">Target Audience</h4>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">Sections</label>
-        <div className="space-y-1 max-h-40 overflow-y-auto rounded-lg border border-slate-200 p-2">
+        <label className="block text-sm font-semibold text-text-main mb-2">Sections</label>
+        <div className="space-y-1 max-h-40 overflow-y-auto rounded-clay bg-surface p-2">
           {sections.map((s) => (
-            <label key={s.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-50 rounded cursor-pointer">
+            <label key={s.id} className="flex items-center gap-2 px-2 py-1 hover:bg-primary/5 rounded-clay-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedSectionIds.includes(s.id)}
                 onChange={() => toggleSection(s.id)}
-                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-primary/30 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-slate-700 break-words">{s.name}</span>
+              <span className="text-sm text-text-main break-words">{s.name}</span>
             </label>
           ))}
           {sections.length === 0 && (
-            <p className="px-2 py-1 text-sm text-slate-400">No sections available.</p>
+            <p className="px-2 py-1 text-sm text-text-muted">No sections available.</p>
           )}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">Courses</label>
-        <div className="space-y-1 max-h-40 overflow-y-auto rounded-lg border border-slate-200 p-2">
+        <label className="block text-sm font-semibold text-text-main mb-2">Courses</label>
+        <div className="space-y-1 max-h-40 overflow-y-auto rounded-clay bg-surface p-2">
           {courses.map((c) => (
-            <label key={c.id} className="flex items-center gap-2 px-2 py-1 hover:bg-slate-50 rounded cursor-pointer">
+            <label key={c.id} className="flex items-center gap-2 px-2 py-1 hover:bg-primary/5 rounded-clay-sm cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedCourseIds.includes(c.id)}
                 onChange={() => toggleCourse(c.id)}
-                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-primary/30 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-slate-700 break-words">{c.name}</span>
+              <span className="text-sm text-text-main break-words">{c.name}</span>
             </label>
           ))}
           {courses.length === 0 && (
-            <p className="px-2 py-1 text-sm text-slate-400">No courses available.</p>
+            <p className="px-2 py-1 text-sm text-text-muted">No courses available.</p>
           )}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">Students</label>
+        <label className="block text-sm font-semibold text-text-main mb-2">Students</label>
         <div className="space-y-2">
           <div className="relative">
             <input
@@ -156,42 +151,50 @@ const AudiencePicker = ({ onSelect, initialData = {} }) => {
               value={studentSearch}
               onChange={handleStudentSearch}
               placeholder="Search students by name or email…"
-              className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+              className={inputCls}
             />
           </div>
           {studentOptions.length > 0 && (
-            <div className="space-y-1 max-h-40 overflow-y-auto rounded-lg border border-slate-200 p-2">
+            <div className="space-y-1 max-h-40 overflow-y-auto rounded-clay bg-surface p-2">
               {studentOptions.map((s) => (
-                <div key={s.id} className="flex flex-col gap-2 px-2 py-1 hover:bg-slate-50 rounded sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm text-slate-700 break-words">{s.full_name} ({s.email})</span>
-                  <button
+                <div key={s.id} className="flex flex-col gap-2 px-2 py-1 hover:bg-primary/5 rounded-clay-sm sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm text-text-main break-words">{s.full_name} ({s.email})</span>
+                  <motion.button
                     type="button"
                     onClick={() => addStudent(s)}
-                    className="rounded bg-indigo-600 px-2 py-1 text-xs text-white hover:bg-indigo-700"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="clay-btn-sm rounded-clay-pill bg-primary px-2 py-1 text-xs font-bold text-white"
                   >
                     Add
-                  </button>
+                  </motion.button>
                 </div>
               ))}
             </div>
           )}
           <div className="flex flex-wrap gap-1">
             {selectedStudents.map((s) => (
-              <span key={s.id} className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs text-emerald-800">
+              <motion.span
+                key={s.id}
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 15 }}
+                className="inline-flex items-center gap-1 rounded-clay-pill bg-success/15 px-3 py-1 text-xs font-semibold text-success"
+              >
                 {s.name || `Student ${s.id}`}
-                <button type="button" onClick={() => removeStudent(s.id)} className="ml-1 hover:text-red-600">×</button>
-              </span>
+                <button type="button" onClick={() => removeStudent(s.id)} className="ml-1 hover:text-danger">×</button>
+              </motion.span>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="rounded-lg bg-slate-50 px-4 py-3 text-sm">
-        <span className="text-slate-600">
+      <div className="rounded-clay bg-surface px-4 py-3 text-sm">
+        <span className="text-text-muted">
           Selected: {totalSelected} target{totalSelected !== 1 ? 's' : ''}
         </span>
         {totalSelected === 0 && (
-          <span className="ml-2 text-red-600 font-medium">Warning: No targets selected</span>
+          <span className="ml-2 text-danger font-bold">Warning: No targets selected</span>
         )}
       </div>
     </div>

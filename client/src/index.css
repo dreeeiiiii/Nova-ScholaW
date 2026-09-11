@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    background-color: #F0EEFB;
+    color: #2E2A45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+  }
+
+  input, textarea, select {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+@layer components {
+  .clay-card {
+    background-color: #FBFAFF;
+    box-shadow: 6px 6px 14px rgba(167, 139, 250, 0.20),
+                -4px -4px 10px rgba(255, 255, 255, 0.80) inset;
+    border-radius: 28px;
+  }
+
+  .clay-btn {
+    box-shadow: 4px 4px 10px rgba(167, 139, 250, 0.20),
+                -3px -3px 8px rgba(255, 255, 255, 0.80) inset;
+    border-radius: 16px;
+  }
+
+  .clay-btn-sm {
+    box-shadow: 3px 3px 7px rgba(167, 139, 250, 0.14),
+                -2px -2px 5px rgba(255, 255, 255, 0.70) inset;
+    border-radius: 12px;
+  }
+
+  .clay-input {
+    background-color: #F0EEFB;
+    box-shadow: inset 4px 4px 8px rgba(167, 139, 250, 0.15),
+                inset -3px -3px 6px rgba(255, 255, 255, 0.70);
+    border-radius: 16px;
+  }
+
+  .clay-input:focus {
+    outline: none;
+    box-shadow: inset 4px 4px 8px rgba(167, 139, 250, 0.15),
+                inset -3px -3px 6px rgba(255, 255, 255, 0.70),
+                0 0 0 2px #A78BFA;
+  }
+
+  .clay-pill {
+    background-color: #FBFAFF;
+    box-shadow: 3px 3px 7px rgba(167, 139, 250, 0.14),
+                -2px -2px 5px rgba(255, 255, 255, 0.70) inset;
+    border-radius: 9999px;
+  }
+
+  .clay-badge {
+    background-color: #FBFAFF;
+    box-shadow: 2px 2px 5px rgba(167, 139, 250, 0.12),
+                -1px -1px 3px rgba(255, 255, 255, 0.70) inset;
+    border-radius: 9999px;
+    font-weight: 500;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

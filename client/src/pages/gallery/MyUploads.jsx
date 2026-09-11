@@ -1,21 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api.js';
+import { ArrowLeft, FolderOpen, Upload, X } from 'lucide-react';
 
 const STATUS_STYLES = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-emerald-100 text-emerald-800',
-  rejected: 'bg-red-100 text-red-700',
+  pending: 'bg-warning/15 text-warning',
+  approved: 'bg-success/15 text-success',
+  rejected: 'bg-danger/15 text-danger',
 };
 
 const formatDate = (iso) => {
   if (!iso) return '—';
   try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   } catch {
     return iso;
   }
@@ -28,6 +26,7 @@ const MyUploads = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState(null);
+  const prefersReduced = useReducedMotion();
 
   const fetchMine = useCallback(async () => {
     setLoading(true);
@@ -47,27 +46,30 @@ const MyUploads = () => {
   }, [fetchMine]);
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <header className="border-b border-slate-800 bg-slate-900">
+    <div className="min-h-screen bg-base font-body text-text-main">
+      <header className="sticky top-0 z-40 border-b border-primary/10 bg-surface/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
-              ← Dashboard
+            <Link
+              to="/dashboard"
+              className="clay-btn-sm flex items-center gap-1.5 rounded-clay-pill px-3 py-2 text-xs font-semibold text-text-muted"
+            >
+              <ArrowLeft size={14} /> Dashboard
             </Link>
-            <h1 className="text-xl font-bold text-white">My Uploads</h1>
+            <h1 className="font-heading text-xl font-bold text-text-main">My Uploads</h1>
           </div>
           <div className="flex items-center gap-2">
             <Link
               to="/gallery"
-              className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800"
+              className="clay-btn-sm flex items-center gap-1.5 rounded-clay-pill bg-surface px-4 py-2.5 text-xs font-semibold text-text-main hover:shadow-clay-hover"
             >
-              Gallery
+              <FolderOpen size={14} /> Gallery
             </Link>
             <Link
               to="/gallery/upload"
-              className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+              className="clay-btn flex items-center gap-1.5 rounded-clay-pill bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-clay"
             >
-              + Upload Media
+              <Upload size={14} /> Upload Media
             </Link>
           </div>
         </div>
@@ -75,129 +77,147 @@ const MyUploads = () => {
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">
             {error}
           </div>
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="clay-card animate-clay-pulse overflow-hidden rounded-clay">
+                <div className="aspect-video bg-primary/5" />
+                <div className="p-4">
+                  <div className="h-4 w-3/4 rounded-clay-pill bg-primary/10" />
+                  <div className="mt-2 h-2 w-1/2 rounded-clay-pill bg-primary/10" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : uploads.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-            <p className="text-slate-600">You haven&apos;t uploaded anything yet.</p>
+          <div className="clay-card rounded-clay p-10 text-center">
+            <FolderOpen size={48} className="mx-auto mb-3 text-primary/30" />
+            <p className="text-sm font-medium text-text-muted">You haven&apos;t uploaded anything yet.</p>
             <Link
               to="/gallery/upload"
-              className="mt-4 inline-block rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+              className="clay-btn mt-4 inline-flex items-center gap-1.5 rounded-clay-pill bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-clay"
             >
-              Upload Media
+              <Upload size={14} /> Upload Media
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {uploads.map((item) => (
-              <div key={item.id} className="overflow-hidden rounded-xl bg-white shadow-sm">
+            {uploads.map((item, idx) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={prefersReduced ? { duration: 0 } : { delay: idx * 0.06, duration: 0.35 }}
+                whileHover={{ y: -4 }}
+                className="clay-card overflow-hidden rounded-clay transition-shadow hover:shadow-clay-hover"
+              >
                 <button
                   type="button"
                   onClick={() => setSelected(item)}
-                  className="relative block aspect-video w-full bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  className="relative block aspect-video w-full bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   {item.media_type === 'video' ? (
                     <span className="relative block h-full w-full">
                       <video src={item.file_url} className="h-full w-full object-cover" preload="metadata" />
-                      <span className="absolute inset-0 flex items-center justify-center bg-slate-900/30">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-lg text-slate-900">
-                          ▶
-                        </span>
+                      <span className="absolute inset-0 flex items-center justify-center bg-text-main/20">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface/90 text-lg text-text-main shadow-clay-sm">▶</span>
                       </span>
                     </span>
                   ) : (
-                    <img
-                      src={item.file_url}
-                      alt={displayTitle(item)}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={item.file_url} alt={displayTitle(item)} loading="lazy" className="h-full w-full object-cover" />
                   )}
                 </button>
                 <div className="p-4">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-sm font-semibold text-slate-900">{displayTitle(item)}</p>
-                    <span
-                      className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${
-                        STATUS_STYLES[item.status] || 'bg-slate-100 text-slate-600'
+                    <p className="truncate text-sm font-bold text-text-main">{displayTitle(item)}</p>
+                    <motion.span
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 15 }}
+                      className={`shrink-0 rounded-clay-pill px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                        STATUS_STYLES[item.status] || 'bg-text-muted/15 text-text-muted'
                       }`}
                     >
                       {item.status}
-                    </span>
+                    </motion.span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">{formatDate(item.created_at)}</p>
+                  <p className="mt-1 text-xs text-text-muted">{formatDate(item.created_at)}</p>
                   {item.status === 'rejected' && item.rejection_reason && (
-                    <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-                      <span className="font-semibold">Rejected: </span>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [1, 0.6, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="mt-2 rounded-clay bg-danger/10 px-3 py-2 text-xs text-danger"
+                    >
+                      <span className="font-bold">Rejected: </span>
                       {item.rejection_reason}
-                    </p>
+                    </motion.p>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
       </main>
 
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 p-4"
-          onClick={() => setSelected(null)}
-        >
-          <div
-            className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-2xl bg-white p-5 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-text-main/60 p-4 backdrop-blur-sm"
+            onClick={() => setSelected(null)}
           >
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">{displayTitle(selected)}</h2>
-                <p className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                  {formatDate(selected.created_at)}
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${
-                      STATUS_STYLES[selected.status] || 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    {selected.status}
-                  </span>
-                </p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
+              className="clay-card max-h-[90vh] w-full max-w-3xl overflow-auto rounded-clay p-5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="font-heading text-lg font-bold text-text-main">{displayTitle(selected)}</h2>
+                  <p className="mt-1 flex items-center gap-2 text-xs text-text-muted">
+                    {formatDate(selected.created_at)}
+                    <span className={`rounded-clay-pill px-3 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                      STATUS_STYLES[selected.status] || 'bg-text-muted/15 text-text-muted'
+                    }`}>
+                      {selected.status}
+                    </span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelected(null)}
+                  aria-label="Close"
+                  className="clay-btn-sm flex h-8 w-8 items-center justify-center rounded-clay-pill bg-surface text-text-muted"
+                >
+                  <X size={16} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelected(null)}
-                aria-label="Close"
-                className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {selected.media_type === 'video' ? (
-              <video src={selected.file_url} controls className="max-h-[60vh] w-full rounded-lg bg-black" />
-            ) : (
-              <img
-                src={selected.file_url}
-                alt={displayTitle(selected)}
-                className="max-h-[60vh] w-full rounded-lg bg-slate-100 object-contain"
-              />
-            )}
-            {selected.status === 'rejected' && selected.rejection_reason && (
-              <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <span className="font-semibold">Rejection reason: </span>
-                {selected.rejection_reason}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+              {selected.media_type === 'video' ? (
+                <video src={selected.file_url} controls className="max-h-[60vh] w-full rounded-clay bg-text-main" />
+              ) : (
+                <img src={selected.file_url} alt={displayTitle(selected)} className="max-h-[60vh] w-full rounded-clay bg-primary/5 object-contain" />
+              )}
+              {selected.status === 'rejected' && selected.rejection_reason && (
+                <p className="mt-3 rounded-clay bg-danger/10 px-4 py-3 text-sm text-danger">
+                  <span className="font-bold">Rejection reason: </span>
+                  {selected.rejection_reason}
+                </p>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

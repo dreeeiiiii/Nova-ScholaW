@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import api from '../../services/api.js';
+import { ArrowLeft, Upload as UploadIcon, X, FolderOpen, Image, Film } from 'lucide-react';
 
 const IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 const VIDEO_MIMES = ['video/mp4'];
@@ -10,6 +12,7 @@ const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
 const Upload = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const prefersReduced = useReducedMotion();
 
   const [categories, setCategories] = useState([]);
   const [file, setFile] = useState(null);
@@ -22,6 +25,7 @@ const Upload = () => {
   const [success, setSuccess] = useState('');
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -33,15 +37,11 @@ const Upload = () => {
       .catch((err) => {
         if (active) setError(err.response?.data?.message || 'Failed to load categories.');
       });
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
+    return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); };
   }, [previewUrl]);
 
   const precheckFile = (f) => {
@@ -85,6 +85,25 @@ const Upload = () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl('');
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) {
+      const problem = precheckFile(f);
+      if (problem) {
+        setError(problem);
+        return;
+      }
+      setError('');
+      setSuccess('');
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setFile(f);
+      setPreviewUrl(URL.createObjectURL(f));
+      setIsVideo(VIDEO_MIMES.includes(f.type));
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -135,91 +154,122 @@ const Upload = () => {
     }
   };
 
+  const inputCls = 'clay-input block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted';
+
+  const stagger = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.06 } },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900">
-      <header className="border-b border-slate-800 bg-slate-900">
+    <div className="min-h-screen bg-base font-body text-text-main">
+      <header className="sticky top-0 z-40 border-b border-primary/10 bg-surface/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-4 px-4 py-4 sm:px-6">
-          <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
-            ← Dashboard
+          <Link
+            to="/dashboard"
+            className="clay-btn-sm flex items-center gap-1.5 rounded-clay-pill px-3 py-2 text-xs font-semibold text-text-muted"
+          >
+            <ArrowLeft size={14} /> Dashboard
           </Link>
-          <h1 className="text-xl font-bold text-white">Upload Media</h1>
+          <h1 className="font-heading text-xl font-bold text-text-main">Upload Media</h1>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="visible"
+          className="clay-card rounded-clay p-4 sm:p-6"
+        >
           {error && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <motion.div variants={item} className="mb-4 rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">
               {error}
-            </div>
+            </motion.div>
           )}
           {success && (
-            <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <motion.div variants={item} className="mb-4 rounded-clay bg-success/15 px-4 py-3 text-sm font-medium text-success">
               {success}
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div>
-              <label htmlFor="media-file" className="block text-sm font-medium text-slate-700">
-                File *
-              </label>
+            <motion.div variants={item}>
+              <label htmlFor="media-file" className="block text-sm font-semibold text-text-main">File *</label>
               <input
                 ref={fileInputRef}
                 id="media-file"
                 type="file"
                 accept=".jpg,.jpeg,.png,.webp,.mp4"
                 onChange={handleFileChange}
-                className="mt-1.5 block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+                className="mt-1.5 block w-full text-sm text-text-muted file:mr-4 file:rounded-clay-pill file:border-0 file:bg-primary/15 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary hover:file:bg-primary/25"
               />
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-text-muted">
                 JPG, PNG, or WebP up to 10 MB; MP4 up to 50 MB and 2 minutes.
               </p>
-              {previewUrl && (
-                <div className="relative mt-3">
-                  {isVideo ? (
-                    <video src={previewUrl} controls className="max-h-64 w-full rounded-lg bg-black" />
-                  ) : (
-                    <img
-                      src={previewUrl}
-                      alt="Selected file preview"
-                      className="max-h-64 w-full rounded-lg border border-slate-200 object-contain bg-slate-50"
-                    />
-                  )}
-                  <button
-                    type="button"
-                    onClick={handleRemoveFile}
-                    className="absolute right-2 top-2 rounded-full bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
-                  >
-                    ✕
-                  </button>
+              {!file && (
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  className={`mt-3 flex flex-col items-center justify-center rounded-clay border-2 border-dashed p-8 text-center transition-colors ${
+                    dragOver
+                      ? 'border-primary bg-primary/10'
+                      : 'border-primary/20 bg-primary/5'
+                  }`}
+                >
+                  <UploadIcon size={32} className={`mb-2 ${dragOver ? 'text-primary' : 'text-primary/40'}`} />
+                  <p className="text-sm font-semibold text-text-main">Drag and drop a file here</p>
+                  <p className="mt-1 text-xs text-text-muted">or click the button above</p>
                 </div>
               )}
-            </div>
+              {previewUrl && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={prefersReduced ? { duration: 0 } : { duration: 0.3 }}
+                  className="relative mt-3"
+                >
+                  {isVideo ? (
+                    <video src={previewUrl} controls className="max-h-64 w-full rounded-clay bg-text-main" />
+                  ) : (
+                    <img src={previewUrl} alt="Selected file preview" className="max-h-64 w-full rounded-clay object-contain bg-primary/5" />
+                  )}
+                  <motion.button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-danger text-white"
+                  >
+                    <X size={14} />
+                  </motion.button>
+                </motion.div>
+              )}
+            </motion.div>
 
-            <div>
-              <label htmlFor="media-category" className="block text-sm font-medium text-slate-700">
-                Category *
-              </label>
+            <motion.div variants={item}>
+              <label htmlFor="media-category" className="block text-sm font-semibold text-text-main">Category *</label>
               <select
                 id="media-category"
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                className={`${inputCls} mt-1.5`}
               >
                 <option value="">Select a category</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="media-title" className="block text-sm font-medium text-slate-700">
-                Title *
-              </label>
+            <motion.div variants={item}>
+              <label htmlFor="media-title" className="block text-sm font-semibold text-text-main">Title *</label>
               <input
                 id="media-title"
                 type="text"
@@ -227,13 +277,13 @@ const Upload = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Science fair 2026"
-                className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                className={`${inputCls} mt-1.5`}
               />
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="media-description" className="block text-sm font-medium text-slate-700">
-                Description <span className="font-normal text-slate-400">(optional)</span>
+            <motion.div variants={item}>
+              <label htmlFor="media-description" className="block text-sm font-semibold text-text-main">
+                Description <span className="font-normal text-text-muted">(optional)</span>
               </label>
               <textarea
                 id="media-description"
@@ -241,39 +291,52 @@ const Upload = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add a caption shown in the gallery…"
-                className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                className={`${inputCls} mt-1.5`}
               />
-            </div>
+            </motion.div>
 
             {uploading && (
-              <div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-                  <div
-                    className="h-full rounded-full bg-indigo-600 transition-all"
-                    style={{ width: `${progress}%` }}
+              <motion.div variants={item}>
+                <div className="h-2 overflow-hidden rounded-clay-pill bg-primary/15">
+                  <motion.div
+                    className="h-full rounded-clay-pill bg-primary"
+                    animate={{ width: `${progress}%` }}
+                    transition={prefersReduced ? { duration: 0 } : { duration: 0.3 }}
                   />
                 </div>
-                <p className="mt-1 text-xs text-slate-500">Uploading… {progress}%</p>
-              </div>
+                <p className="mt-1 text-xs text-text-muted">Uploading… {progress}%</p>
+              </motion.div>
             )}
 
-            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+            <motion.div variants={item} className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
               <Link
                 to="/gallery/mine"
-                className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="clay-btn-sm flex items-center justify-center gap-1.5 rounded-clay-pill bg-surface px-4 py-2.5 text-sm font-semibold text-text-main hover:shadow-clay-hover"
               >
-                My Uploads
+                <FolderOpen size={14} /> My Uploads
               </Link>
-              <button
+              <motion.button
                 type="submit"
                 disabled={uploading}
-                className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="clay-btn flex items-center gap-2 rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {uploading ? 'Uploading…' : 'Submit for approval'}
-              </button>
-            </div>
+                {uploading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Uploading…
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon size={14} />
+                    Submit for approval
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import api from '../../services/api.js';
+import { ArrowLeft, ScrollText } from 'lucide-react';
 
 const PAGE_SIZE = 20;
 
@@ -34,6 +36,7 @@ const AuditLogs = () => {
   const [appliedUserId, setAppliedUserId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const prefersReduced = useReducedMotion();
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -53,9 +56,7 @@ const AuditLogs = () => {
     }
   }, [page, appliedAction, appliedEntity, appliedUserId]);
 
-  useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
   const applyFilters = (e) => {
     e.preventDefault();
@@ -76,107 +77,100 @@ const AuditLogs = () => {
   };
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const inputCls = 'clay-input block w-full px-4 py-2 text-sm text-text-main placeholder-text-muted';
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <header className="border-b border-slate-800 bg-slate-900">
+    <div className="min-h-screen bg-base font-body text-text-main">
+      <header className="sticky top-0 z-40 border-b border-primary/10 bg-surface/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="text-sm font-medium text-slate-400 hover:text-white">
-              ← Dashboard
+            <Link
+              to="/dashboard"
+              className="clay-btn-sm flex items-center gap-1.5 rounded-clay-pill px-3 py-2 text-xs font-semibold text-text-muted"
+            >
+              <ArrowLeft size={14} /> Dashboard
             </Link>
-            <h1 className="text-xl font-bold text-white">Audit Logs</h1>
+            <h1 className="font-heading text-xl font-bold text-text-main">Audit Logs</h1>
           </div>
-          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300">
+          <span className="rounded-clay-pill bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary">
             admin
           </span>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <form onSubmit={applyFilters} className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+        <form onSubmit={applyFilters} className="clay-card mb-6 flex flex-col gap-3 rounded-clay p-5 sm:flex-row sm:flex-wrap sm:items-end">
           <div className="w-full sm:w-auto">
-            <label htmlFor="audit-action" className="block text-xs font-medium text-slate-400">Action</label>
-            <input
-              id="audit-action"
-              type="text"
-              value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
-              placeholder="e.g. announcement.create"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 sm:w-auto"
-            />
+            <label htmlFor="audit-action" className="block text-[10px] font-bold uppercase tracking-wide text-text-muted">Action</label>
+            <input id="audit-action" type="text" value={actionFilter} onChange={(e) => setActionFilter(e.target.value)} placeholder="e.g. announcement.create" className={`${inputCls} mt-1.5 sm:w-auto`} />
           </div>
           <div className="w-full sm:w-auto">
-            <label htmlFor="audit-entity" className="block text-xs font-medium text-slate-400">Entity type</label>
-            <input
-              id="audit-entity"
-              type="text"
-              value={entityFilter}
-              onChange={(e) => setEntityFilter(e.target.value)}
-              placeholder="e.g. announcement"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 sm:w-auto"
-            />
+            <label htmlFor="audit-entity" className="block text-[10px] font-bold uppercase tracking-wide text-text-muted">Entity type</label>
+            <input id="audit-entity" type="text" value={entityFilter} onChange={(e) => setEntityFilter(e.target.value)} placeholder="e.g. announcement" className={`${inputCls} mt-1.5 sm:w-auto`} />
           </div>
           <div className="w-full sm:w-auto">
-            <label htmlFor="audit-user" className="block text-xs font-medium text-slate-400">User ID</label>
-            <input
-              id="audit-user"
-              type="text"
-              inputMode="numeric"
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-              placeholder="e.g. 3"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900 sm:w-28"
-            />
+            <label htmlFor="audit-user" className="block text-[10px] font-bold uppercase tracking-wide text-text-muted">User ID</label>
+            <input id="audit-user" type="text" inputMode="numeric" value={userFilter} onChange={(e) => setUserFilter(e.target.value)} placeholder="e.g. 3" className={`${inputCls} mt-1.5 sm:w-28`} />
           </div>
-          <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+          <motion.button type="submit" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="clay-btn rounded-clay-pill bg-primary px-4 py-2 text-xs font-bold text-white shadow-clay">
             Filter
-          </button>
-          <button type="button" onClick={clearFilters} className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800">
+          </motion.button>
+          <motion.button type="button" onClick={clearFilters} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2 text-xs font-semibold text-text-main hover:shadow-clay-hover">
             Clear
-          </button>
-          <span className="ml-auto text-sm text-slate-400">{total} total</span>
+          </motion.button>
+          <span className="ml-auto text-xs text-text-muted">{total} total</span>
         </form>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
+          <div className="mb-4 rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{error}</div>
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+          <div className="space-y-3">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="clay-card animate-clay-pulse rounded-clay p-4">
+                <div className="flex gap-4">
+                  <div className="h-3 w-28 rounded-clay-pill bg-primary/10" />
+                  <div className="h-3 w-24 rounded-clay-pill bg-primary/10" />
+                  <div className="h-3 w-32 rounded-clay-pill bg-primary/10" />
+                  <div className="h-3 w-20 rounded-clay-pill bg-primary/10" />
+                  <div className="h-3 w-40 rounded-clay-pill bg-primary/10" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-slate-500">No audit logs found.</p>
+          <div className="clay-card rounded-clay p-8 text-center">
+            <ScrollText size={40} className="mx-auto mb-3 text-primary/30" />
+            <p className="text-sm text-text-muted">No audit logs found.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-            <table className="min-w-full divide-y divide-slate-200 text-sm">
-              <thead className="bg-slate-50">
+          <div className="clay-card overflow-x-auto rounded-clay">
+            <table className="min-w-full divide-y divide-primary/10 text-sm">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">Timestamp</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">User</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">Action</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">Entity</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">Details</th>
+                  {['Timestamp', 'User', 'Action', 'Entity', 'Details'].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase text-text-muted">{h}</th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50">
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">{formatTimestamp(log.created_at)}</td>
-                    <td className="px-4 py-3 text-slate-900">{log.user_name || log.user_email || <span className="text-slate-400">System</span>}</td>
-                    <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-900">{log.action}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">
-                      {log.entity_type}{log.entity_id ? ` #${log.entity_id}` : ''}
-                    </td>
-                    <td className="max-w-xs truncate px-4 py-3 font-mono text-xs text-slate-500" title={typeof log.details === 'object' ? JSON.stringify(log.details) : String(log.details ?? '')}>
+              <tbody className="divide-y divide-primary/5">
+                {logs.map((log, idx) => (
+                  <motion.tr
+                    key={log.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={prefersReduced ? { duration: 0 } : { delay: Math.min(idx * 0.03, 0.3), duration: 0.3 }}
+                    className="transition-colors hover:bg-primary/5"
+                  >
+                    <td className="whitespace-nowrap px-4 py-3 text-text-muted">{formatTimestamp(log.created_at)}</td>
+                    <td className="px-4 py-3 font-semibold text-text-main">{log.user_name || log.user_email || <span className="text-text-muted">System</span>}</td>
+                    <td className="whitespace-nowrap px-4 py-3 font-bold text-text-main">{log.action}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-text-muted">{log.entity_type}{log.entity_id ? ` #${log.entity_id}` : ''}</td>
+                    <td className="max-w-xs truncate px-4 py-3 font-mono text-xs text-text-muted" title={typeof log.details === 'object' ? JSON.stringify(log.details) : String(log.details ?? '')}>
                       {formatDetails(log.details)}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
@@ -184,23 +178,27 @@ const AuditLogs = () => {
         )}
 
         <div className="mt-4 flex items-center justify-between">
-          <button
+          <motion.button
             type="button"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2 text-xs font-semibold text-text-main disabled:cursor-not-allowed disabled:opacity-40"
           >
             ← Prev
-          </button>
-          <span className="text-sm text-slate-400">Page {page} of {totalPages}</span>
-          <button
+          </motion.button>
+          <span className="text-xs text-text-muted">Page {page} of {totalPages}</span>
+          <motion.button
             type="button"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2 text-xs font-semibold text-text-main disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next →
-          </button>
+          </motion.button>
         </div>
       </main>
     </div>

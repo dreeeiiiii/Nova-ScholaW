@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api.js';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Megaphone, Image, Eye, Upload, FolderOpen } from 'lucide-react';
 
 const READ_KEY = 'ns_read_announcements';
 
@@ -18,16 +20,34 @@ const saveReadIds = (set) => {
   try {
     localStorage.setItem(READ_KEY, JSON.stringify([...set]));
   } catch {
-    // storage unavailable — read tracking silently disabled
+    // storage unavailable
   }
 };
 
-const CountCard = ({ label, value, accent }) => (
-  <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-    <p className={`mt-1 text-3xl font-bold ${accent}`}>{value}</p>
-  </div>
-);
+const CountCard = ({ label, value, accent, icon: Icon, index }) => {
+  const prefersReduced = useReducedMotion();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={prefersReduced ? { duration: 0 } : { delay: index * 0.08, duration: 0.4, ease: 'easeOut' }}
+      whileHover={{ y: -4, scale: 1.01 }}
+      className="clay-card rounded-clay p-5"
+    >
+      <div className="flex items-center gap-3">
+        {Icon && (
+          <div className={`flex h-10 w-10 items-center justify-center rounded-clay-sm ${accent}/15`}>
+            <Icon size={18} className={accent} />
+          </div>
+        )}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{label}</p>
+          <p className={`text-2xl font-extrabold ${accent}`}>{value}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const formatDate = (iso) => {
   if (!iso) return '—';
@@ -44,6 +64,7 @@ const StudentDashboard = () => {
   const [readIds, setReadIds] = useState(() => loadReadIds());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const prefersReduced = useReducedMotion();
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -77,15 +98,22 @@ const StudentDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+      <div className="space-y-4 py-12">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {[0, 1].map((i) => (
+            <div key={i} className="clay-card animate-clay-pulse rounded-clay p-5">
+              <div className="h-4 w-24 rounded-clay-pill bg-primary/10" />
+              <div className="mt-2 h-8 w-16 rounded-clay-pill bg-primary/10" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <div className="rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">
         {error}
       </div>
     );
@@ -104,67 +132,86 @@ const StudentDashboard = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Announcements For Me</h2>
+        <h2 className="mb-3 font-heading text-xs font-bold uppercase tracking-wide text-text-muted">Announcements For Me</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <CountCard label="Unread" value={unread} accent="text-indigo-700" />
-          <CountCard label="Total visible" value={announcements.length} accent="text-slate-900" />
+          <CountCard label="Unread" value={unread} accent="text-primary" icon={Megaphone} index={0} />
+          <CountCard label="Total visible" value={announcements.length} accent="text-text-main" icon={Eye} index={1} />
         </div>
-        <p className="mt-2 text-xs text-slate-500">Read tracking is kept on this device.</p>
+        <p className="mt-2 text-xs text-text-muted">Read tracking is kept on this device.</p>
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">My Uploads</h2>
+        <h2 className="mb-3 font-heading text-xs font-bold uppercase tracking-wide text-text-muted">My Uploads</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <CountCard label="Pending" value={uploadCounts.pending} accent="text-amber-600" />
-          <CountCard label="Approved" value={uploadCounts.approved} accent="text-emerald-700" />
-          <CountCard label="Rejected" value={uploadCounts.rejected} accent="text-red-600" />
+          <CountCard label="Pending" value={uploadCounts.pending} accent="text-warning" icon={Image} index={0} />
+          <CountCard label="Approved" value={uploadCounts.approved} accent="text-success" icon={Image} index={1} />
+          <CountCard label="Rejected" value={uploadCounts.rejected} accent="text-danger" icon={Image} index={2} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-3 text-base font-bold text-slate-900">Quick Actions</h2>
-          <div className="grid grid-cols-1 gap-2">
-            <Link to="/announcements" className="rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-700">
-              View Announcements
-            </Link>
-            <Link to="/gallery" className="rounded-lg border border-slate-300 px-4 py-2.5 text-center text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Browse Gallery
-            </Link>
-            <Link to="/gallery/upload" className="rounded-lg border border-slate-300 px-4 py-2.5 text-center text-sm font-medium text-slate-700 hover:bg-slate-50">
-              Upload Media
-            </Link>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={prefersReduced ? { duration: 0 } : { delay: 0.25, duration: 0.4 }}
+          className="clay-card rounded-clay p-5"
+        >
+          <h2 className="mb-3 font-heading text-base font-bold text-text-main">Quick Actions</h2>
+          <div className="grid grid-cols-1 gap-2.5">
+            {[
+              { to: '/announcements', label: 'View Announcements', icon: Megaphone, primary: true },
+              { to: '/gallery', label: 'Browse Gallery', icon: FolderOpen, primary: false },
+              { to: '/gallery/upload', label: 'Upload Media', icon: Upload, primary: false },
+            ].map((action) => (
+              <Link
+                key={action.to}
+                to={action.to}
+                className={`clay-btn-sm flex items-center justify-center gap-2 rounded-clay-pill px-4 py-2.5 text-center text-xs font-bold transition-all ${
+                  action.primary
+                    ? 'bg-primary text-white hover:shadow-clay-hover'
+                    : 'bg-surface text-text-main hover:shadow-clay-hover'
+                }`}
+              >
+                <action.icon size={14} />
+                {action.label}
+              </Link>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={prefersReduced ? { duration: 0 } : { delay: 0.35, duration: 0.4 }}
+          className="clay-card rounded-clay p-5"
+        >
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">Recent Announcements</h2>
-            <Link to="/announcements" className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            <h2 className="font-heading text-base font-bold text-text-main">Recent Announcements</h2>
+            <Link to="/announcements" className="text-xs font-semibold text-primary hover:underline">
               View all →
             </Link>
           </div>
           {recent.length === 0 ? (
-            <p className="text-sm text-slate-500">No announcements visible to you yet.</p>
+            <p className="text-sm text-text-muted">No announcements visible to you yet.</p>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-primary/10">
               {recent.map((a) => {
                 const isRead = readIds.has(a.id);
                 return (
                   <li key={a.id} className="py-2.5 text-sm">
                     <div className="flex items-center justify-between gap-2">
-                      <span className={`font-medium ${isRead ? 'text-slate-500' : 'text-slate-900'}`}>
-                        {!isRead && <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-indigo-600" />}
+                      <span className={`font-semibold ${isRead ? 'text-text-muted' : 'text-text-main'}`}>
+                        {!isRead && <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-primary" />}
                         {a.title}
                       </span>
-                      <span className="shrink-0 text-xs text-slate-400">{formatDate(a.created_at)}</span>
+                      <span className="shrink-0 text-xs text-text-muted">{formatDate(a.created_at)}</span>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">{a.content}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-text-muted">{a.content}</p>
                     {!isRead && (
                       <button
                         type="button"
                         onClick={() => markAsRead(a.id)}
-                        className="mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                        className="mt-1 text-xs font-semibold text-primary hover:underline"
                       >
                         Mark as read
                       </button>
@@ -174,7 +221,7 @@ const StudentDashboard = () => {
               })}
             </ul>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion, LayoutGroup } from 'framer-motion';
 import api from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import AudiencePicker from '../../components/AudiencePicker.jsx';
+import { X } from 'lucide-react';
 
 const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  // When rendered as a standalone route (/announcements/create or :id/edit),
-  // no callbacks are passed — fall back to navigating back to the feed.
+  const prefersReduced = useReducedMotion();
   const handleSuccess = onSuccess || (() => navigate('/announcements'));
   const handleCancel = onCancel || (() => navigate('/announcements'));
 
@@ -105,143 +106,144 @@ const CreateAnnouncement = ({ onSuccess, onCancel, initialData }) => {
     }
   };
 
+  const inputCls = 'clay-input block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted';
+
+  const stagger = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.06 } },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  };
+
   return (
-    <div className="rounded-xl bg-white p-6 shadow-lg border border-slate-200">
-      <h2 className="mb-4 text-lg font-bold text-slate-900">
+    <motion.div
+      variants={stagger}
+      initial="hidden"
+      animate="visible"
+      className="clay-card rounded-clay p-6"
+    >
+      <motion.h2 variants={item} className="mb-4 font-heading text-lg font-bold text-text-main">
         {initialData ? 'Edit Announcement' : 'Create Announcement'}
-      </h2>
+      </motion.h2>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <motion.div variants={item} className="mb-4 rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">
           {error}
-        </div>
+        </motion.div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <div>
-          <label htmlFor="ann-title" className="block text-sm font-medium text-slate-700">
-            Title *
-          </label>
-          <input
-            id="ann-title"
-            type="text"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Announcement title"
-            className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-          />
-        </div>
+        <motion.div variants={item}>
+          <label htmlFor="ann-title" className="block text-sm font-semibold text-text-main">Title *</label>
+          <input id="ann-title" type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Announcement title" className={`${inputCls} mt-1.5`} />
+        </motion.div>
 
-        <div>
-          <label htmlFor="ann-content" className="block text-sm font-medium text-slate-700">
-            Content *
-          </label>
-          <textarea
-            id="ann-content"
-            required
-            rows={4}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Announcement content"
-            className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-          />
-        </div>
+        <motion.div variants={item}>
+          <label htmlFor="ann-content" className="block text-sm font-semibold text-text-main">Content *</label>
+          <textarea id="ann-content" required rows={4} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Announcement content" className={`${inputCls} mt-1.5`} />
+        </motion.div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Type</label>
-          <div className="flex flex-wrap gap-4">
-            {['general', 'class'].map((t) => (
-              <label key={t} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="type"
-                  value={t}
-                  checked={type === t}
-                  onChange={(e) => setType(e.target.value)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-slate-700 capitalize">{t}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+        <motion.div variants={item}>
+          <label className="block text-sm font-semibold text-text-main mb-2">Type</label>
+          <LayoutGroup>
+            <div className="flex flex-wrap gap-3">
+              {['general', 'class'].map((t) => (
+                <motion.button
+                  key={t}
+                  type="button"
+                  onClick={() => setType(t)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`relative rounded-clay-pill px-5 py-2.5 text-sm font-bold transition-colors ${
+                    type === t
+                      ? 'bg-primary text-white shadow-clay-sm'
+                      : 'bg-surface text-text-muted hover:text-primary'
+                  }`}
+                >
+                  {t === 'general' ? 'General' : 'Class'}
+                </motion.button>
+              ))}
+            </div>
+          </LayoutGroup>
+        </motion.div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Image</label>
+        <motion.div variants={item}>
+          <label className="block text-sm font-semibold text-text-main mb-2">Image</label>
           <input
             ref={fileInputRef}
             id="ann-image-file"
             type="file"
             accept="image/jpeg,image/png,image/webp"
             onChange={handleImageChange}
-            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+            className="block w-full text-sm text-text-muted file:mr-4 file:rounded-clay-pill file:border-0 file:bg-primary/15 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary hover:file:bg-primary/25"
           />
-          <p className="mt-1 text-xs text-slate-400">JPEG, PNG, or WebP. Max 10 MB.</p>
+          <p className="mt-1 text-xs text-text-muted">JPEG, PNG, or WebP. Max 10 MB.</p>
           {imagePreview && (
-            <div className="mt-2 relative">
-              <img src={imagePreview} alt="Preview" className="h-48 object-cover rounded-lg border border-slate-200" />
-              <button
+            <div className="relative mt-2">
+              <img src={imagePreview} alt="Preview" className="h-48 rounded-clay object-cover" />
+              <motion.button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-2 right-2 rounded-full bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-danger text-white"
               >
-                ✕
-              </button>
+                <X size={14} />
+              </motion.button>
             </div>
           )}
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <motion.div variants={item} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="ann-publish" className="block text-sm font-medium text-slate-700">
-              Publish at (optional)
-            </label>
-            <input
-              id="ann-publish"
-              type="datetime-local"
-              value={publishAt}
-              onChange={(e) => setPublishAt(e.target.value)}
-              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-            />
-            <p className="mt-1 text-xs text-slate-400">Leave empty to publish immediately</p>
+            <label htmlFor="ann-publish" className="block text-sm font-semibold text-text-main">Publish at (optional)</label>
+            <input id="ann-publish" type="datetime-local" value={publishAt} onChange={(e) => setPublishAt(e.target.value)} className={`${inputCls} mt-1.5`} />
+            <p className="mt-1 text-xs text-text-muted">Leave empty to publish immediately</p>
           </div>
           <div>
-            <label htmlFor="ann-expires" className="block text-sm font-medium text-slate-700">
-              Expires at (optional)
-            </label>
-            <input
-              id="ann-expires"
-              type="datetime-local"
-              value={expiresAt}
-              onChange={(e) => setExpiresAt(e.target.value)}
-              className="mt-1.5 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-            />
+            <label htmlFor="ann-expires" className="block text-sm font-semibold text-text-main">Expires at (optional)</label>
+            <input id="ann-expires" type="datetime-local" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className={`${inputCls} mt-1.5`} />
           </div>
-        </div>
+        </motion.div>
 
         {showTargets && (
-          <AudiencePicker onSelect={setTargets} initialData={targets} />
+          <motion.div variants={item}>
+            <AudiencePicker onSelect={setTargets} initialData={targets} />
+          </motion.div>
         )}
 
-        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
-          <button
+        <motion.div variants={item} className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+          <motion.button
             type="button"
             onClick={handleCancel}
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2.5 text-sm font-semibold text-text-main"
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:opacity-60 disabled:cursor-not-allowed"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="clay-btn rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? 'Saving…' : (initialData ? 'Update' : `Create ${type} Announcement`)}
-          </button>
-        </div>
+            {saving ? (
+              <span className="flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Saving…
+              </span>
+            ) : (
+              initialData ? 'Update' : `Create ${type} Announcement`
+            )}
+          </motion.button>
+        </motion.div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

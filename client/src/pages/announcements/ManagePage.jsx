@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import api from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import AnnouncementCard from '../../components/announcements/AnnouncementCard.jsx';
+import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 
 const ManagePage = () => {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ const ManagePage = () => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const limit = 20;
+  const prefersReduced = useReducedMotion();
 
   const isAdmin = user?.role === 'admin';
 
@@ -33,40 +35,53 @@ const ManagePage = () => {
     }
   }, [typeFilter, statusFilter, page, isAdmin]);
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, [fetchAnnouncements]);
+  useEffect(() => { fetchAnnouncements(); }, [fetchAnnouncements]);
 
-  const handleDeleteSuccess = () => {
-    fetchAnnouncements();
-  };
+  const handleDeleteSuccess = () => { fetchAnnouncements(); };
+
+  const typeBadge = (type) => (
+    <span className={`rounded-clay-pill px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${type === 'general' ? 'bg-primary/15 text-primary' : 'bg-secondary/15 text-secondary'}`}>
+      {type}
+    </span>
+  );
+
+  const statusBadge = (status) => (
+    <span className={`rounded-clay-pill px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+      status === 'published' ? 'bg-success/15 text-success' :
+      status === 'scheduled' ? 'bg-warning/15 text-warning' :
+      status === 'archived' ? 'bg-danger/15 text-danger' :
+      'bg-text-muted/15 text-text-muted'
+    }`}>
+      {status}
+    </span>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      <header className="border-b border-slate-800 bg-slate-900">
+    <div className="min-h-screen bg-base font-body text-text-main">
+      <header className="sticky top-0 z-40 border-b border-primary/10 bg-surface/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="text-sm font-medium text-slate-400 hover:text-white"
+              className="clay-btn-sm flex items-center gap-1.5 rounded-clay-pill px-3 py-2 text-xs font-semibold text-text-muted"
             >
-              ← Back
+              <ArrowLeft size={14} /> Back
             </button>
-            <h1 className="text-xl font-bold text-white">Manage Announcements</h1>
+            <h1 className="font-heading text-xl font-bold text-text-main">Manage Announcements</h1>
           </div>
-          <span className="inline-block rounded-full bg-slate-800 px-3 py-1 text-xs font-medium text-slate-300">
+          <span className="rounded-clay-pill bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary">
             {user?.role}
           </span>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mb-6 flex flex-wrap gap-3">
+        <div className="clay-card mb-6 flex flex-wrap gap-3 rounded-clay p-5">
           <select
             value={typeFilter}
             onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900"
+            className="clay-input bg-base px-4 py-2.5 text-sm text-text-main"
           >
             <option value="">All Types</option>
             <option value="general">General</option>
@@ -75,7 +90,7 @@ const ManagePage = () => {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-900"
+            className="clay-input bg-base px-4 py-2.5 text-sm text-text-main"
           >
             <option value="">All Statuses</option>
             <option value="draft">Draft</option>
@@ -86,16 +101,24 @@ const ManagePage = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+          <div className="space-y-3">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="clay-card animate-clay-pulse rounded-clay p-4">
+                <div className="flex gap-4">
+                  <div className="h-4 w-1/3 rounded-clay-pill bg-primary/10" />
+                  <div className="h-4 w-16 rounded-clay-pill bg-primary/10" />
+                  <div className="h-4 w-16 rounded-clay-pill bg-primary/10" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : announcements.length === 0 ? (
-          <div className="rounded-xl bg-white p-8 text-center shadow-sm border border-slate-200">
-            <p className="text-slate-500">No announcements found.</p>
+          <div className="clay-card rounded-clay p-8 text-center">
+            <p className="text-sm text-text-muted">No announcements found.</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="hidden sm:grid grid-cols-12 gap-4 px-4 pb-2 text-xs font-semibold text-slate-500 uppercase">
+          <div className="space-y-3">
+            <div className="hidden sm:grid grid-cols-12 gap-4 px-4 pb-2 text-[10px] font-bold uppercase text-text-muted">
               <div className="col-span-4">Title</div>
               <div className="col-span-1">Type</div>
               <div className="col-span-1">Status</div>
@@ -103,41 +126,40 @@ const ManagePage = () => {
               <div className="col-span-2">Created</div>
               <div className="col-span-2">Actions</div>
             </div>
-            {announcements.map((a) => (
-              <div key={a.id} className="grid grid-cols-1 gap-2 rounded-lg border border-slate-200 bg-white p-4 hover:shadow-sm transition-shadow sm:grid-cols-12 sm:gap-4 sm:items-center">
+            {announcements.map((a, idx) => (
+              <motion.div
+                key={a.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={prefersReduced ? { duration: 0 } : { delay: Math.min(idx * 0.04, 0.3), duration: 0.3 }}
+                className="clay-card grid grid-cols-1 gap-2 rounded-clay p-4 transition-shadow hover:shadow-clay-hover sm:grid-cols-12 sm:gap-4 sm:items-center"
+              >
                 <div className="sm:col-span-4">
-                  <span className="font-medium text-slate-900 break-words">{a.title}</span>
+                  <span className="font-bold text-text-main break-words">{a.title}</span>
                 </div>
                 <div className="flex items-center gap-2 sm:col-span-1">
-                  <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${a.type === 'general' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                    {a.type}
-                  </span>
+                  {typeBadge(a.type)}
                 </div>
                 <div className="sm:col-span-1">
-                  <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                    a.status === 'published' ? 'bg-green-100 text-green-800' :
-                    a.status === 'scheduled' ? 'bg-amber-100 text-amber-800' :
-                    a.status === 'archived' ? 'bg-red-100 text-red-800' :
-                    'bg-slate-100 text-slate-800'
-                  }`}>
-                    {a.status}
-                  </span>
+                  {statusBadge(a.status)}
                 </div>
-                <div className="text-sm text-slate-600 break-words sm:col-span-2">
+                <div className="text-sm text-text-muted break-words sm:col-span-2">
                   {a.publish_at ? new Date(a.publish_at).toLocaleString() : '—'}
                 </div>
-                <div className="text-sm text-slate-600 break-words sm:col-span-2">
+                <div className="text-sm text-text-muted break-words sm:col-span-2">
                   {new Date(a.created_at).toLocaleString()}
                 </div>
                 <div className="flex flex-wrap gap-2 sm:col-span-2">
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => navigate(`/announcements/${a.id}/edit`)}
-                    className="rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-200"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="clay-btn-sm flex items-center gap-1 rounded-clay-pill bg-primary/15 px-3 py-1.5 text-[10px] font-semibold text-primary"
                   >
-                    Edit
-                  </button>
-                  <button
+                    <Pencil size={10} /> Edit
+                  </motion.button>
+                  <motion.button
                     type="button"
                     onClick={() => {
                       if (window.confirm('Delete this announcement?')) {
@@ -146,34 +168,41 @@ const ManagePage = () => {
                         }).catch(() => {});
                       }
                     }}
-                    className="rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-200"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="clay-btn-sm flex items-center gap-1 rounded-clay-pill bg-danger/15 px-3 py-1.5 text-[10px] font-semibold text-danger"
                   >
-                    Delete
-                  </button>
+                    <Trash2 size={10} /> Delete
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
+
         {total > limit && (
           <div className="mt-4 flex items-center justify-between">
-            <button
+            <motion.button
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2 text-xs font-semibold text-text-main disabled:cursor-not-allowed disabled:opacity-40"
             >
               ← Prev
-            </button>
-            <span className="text-sm text-slate-400">Page {page} of {Math.max(1, Math.ceil(total / limit))}</span>
-            <button
+            </motion.button>
+            <span className="text-xs text-text-muted">Page {page} of {Math.max(1, Math.ceil(total / limit))}</span>
+            <motion.button
               type="button"
               disabled={page >= Math.ceil(total / limit)}
               onClick={() => setPage((p) => p + 1)}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2 text-xs font-semibold text-text-main disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next →
-            </button>
+            </motion.button>
           </div>
         )}
       </main>
