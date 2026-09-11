@@ -101,6 +101,11 @@ const Login = () => {
               ← Back to home
             </Link>
           </p>
+          <p className="text-center text-sm text-slate-500">
+            <Link to="/gallery" className="text-indigo-600 hover:text-indigo-700 hover:underline">
+              View public gallery →
+            </Link>
+          </p>
         </form>
       </div>
     </div>

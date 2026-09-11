@@ -71,6 +71,32 @@ const Dashboard = () => {
               Manage Announcements
             </Link>
           )}
+          <Link
+            to="/gallery"
+            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          >
+            Gallery
+          </Link>
+          <Link
+            to="/gallery/upload"
+            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          >
+            Upload Media
+          </Link>
+          <Link
+            to="/gallery/mine"
+            className="rounded-lg border border-slate-300 px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          >
+            My Uploads
+          </Link>
+          {user.role === 'admin' && (
+            <Link
+              to="/admin/moderation"
+              className="rounded-lg bg-amber-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
+            >
+              Moderate Gallery
+            </Link>
+          )}
         </nav>
         <div className="mt-8 flex justify-center">
           <button

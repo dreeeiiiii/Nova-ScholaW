@@ -7,6 +7,10 @@ import CreateAnnouncement from './pages/announcements/Create.jsx';
 import EditAnnouncement from './pages/announcements/Edit.jsx';
 import ManagePage from './pages/announcements/ManagePage.jsx';
 import TvDisplay from './pages/TvDisplay.jsx';
+import Gallery from './pages/Gallery.jsx';
+import Upload from './pages/gallery/Upload.jsx';
+import MyUploads from './pages/gallery/MyUploads.jsx';
+import Moderation from './pages/admin/Moderation.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 const App = () => {
@@ -63,6 +67,31 @@ const App = () => {
         }
       />
       <Route path="/tv" element={<TvDisplay />} />
+      <Route path="/gallery" element={<Gallery />} />
+      <Route
+        path="/gallery/upload"
+        element={
+          <ProtectedRoute roles={['student', 'teacher', 'admin']}>
+            <Upload />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/gallery/mine"
+        element={
+          <ProtectedRoute>
+            <MyUploads />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/moderation"
+        element={
+          <ProtectedRoute roles={['admin']}>
+            <Moderation />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
