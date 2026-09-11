@@ -6,6 +6,7 @@ import config from './config/env.js';
 import { checkConnection } from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
+import authRoutes from './routes/authRoutes.js';
 
 const createApp = () => {
   const app = express();
@@ -38,6 +39,8 @@ const createApp = () => {
       timestamp: new Date().toISOString(),
     });
   });
+
+  app.use('/api/auth', authRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

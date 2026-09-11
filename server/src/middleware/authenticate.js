@@ -27,7 +27,7 @@ export const authenticate = async (req, res, next) => {
       `SELECT id, email, full_name, role, section_id, course_id, is_active
          FROM users
         WHERE id = $1`,
-      [payload.sub ?? payload.id]
+      [payload.userId ?? payload.sub ?? payload.id]
     );
 
     const user = rows[0];
