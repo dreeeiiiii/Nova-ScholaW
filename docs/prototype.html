@@ -1,0 +1,2802 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      window["__codeletBootstrap__"] = JSON.parse(
+        '{"A":"A","B":"20260918-05-13efa67","C":{"Abril Fatface":"YACgEZbkUVE,0","Alfa Slab One":"YACgEYS9sJU,0","Anton":"YACgEcYqQ-A,0","Archivo":"YACgEZulLoA,0","Arial Narrow":"YAGyDvJ_4Ts,0","Arial Rounded MT Bold":"YAFcfoaHu-s,0","Arial":"YAGyDvJ_4Ts,0","Avenir Next":"YAFcfmNq6UY,0","Baloo 2":"YADK30bC6HQ,0","Bebas Neue":"YACgESME5ew,0","Bricolage Grotesque":"YAFyMcdwzpc,0","Broken Glyph":"YADZ-exUkv0,0","Canva Sans":"YAFdJjTk5UU,1","Caveat":"YALBs2ploWQ,0","Comic Sans MS":"YAFcfvtOAUY,1","Cormorant Garamond":"YAFdJhX-538,0","Courier New":"YAGzXiGs0_8,0","Courier Prime":"YAD1aFjegN8,0","DM Sans":"YAD1aU3sLnI,0","DM Serif Display":"YAD1aYG82rc,0","Forum":"YACgEcnnqB4,0","Fraunces":"YAFdJpU7Kkk,0","Georgia":"YAGzXkO0pEM,0","Ghost Mono":"YAHQutsX00Q,0","Hanken Grotesk":"YAFcfhwp99E,0","Helvetica Neue":"YAFcf6CtJfI,0","Helvetica":"YAFcf6CtJfI,0","IBM Plex Mono":"YAFdJkmvhGI,0","Impact":"YAFcfnjI7Vk,0","Instrument Serif":"YAHFeOnZNEk,0","Inter":"YAFdJvSyp_k,3","Iowan Old Style":"YAGNIFa8j9o,0","Jacques Francois":"YADK3zbC6RM,0","JetBrains Mono":"YAFdJksXcAk,0","Josefin Sans":"YAFdJjvw9Ps,0","Lato":"YAFdJuFCnaw,0","Libre Baskerville":"YACgEUFdPdA,0","Lobster":"YAD8SnSjSFI,0","Lora":"YACgEXvxf8Q,0","Merriweather":"YACgEXvHxxs,0","Montserrat":"YAFdtQi73Xs,0","Nunito":"YAFdJoNRMmU,1","Oleo Script":"YACgEQQ14jI,0","Oswald":"YACgEQY10lw,0","Pacifico":"YADLjORQ1u4,0","Phantom Sans":"YAFdJvgJ5TU,0","Playfair Display":"YAFdJhem5V8,1","Plus Jakarta Sans":"YAGvf3_u0_Q,0","Poppins":"YAFdJjbTu24,1","Press Start 2P":"YAFyGr-8pmQ,0","Quicksand":"YAFdJpYtCxE,1","Raleway":"YAFdJhmxbVQ,1","Roboto Slab":"YAFdJswIKAg,0","Rockwell":"YAFcfyVZnN0,0","Rye":"YACgEdQP21k,0","Segoe UI":"YAHNdRD1Klw,0","Source Sans 3":"YAG4lO1Mj10,0","Source Serif 4":"YACgEfdj394,0","Space Grotesk":"YADZ-dYEmhg,0","Space Mono":"YADW1-vpsoc,0","Times New Roman":"YAGzXW3gftg,0","Times":"YAGzXW3gftg,0","Trebuchet MS":"YAFcfrglpVA,0","UV Display":"YAEdVfSSpYo,0","UV Sans":"YAFdJvgJ5TU,0","Ubuntu":"YACgERDU--Q,0","Verdana":"YAGzXTctYtQ,0","Work Sans":"YAGXhLOKv44,0","Yellowtail":"YACgEYG4kG4,0","ui-monospace":"YAD1aFjegN8,0","ui-sans-serif":"YACkoD1yZN0,0"}}',
+      );
+    </script>
+    <script
+      src="/_sdk/83d6dfdadcd4750a.telemetry_sdk.js"
+      integrity="sha512-XS4Dvzp6vbagZS9vFErihvr8aO3S0tH78KWUefn06fmL4WYqryBtZj/IOLITYj7dFA4gPVvPg1W/JB1DK3uLNQ=="
+    ></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nova Schola Hub</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Raleway:wght@600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #23344f;
+        --muted: #66758d;
+        --paper: #fbf7ef;
+        --lav: #e7defb;
+        --sky: #d9efff;
+        --mint: #dff5e8;
+        --peach: #ffe1d1;
+        --line: #d9d7e2;
+        --shadow: 10px 10px 22px #d9d5cb, -9px -9px 20px #fffdf7;
+        --inset: inset 4px 4px 9px #d5d2cb, inset -4px -4px 9px #fffdf7;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      .app-body {
+        font-family: "DM Sans", sans-serif;
+        color: var(--ink);
+        margin: 0;
+        width: 100%;
+        min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+        background: #fbf7ef;
+      }
+      .title-font {
+        font-family: "Raleway", sans-serif;
+      }
+      .clay {
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+      }
+      .inset {
+        box-shadow: var(--inset);
+      }
+      .nav-item {
+        transition: 0.2s ease;
+      }
+      .nav-item:hover,
+      .nav-item:focus-visible {
+        transform: translateY(-1px);
+        box-shadow:
+          5px 5px 11px #d7d3ca,
+          -4px -4px 10px #fff;
+      }
+      .nav-item.active {
+        background: #d9efff;
+        color: #23446c;
+        box-shadow:
+          inset 3px 3px 7px #c5d9e8,
+          inset -3px -3px 7px #effaff;
+      }
+      .press:active {
+        transform: translate(2px, 2px);
+        box-shadow:
+          inset 3px 3px 7px #c5c1b8,
+          inset -3px -3px 7px #fff;
+      }
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+        animation: rise 0.35s ease both;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .gallery-card {
+        transition: 0.2s ease;
+      }
+      .gallery-card:hover {
+        transform: translateY(-4px);
+      }
+      .drawer {
+        transform: translateX(-105%);
+        transition: transform 0.3s ease;
+      }
+      .drawer.open {
+        transform: translateX(0);
+      }
+      .modal {
+        display: none;
+      }
+      .modal.open {
+        display: flex;
+      }
+      .toast {
+        transform: translateY(120px);
+        opacity: 0;
+        transition: 0.3s ease;
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .focus-ring:focus-visible {
+        outline: 3px solid #5a8fc9;
+        outline-offset: 3px;
+      }
+      .media-img {
+        filter: saturate(0.86) contrast(0.98);
+      }
+      @media (min-width: 1024px) {
+        .side-nav {
+          position: sticky;
+          top: 0;
+          height: calc(100 * min(var(--vh, 1vh), 1vh));
+        }
+      }
+      @media (max-width: 1023px) {
+        .desktop-sidebar {
+          display: none;
+        }
+      }
+    </style>
+    <script
+      src="https://cdn.tailwindcss.com/3.4.17"
+      type="text/javascript"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="/_sdk/8de366929c5f3b48.data_sdk.js"
+      type="text/javascript"
+      integrity="sha512-TyQ8k8cZj66xe/aENmn6RyZpdOFZXbAo5+KBG3PeFM+Q4qMTHU8xAqmq4ADClNfPrstgQYV6OzZHwLTnElzB2g=="
+    ></script>
+    <script
+      src="/_sdk/0ddbbee1c66b1212.editing_sdk.js"
+      type="text/javascript"
+      integrity="sha512-HQn5LM1yruQSbY78ATUril6QeOJ9xj7KqO64ltLtb4vBwI5Qv3/tloFFOndBPZTNZoeV5xKzuth5y6FTi9crsg=="
+    ></script>
+    <script
+      src="/_sdk/765e1fea0cec97ce.resizing_sdk.js"
+      type="text/javascript"
+      integrity="sha512-IRTJnqww0+HQ5V/LlWEQrlD5SrYHaVvaeVoNe8HYQXoaguzUGheSd9+n9s6WOgaTcEH0g37DuINHZ9aqfzWjlw=="
+    ></script>
+  </head>
+  <body
+    data-template-id="__page-root"
+    class="app-body"
+    style="background: rgb(251, 247, 239)"
+  >
+    <div class="w-full min-h-screen lg:flex">
+      <aside
+        class="desktop-sidebar side-nav w-72 p-6 shrink-0"
+        aria-label="Main navigation"
+      >
+        <div
+          data-template-id="sidebar-panel"
+          class="canva-panel clay rounded-[2rem] bg-[#fdfaf3] h-full p-5 flex flex-col"
+          style="background: rgb(253, 250, 243)"
+        >
+          <div class="flex items-center gap-3 mb-9">
+            <div
+              class="w-11 h-11 rounded-2xl bg-[#d9efff] clay flex items-center justify-center text-[#315c86]"
+              aria-hidden="true"
+            >
+              <i data-lucide="graduation-cap"></i>
+            </div>
+            <div>
+              <h1
+                data-template-id="product-name"
+                class="canva-text title-font font-extrabold leading-tight"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 800;
+                  font-style: normal;
+                  font-size: 32px;
+                "
+              >
+                Nova Schola Hub
+              </h1>
+              <p
+                data-template-id="product-subtitle"
+                class="canva-text text-xs mt-1"
+                style="
+                  color: rgb(102, 117, 141);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                Official school connection
+              </p>
+            </div>
+          </div>
+          <nav class="space-y-2" aria-label="School hub sections">
+            <button
+              type="button"
+              data-view="dashboard"
+              class="nav-item active press focus-ring w-full text-left rounded-2xl px-4 py-3 flex items-center gap-3 font-semibold"
+            >
+              <i data-lucide="layout-dashboard" class="w-5"></i
+              ><span
+                data-template-id="nav-dashboard"
+                class="canva-text"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Dashboard</span
+              >
+            </button>
+            <button
+              type="button"
+              data-view="announcements"
+              class="nav-item press focus-ring w-full text-left rounded-2xl px-4 py-3 flex items-center gap-3 font-semibold"
+            >
+              <i data-lucide="megaphone" class="w-5"></i
+              ><span
+                data-template-id="nav-announcements"
+                class="canva-text"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Announcements</span
+              >
+            </button>
+            <button
+              type="button"
+              data-view="gallery"
+              class="nav-item press focus-ring w-full text-left rounded-2xl px-4 py-3 flex items-center gap-3 font-semibold"
+            >
+              <i data-lucide="images" class="w-5"></i
+              ><span
+                data-template-id="nav-gallery"
+                class="canva-text"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Event Gallery</span
+              >
+            </button>
+            <button
+              type="button"
+              data-view="upload"
+              class="nav-item press focus-ring w-full text-left rounded-2xl px-4 py-3 flex items-center gap-3 font-semibold"
+            >
+              <i data-lucide="upload-cloud" class="w-5"></i
+              ><span
+                data-template-id="nav-upload"
+                class="canva-text"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Upload Media</span
+              >
+            </button>
+            <button
+              type="button"
+              data-view="moderation"
+              class="nav-item press focus-ring w-full text-left rounded-2xl px-4 py-3 flex items-center gap-3 font-semibold"
+            >
+              <i data-lucide="clipboard-list" class="w-5"></i
+              ><span
+                data-template-id="nav-audit"
+                class="canva-text"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Audit Logs</span
+              >
+            </button>
+          </nav>
+          <button
+            type="button"
+            data-view="account"
+            class="nav-item press focus-ring mt-auto w-full text-left rounded-2xl p-4 bg-[#e7defb] flex gap-3 items-center"
+          >
+            <div
+              class="w-10 h-10 rounded-full bg-[#faf5ff] flex items-center justify-center"
+            >
+              <i data-lucide="user-round" class="w-5"></i>
+            </div>
+            <div>
+              <span
+                data-template-id="profile-role"
+                class="canva-text block text-sm font-bold"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Student Account</span
+              ><span
+                data-template-id="profile-school"
+                class="canva-text block text-xs mt-1"
+                style="
+                  color: rgb(102, 117, 141);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Nova Schola Tanauan</span
+              >
+            </div>
+          </button>
+        </div>
+      </aside>
+      <header class="lg:hidden p-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <div
+            class="w-10 h-10 bg-[#d9efff] rounded-2xl clay flex items-center justify-center"
+          >
+            <i data-lucide="graduation-cap"></i>
+          </div>
+          <span
+            data-template-id="mobile-product-name"
+            class="canva-text title-font font-extrabold"
+            style="
+              color: rgb(35, 52, 79);
+              font-weight: 800;
+              font-style: normal;
+              font-size: 16px;
+            "
+            >Nova Schola Hub</span
+          >
+        </div>
+        <button
+          id="open-drawer"
+          type="button"
+          class="focus-ring press clay rounded-2xl p-3 bg-[#fdfaf3]"
+          aria-label="Open menu"
+        >
+          <i data-lucide="menu"></i>
+        </button>
+      </header>
+      <div
+        id="drawer"
+        class="drawer fixed inset-y-0 left-0 z-40 w-72 bg-[#fbf7ef] p-5 shadow-2xl lg:hidden"
+        aria-label="Mobile navigation"
+      >
+        <div class="flex justify-between items-center mb-7">
+          <span
+            data-template-id="drawer-title"
+            class="canva-text title-font font-bold"
+            style="
+              color: rgb(35, 52, 79);
+              font-weight: 700;
+              font-style: normal;
+              font-size: 16px;
+            "
+            >Nova Schola Hub</span
+          ><button
+            id="close-drawer"
+            type="button"
+            class="focus-ring rounded-xl p-2"
+            aria-label="Close menu"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <nav class="space-y-2">
+          <button
+            type="button"
+            data-view="dashboard"
+            class="mobile-nav nav-item active w-full text-left p-3 rounded-2xl font-semibold"
+          >
+            <span
+              data-template-id="mobile-nav-dashboard"
+              class="canva-text"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Dashboard</span
+            >
+          </button>
+          <button
+            type="button"
+            data-view="announcements"
+            class="mobile-nav nav-item w-full text-left p-3 rounded-2xl font-semibold"
+          >
+            <span
+              data-template-id="mobile-nav-announcements"
+              class="canva-text"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Announcements</span
+            >
+          </button>
+          <button
+            type="button"
+            data-view="gallery"
+            class="mobile-nav nav-item w-full text-left p-3 rounded-2xl font-semibold"
+          >
+            <span
+              data-template-id="mobile-nav-gallery"
+              class="canva-text"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Event Gallery</span
+            >
+          </button>
+          <button
+            type="button"
+            data-view="upload"
+            class="mobile-nav nav-item w-full text-left p-3 rounded-2xl font-semibold"
+          >
+            <span
+              data-template-id="mobile-nav-upload"
+              class="canva-text"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Upload Media</span
+            >
+          </button>
+          <button
+            type="button"
+            data-view="moderation"
+            class="mobile-nav nav-item w-full text-left p-3 rounded-2xl font-semibold"
+          >
+            <span
+              data-template-id="mobile-nav-audit"
+              class="canva-text"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Audit Logs</span
+            >
+          </button>
+        </nav>
+      </div>
+      <main
+        class="w-full max-w-[1550px] mx-auto p-4 sm:p-7 lg:p-9 overflow-hidden"
+      >
+        <section
+          id="dashboard"
+          class="view active"
+          aria-labelledby="dashboard-heading"
+        >
+          <div class="grid xl:grid-cols-[1.25fr_.75fr] gap-7">
+            <div
+              data-template-id="hero-panel"
+              class="canva-banner clay bg-[#e7defb] rounded-[2rem] overflow-hidden relative min-h-[330px] p-7 sm:p-10 flex items-end"
+              style="background: rgb(231, 222, 251)"
+            >
+              <img
+                data-template-id="hero-image"
+                loading="lazy"
+                class="canva-image absolute inset-0 w-full h-full object-cover opacity-20 media-img"
+                src="https://images.pexels.com/photos/18587790/pexels-photo-18587790.jpeg"
+                alt="Contemporary educational building exterior with wooden paneling and large windows in sunlight."
+              />
+              <div class="relative max-w-xl">
+                <span
+                  data-template-id="hero-eyebrow"
+                  class="canva-tag inline-block bg-[#fff9f2] rounded-full px-4 py-2 text-sm font-bold"
+                  style="
+                    background: rgb(255, 249, 242);
+                    color: rgb(49, 92, 134);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >NOVA SCHOLA TANAUAN</span
+                >
+                <h2
+                  id="dashboard-heading"
+                  data-template-id="hero-title"
+                  class="canva-text title-font font-extrabold mt-5"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 800;
+                    font-style: normal;
+                    font-size: 24px;
+                  "
+                >
+                  Stay informed. Stay connected.
+                </h2>
+                <p
+                  data-template-id="hero-copy"
+                  class="canva-text mt-4 leading-7 max-w-lg"
+                  style="
+                    color: rgb(61, 77, 102);
+                    font-weight: 400;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Nova Schola Hub centralizes official school announcements and
+                  event memories in one searchable, moderated space.
+                </p>
+              </div>
+            </div>
+            <article
+              data-template-id="spotlight-panel"
+              class="canva-card clay rounded-[2rem] bg-[#fff5ed] p-7 flex flex-col justify-between"
+              style="background: rgb(255, 245, 237)"
+            >
+              <div>
+                <div class="flex justify-between gap-3">
+                  <span
+                    data-template-id="spotlight-label"
+                    class="canva-tag bg-[#fbd3b7] rounded-full px-3 py-1 text-xs font-bold"
+                    style="
+                      background: rgb(251, 211, 183);
+                      color: rgb(107, 61, 39);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >GENERAL ANNOUNCEMENT</span
+                  ><span
+                    data-template-id="sample-tag"
+                    class="canva-tag text-xs font-bold"
+                    style="
+                      color: rgb(141, 107, 90);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >SAMPLE CONTENT</span
+                  >
+                </div>
+                <h3
+                  data-template-id="spotlight-title"
+                  class="canva-text title-font font-bold mt-6"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 19px;
+                  "
+                >
+                  Foundation Day 2026
+                </h3>
+                <p
+                  data-template-id="spotlight-copy"
+                  class="canva-text mt-3 leading-6"
+                  style="
+                    color: rgb(78, 82, 97);
+                    font-weight: 400;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Celebrate our school community with a day of shared
+                  activities, memories, and school pride.
+                </p>
+              </div>
+              <button
+                type="button"
+                data-detail="Foundation Day 2026"
+                class="open-detail press focus-ring mt-7 self-start rounded-full px-5 py-3 bg-[#315c86] text-white font-bold flex gap-2"
+              >
+                <i data-lucide="arrow-up-right" class="w-5"></i
+                ><span
+                  data-template-id="spotlight-button"
+                  class="canva-text"
+                  style="
+                    background: rgb(49, 92, 134);
+                    color: rgb(255, 255, 255);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >View announcement</span
+                >
+              </button>
+            </article>
+          </div>
+          <section class="mt-8" aria-labelledby="stats-heading">
+            <h2
+              id="stats-heading"
+              data-template-id="stats-title"
+              class="canva-text title-font font-bold mb-4"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 24px;
+              "
+            >
+              At a glance
+            </h2>
+            <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+              <article
+                data-template-id="stat-one"
+                class="canva-card clay bg-[#d9efff] rounded-3xl p-5"
+                style="background: rgb(217, 239, 255)"
+              >
+                <i data-lucide="megaphone" class="mb-6"></i>
+                <p
+                  data-template-id="stat-one-label"
+                  class="canva-text font-semibold"
+                  style="
+                    color: rgb(49, 92, 134);
+                    font-weight: 600;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Latest announcements
+                </p>
+                <p
+                  data-template-id="stat-one-value"
+                  class="canva-text title-font font-extrabold mt-2"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 800;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  06
+                </p>
+              </article>
+              <article
+                data-template-id="stat-two"
+                class="canva-card clay bg-[#dff5e8] rounded-3xl p-5"
+                style="background: rgb(223, 245, 232)"
+              >
+                <i data-lucide="calendar-days" class="mb-6"></i>
+                <p
+                  data-template-id="stat-two-label"
+                  class="canva-text font-semibold"
+                  style="
+                    color: rgb(49, 92, 134);
+                    font-weight: 600;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Upcoming events
+                </p>
+                <p
+                  data-template-id="stat-two-value"
+                  class="canva-text title-font font-extrabold mt-2"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 800;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  04
+                </p>
+              </article>
+              <article
+                data-template-id="stat-three"
+                class="canva-card clay bg-[#ffe1d1] rounded-3xl p-5"
+                style="background: rgb(255, 225, 209)"
+              >
+                <i data-lucide="images" class="mb-6"></i>
+                <p
+                  data-template-id="stat-three-label"
+                  class="canva-text font-semibold"
+                  style="
+                    color: rgb(49, 92, 134);
+                    font-weight: 600;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Gallery memories
+                </p>
+                <p
+                  data-template-id="stat-three-value"
+                  class="canva-text title-font font-extrabold mt-2"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 800;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  48
+                </p>
+              </article>
+              <article
+                data-template-id="stat-four"
+                class="canva-card clay bg-[#e7defb] rounded-3xl p-5"
+                style="background: rgb(231, 222, 251)"
+              >
+                <i data-lucide="clock-3" class="mb-6"></i>
+                <p
+                  data-template-id="stat-four-label"
+                  class="canva-text font-semibold"
+                  style="
+                    color: rgb(49, 92, 134);
+                    font-weight: 600;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Pending uploads
+                </p>
+                <p
+                  data-template-id="stat-four-value"
+                  class="canva-text title-font font-extrabold mt-2"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 800;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  03
+                </p>
+              </article>
+            </div>
+          </section>
+          <div class="grid xl:grid-cols-2 gap-8 mt-10">
+            <section aria-labelledby="latest-heading">
+              <div class="flex justify-between items-center mb-4">
+                <h2
+                  id="latest-heading"
+                  data-template-id="latest-title"
+                  class="canva-text title-font font-bold"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 24px;
+                  "
+                >
+                  Latest Announcements
+                </h2>
+                <button
+                  type="button"
+                  data-view="announcements"
+                  class="go-view focus-ring text-sm font-bold underline"
+                >
+                  <span
+                    data-template-id="latest-link"
+                    class="canva-text"
+                    style="
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Browse all</span
+                  >
+                </button>
+              </div>
+              <div class="space-y-4">
+                <article
+                  class="announcement-card clay rounded-3xl bg-[#fdfaf3] p-5"
+                >
+                  <div class="flex justify-between gap-3">
+                    <span
+                      data-template-id="ann-one-badge"
+                      class="canva-tag bg-[#d9efff] rounded-full px-3 py-1 text-xs font-bold"
+                      style="
+                        background: rgb(217, 239, 255);
+                        color: rgb(49, 92, 134);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >General Announcement</span
+                    ><span
+                      data-template-id="ann-one-public"
+                      class="canva-tag text-xs font-bold"
+                      style="
+                        color: rgb(49, 92, 134);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >Public · Sample</span
+                    >
+                  </div>
+                  <h3
+                    data-template-id="ann-one-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Campus-wide Foundation Day schedule
+                  </h3>
+                  <p
+                    data-template-id="ann-one-copy"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Sample schedule information for the community celebration
+                    and campus activity flow.
+                  </p>
+                  <button
+                    type="button"
+                    class="expand-announcement focus-ring mt-3 text-sm font-bold underline"
+                  >
+                    <span
+                      data-template-id="expand-label"
+                      class="canva-text"
+                      style="
+                        color: rgb(49, 92, 134);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >Read sample note</span
+                    >
+                  </button>
+                  <p
+                    class="extra-announcement hidden text-sm mt-3 text-[#66758d]"
+                  >
+                    Sample interface content: Review the proposed schedule in
+                    the official bulletin before making plans.
+                  </p>
+                </article>
+                <article
+                  class="announcement-card clay rounded-3xl bg-[#fdfaf3] p-5"
+                >
+                  <div class="flex justify-between gap-3">
+                    <span
+                      data-template-id="ann-two-badge"
+                      class="canva-tag bg-[#e7defb] rounded-full px-3 py-1 text-xs font-bold"
+                      style="
+                        background: rgb(231, 222, 251);
+                        color: rgb(86, 61, 134);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >Class Announcement</span
+                    ><span
+                      data-template-id="ann-two-private"
+                      class="canva-tag text-xs font-bold"
+                      style="
+                        color: rgb(86, 61, 134);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >Targeted · BSIS 3</span
+                    >
+                  </div>
+                  <h3
+                    data-template-id="ann-two-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    BSIS 3 project consultation
+                  </h3>
+                  <p
+                    data-template-id="ann-two-copy"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Private sample update for assigned BSIS 3 students only.
+                  </p>
+                </article>
+                <article
+                  class="announcement-card clay rounded-3xl bg-[#fdfaf3] p-5"
+                >
+                  <div class="flex justify-between gap-3">
+                    <span
+                      data-template-id="ann-three-badge"
+                      class="canva-tag bg-[#dff5e8] rounded-full px-3 py-1 text-xs font-bold"
+                      style="
+                        background: rgb(223, 245, 232);
+                        color: rgb(36, 96, 68);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >General Announcement</span
+                    ><span
+                      data-template-id="ann-three-public"
+                      class="canva-tag text-xs font-bold"
+                      style="
+                        color: rgb(36, 96, 68);
+                        font-weight: 700;
+                        font-style: normal;
+                        font-size: 16px;
+                      "
+                      >Public · Sample</span
+                    >
+                  </div>
+                  <h3
+                    data-template-id="ann-three-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Intramurals registration reminder
+                  </h3>
+                  <p
+                    data-template-id="ann-three-copy"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Sample interface reminder for teams planning to join this
+                    school activity.
+                  </p>
+                </article>
+              </div>
+            </section>
+            <section aria-labelledby="events-heading">
+              <h2
+                id="events-heading"
+                data-template-id="events-title"
+                class="canva-text title-font font-bold mb-4"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 24px;
+                "
+              >
+                Upcoming Events
+              </h2>
+              <div class="grid sm:grid-cols-2 gap-4">
+                <article
+                  data-template-id="event-one"
+                  class="canva-card clay bg-[#fff5ed] rounded-3xl p-5"
+                  style="background: rgb(255, 245, 237)"
+                >
+                  <span
+                    data-template-id="event-one-date"
+                    class="canva-text text-xs font-bold"
+                    style="
+                      color: rgb(139, 87, 64);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >SAMPLE · MAR 12, 2026</span
+                  >
+                  <h3
+                    data-template-id="event-one-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Foundation Day
+                  </h3>
+                  <p
+                    data-template-id="event-one-note"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Campus celebration sample listing.
+                  </p>
+                </article>
+                <article
+                  data-template-id="event-two"
+                  class="canva-card clay bg-[#d9efff] rounded-3xl p-5"
+                  style="background: rgb(217, 239, 255)"
+                >
+                  <span
+                    data-template-id="event-two-date"
+                    class="canva-text text-xs font-bold"
+                    style="
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >SAMPLE · MAR 20, 2026</span
+                  >
+                  <h3
+                    data-template-id="event-two-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Intramurals
+                  </h3>
+                  <p
+                    data-template-id="event-two-note"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Sports event sample listing.
+                  </p>
+                </article>
+                <article
+                  data-template-id="event-three"
+                  class="canva-card clay bg-[#dff5e8] rounded-3xl p-5"
+                  style="background: rgb(223, 245, 232)"
+                >
+                  <span
+                    data-template-id="event-three-date"
+                    class="canva-text text-xs font-bold"
+                    style="
+                      color: rgb(36, 96, 68);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >SAMPLE · APR 04, 2026</span
+                  >
+                  <h3
+                    data-template-id="event-three-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Academic Seminar
+                  </h3>
+                  <p
+                    data-template-id="event-three-note"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Learning session sample listing.
+                  </p>
+                </article>
+                <article
+                  data-template-id="event-four"
+                  class="canva-card clay bg-[#e7defb] rounded-3xl p-5"
+                  style="background: rgb(231, 222, 251)"
+                >
+                  <span
+                    data-template-id="event-four-date"
+                    class="canva-text text-xs font-bold"
+                    style="
+                      color: rgb(86, 61, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >SAMPLE · APR 15, 2026</span
+                  >
+                  <h3
+                    data-template-id="event-four-title"
+                    class="canva-text font-bold mt-3"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Classroom Activities
+                  </h3>
+                  <p
+                    data-template-id="event-four-note"
+                    class="canva-text text-sm mt-2"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Class activity sample listing.
+                  </p>
+                </article>
+              </div>
+            </section>
+          </div>
+          <section class="mt-10" aria-labelledby="featured-gallery-heading">
+            <div class="flex flex-wrap justify-between gap-3 items-center mb-4">
+              <div>
+                <h2
+                  id="featured-gallery-heading"
+                  data-template-id="featured-gallery-title"
+                  class="canva-text title-font font-bold"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 24px;
+                  "
+                >
+                  Featured Event Gallery
+                </h2>
+                <p
+                  data-template-id="featured-gallery-copy"
+                  class="canva-text text-sm mt-1"
+                  style="
+                    color: rgb(102, 117, 141);
+                    font-weight: 400;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  A curated preview of school-event memories.
+                </p>
+              </div>
+              <button
+                type="button"
+                data-view="gallery"
+                class="go-view focus-ring rounded-full px-4 py-2 bg-[#d9efff] font-bold"
+              >
+                <span
+                  data-template-id="gallery-view-all"
+                  class="canva-text"
+                  style="
+                    background: rgb(217, 239, 255);
+                    color: rgb(49, 92, 134);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Open gallery</span
+                >
+              </button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <img
+                data-template-id="gallery-image-one"
+                loading="lazy"
+                class="canva-image clay rounded-3xl object-cover h-40 w-full media-img"
+                src="https://images.pexels.com/photos/8127310/pexels-photo-8127310.jpeg"
+                alt="Colorful confetti surrounds a goodbye school message, celebrating graduation."
+              /><img
+                data-template-id="gallery-image-two"
+                loading="lazy"
+                class="canva-image clay rounded-3xl object-cover h-52 w-full media-img"
+                src="https://images.pexels.com/photos/16276592/pexels-photo-16276592.jpeg"
+                alt="Aerial shot showcasing a school sports area with students on a court, surrounded by a running track."
+              /><img
+                data-template-id="gallery-image-three"
+                loading="lazy"
+                class="canva-image clay rounded-3xl object-cover h-40 w-full media-img"
+                src="https://images.pexels.com/photos/14700793/pexels-photo-14700793.jpeg"
+                alt="Musicians performing in a spacious auditorium with a small audience seated."
+              /><img
+                data-template-id="gallery-image-four"
+                loading="lazy"
+                class="canva-image clay rounded-3xl object-cover h-52 w-full media-img"
+                src="https://images.pexels.com/photos/9159042/pexels-photo-9159042.jpeg"
+                alt="Students learning in a classroom setting with a teacher assisting and laptops on desks, creating an interactive education environment."
+              />
+            </div>
+          </section>
+        </section>
+        <section
+          id="announcements"
+          class="view"
+          aria-labelledby="announcements-heading"
+        >
+          <div class="flex flex-wrap justify-between gap-4 items-end">
+            <div>
+              <span
+                data-template-id="ann-page-eyebrow"
+                class="canva-text text-sm font-bold"
+                style="
+                  color: rgb(49, 92, 134);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >OFFICIAL UPDATES</span
+              >
+              <h2
+                id="announcements-heading"
+                data-template-id="ann-page-title"
+                class="canva-text title-font font-extrabold mt-2"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 800;
+                  font-style: normal;
+                  font-size: 24px;
+                "
+              >
+                Announcements
+              </h2>
+            </div>
+            <button
+              id="create-announcement"
+              type="button"
+              class="press focus-ring rounded-full bg-[#315c86] text-white px-5 py-3 font-bold"
+            >
+              <span
+                data-template-id="create-announcement-label"
+                class="canva-text"
+                style="
+                  background: rgb(49, 92, 134);
+                  color: rgb(255, 255, 255);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Create announcement</span
+              >
+            </button>
+          </div>
+          <div
+            class="clay bg-[#fdfaf3] rounded-3xl p-4 mt-6 flex flex-col md:flex-row gap-3"
+          >
+            <label class="sr-only" for="announcement-search"
+              >Search announcements</label
+            >
+            <div class="inset rounded-2xl flex items-center px-4 flex-1">
+              <i data-lucide="search" class="w-4"></i
+              ><input
+                id="announcement-search"
+                class="focus-ring bg-transparent p-3 w-full outline-none"
+                type="search"
+                placeholder="Search announcements"
+              />
+            </div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="announcement-filter press focus-ring rounded-full px-4 py-2 bg-[#d9efff] font-bold"
+                data-type="all"
+              >
+                <span
+                  data-template-id="filter-all"
+                  class="canva-text"
+                  style="
+                    background: rgb(217, 239, 255);
+                    color: rgb(49, 92, 134);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >All</span
+                ></button
+              ><button
+                type="button"
+                class="announcement-filter press focus-ring rounded-full px-4 py-2 bg-[#e7defb] font-bold"
+                data-type="general"
+              >
+                <span
+                  data-template-id="filter-general"
+                  class="canva-text"
+                  style="
+                    background: rgb(231, 222, 251);
+                    color: rgb(86, 61, 134);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >General</span
+                ></button
+              ><button
+                type="button"
+                class="announcement-filter press focus-ring rounded-full px-4 py-2 bg-[#ffe1d1] font-bold"
+                data-type="class"
+              >
+                <span
+                  data-template-id="filter-class"
+                  class="canva-text"
+                  style="
+                    background: rgb(255, 225, 209);
+                    color: rgb(107, 61, 39);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Class</span
+                >
+              </button>
+            </div>
+          </div>
+          <div id="announcement-list" class="grid md:grid-cols-2 gap-5 mt-6">
+            <article
+              class="filterable-ann clay rounded-3xl bg-[#fdfaf3] p-6"
+              data-type="general"
+              data-search="foundation day campus wide schedule"
+            >
+              <span
+                data-template-id="page-ann-one-type"
+                class="canva-tag bg-[#d9efff] rounded-full px-3 py-1 text-xs font-bold"
+                style="
+                  background: rgb(217, 239, 255);
+                  color: rgb(49, 92, 134);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >GENERAL · PUBLIC</span
+              >
+              <h3
+                data-template-id="page-ann-one-title"
+                class="canva-text font-bold mt-4"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 19px;
+                "
+              >
+                Campus-wide Foundation Day schedule
+              </h3>
+              <p
+                data-template-id="page-ann-one-copy"
+                class="canva-text mt-2 text-sm"
+                style="
+                  color: rgb(102, 117, 141);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                Sample public announcement suitable for the website homepage and
+                school TV screens.
+              </p>
+              <button
+                type="button"
+                data-detail="Foundation Day 2026"
+                class="open-detail focus-ring mt-4 font-bold underline"
+              >
+                <span
+                  data-template-id="details-label"
+                  class="canva-text"
+                  style="
+                    color: rgb(49, 92, 134);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Open details</span
+                >
+              </button>
+            </article>
+            <article
+              class="filterable-ann clay rounded-3xl bg-[#fdfaf3] p-6"
+              data-type="class"
+              data-search="bsis 3 project consultation"
+            >
+              <span
+                data-template-id="page-ann-two-type"
+                class="canva-tag bg-[#e7defb] rounded-full px-3 py-1 text-xs font-bold"
+                style="
+                  background: rgb(231, 222, 251);
+                  color: rgb(86, 61, 134);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >CLASS · PRIVATE</span
+              >
+              <h3
+                data-template-id="page-ann-two-title"
+                class="canva-text font-bold mt-4"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 19px;
+                "
+              >
+                BSIS 3 project consultation
+              </h3>
+              <p
+                data-template-id="page-ann-two-copy"
+                class="canva-text mt-2 text-sm"
+                style="
+                  color: rgb(102, 117, 141);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                Targeted sample announcement that must not appear in public
+                slideshows or TV views.
+              </p>
+              <button
+                type="button"
+                data-detail="BSIS 3 project consultation"
+                class="open-detail focus-ring mt-4 font-bold underline"
+              >
+                <span
+                  data-template-id="details-label-two"
+                  class="canva-text"
+                  style="
+                    color: rgb(49, 92, 134);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Open details</span
+                >
+              </button>
+            </article>
+            <article
+              class="filterable-ann clay rounded-3xl bg-[#fdfaf3] p-6"
+              data-type="general"
+              data-search="intramurals registration reminder"
+            >
+              <span
+                data-template-id="page-ann-three-type"
+                class="canva-tag bg-[#dff5e8] rounded-full px-3 py-1 text-xs font-bold"
+                style="
+                  background: rgb(223, 245, 232);
+                  color: rgb(36, 96, 68);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >GENERAL · PUBLIC</span
+              >
+              <h3
+                data-template-id="page-ann-three-title"
+                class="canva-text font-bold mt-4"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 19px;
+                "
+              >
+                Intramurals registration reminder
+              </h3>
+              <p
+                data-template-id="page-ann-three-copy"
+                class="canva-text mt-2 text-sm"
+                style="
+                  color: rgb(102, 117, 141);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                Sample public reminder for interested student teams and
+                advisers.
+              </p>
+            </article>
+          </div>
+        </section>
+        <section id="gallery" class="view" aria-labelledby="gallery-heading">
+          <div>
+            <span
+              data-template-id="gallery-eyebrow"
+              class="canva-text text-sm font-bold"
+              style="
+                color: rgb(49, 92, 134);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >SEARCHABLE MEMORIES</span
+            >
+            <h2
+              id="gallery-heading"
+              data-template-id="gallery-title"
+              class="canva-text title-font font-extrabold mt-2"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 800;
+                font-style: normal;
+                font-size: 24px;
+              "
+            >
+              Event Gallery
+            </h2>
+            <p
+              data-template-id="gallery-intro"
+              class="canva-text mt-2"
+              style="
+                color: rgb(102, 117, 141);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+            >
+              Browse approved sample media by event category, date, year, or
+              keyword.
+            </p>
+          </div>
+          <div
+            class="clay bg-[#fdfaf3] rounded-3xl p-4 mt-6 grid lg:grid-cols-4 gap-3"
+          >
+            <label class="sr-only" for="gallery-search"
+              >Search event name or keyword</label
+            ><input
+              id="gallery-search"
+              class="gallery-control inset focus-ring rounded-2xl bg-transparent px-4 py-3 outline-none"
+              placeholder="Search event name or keyword"
+            />
+            <label class="sr-only" for="category-filter">Category</label
+            ><select
+              id="category-filter"
+              class="gallery-control focus-ring rounded-2xl bg-[#d9efff] px-4 py-3"
+            >
+              <option>All categories</option>
+              <option>Academic Events</option>
+              <option>Sports Events</option>
+              <option>Cultural Events</option>
+              <option>Social Events</option>
+            </select>
+            <label class="sr-only" for="year-filter">Year</label
+            ><select
+              id="year-filter"
+              class="gallery-control focus-ring rounded-2xl bg-[#e7defb] px-4 py-3"
+            >
+              <option>All years</option>
+              <option>2026</option>
+            </select>
+            <label class="sr-only" for="date-filter">Date range</label
+            ><select
+              id="date-filter"
+              class="gallery-control focus-ring rounded-2xl bg-[#ffe1d1] px-4 py-3"
+            >
+              <option>Any date</option>
+              <option>Sample March dates</option>
+            </select>
+          </div>
+          <div
+            id="gallery-grid"
+            class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 mt-6"
+          >
+            <article
+              class="gallery-card clay rounded-3xl bg-[#fdfaf3] overflow-hidden"
+              data-category="Cultural Events"
+              data-search="foundation day celebration"
+            >
+              <img
+                data-template-id="gallery-page-one"
+                loading="lazy"
+                class="canva-image w-full h-48 object-cover media-img"
+                src="https://images.pexels.com/photos/8127310/pexels-photo-8127310.jpeg"
+                alt="Colorful confetti surrounds a goodbye school message, celebrating graduation."
+              />
+              <div class="p-5">
+                <div class="flex justify-between">
+                  <span
+                    data-template-id="media-one-type"
+                    class="canva-tag text-xs font-bold"
+                    style="
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >IMAGE</span
+                  ><span
+                    data-template-id="media-one-category"
+                    class="canva-tag text-xs"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Cultural Events</span
+                  >
+                </div>
+                <h3
+                  data-template-id="media-one-title"
+                  class="canva-text font-bold mt-3"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 19px;
+                  "
+                >
+                  Foundation Day memories
+                </h3>
+              </div>
+            </article>
+            <article
+              class="gallery-card clay rounded-3xl bg-[#fdfaf3] overflow-hidden"
+              data-category="Sports Events"
+              data-search="intramurals track sports"
+            >
+              <img
+                data-template-id="gallery-page-two"
+                loading="lazy"
+                class="canva-image w-full h-48 object-cover media-img"
+                src="https://images.pexels.com/photos/16276592/pexels-photo-16276592.jpeg"
+                alt="Aerial shot showcasing a school sports area with students on a court, surrounded by a running track."
+              />
+              <div class="p-5">
+                <div class="flex justify-between">
+                  <span
+                    data-template-id="media-two-type"
+                    class="canva-tag text-xs font-bold"
+                    style="
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >MP4 VIDEO</span
+                  ><span
+                    data-template-id="media-two-category"
+                    class="canva-tag text-xs"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Sports Events</span
+                  >
+                </div>
+                <h3
+                  data-template-id="media-two-title"
+                  class="canva-text font-bold mt-3"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 19px;
+                  "
+                >
+                  Intramurals highlights
+                </h3>
+              </div>
+            </article>
+            <article
+              class="gallery-card clay rounded-3xl bg-[#fdfaf3] overflow-hidden"
+              data-category="Academic Events"
+              data-search="academic seminar student"
+            >
+              <img
+                data-template-id="gallery-page-three"
+                loading="lazy"
+                class="canva-image w-full h-48 object-cover media-img"
+                src="https://images.pexels.com/photos/33524620/pexels-photo-33524620.jpeg"
+                alt="A student raises his hand during a seminar in an educational setting."
+              />
+              <div class="p-5">
+                <div class="flex justify-between">
+                  <span
+                    data-template-id="media-three-type"
+                    class="canva-tag text-xs font-bold"
+                    style="
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >IMAGE</span
+                  ><span
+                    data-template-id="media-three-category"
+                    class="canva-tag text-xs"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Academic Events</span
+                  >
+                </div>
+                <h3
+                  data-template-id="media-three-title"
+                  class="canva-text font-bold mt-3"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 19px;
+                  "
+                >
+                  Seminar participation
+                </h3>
+              </div>
+            </article>
+            <article
+              class="gallery-card clay rounded-3xl bg-[#fdfaf3] overflow-hidden"
+              data-category="Social Events"
+              data-search="classroom activity pending"
+            >
+              <img
+                data-template-id="gallery-page-four"
+                loading="lazy"
+                class="canva-image w-full h-48 object-cover media-img"
+                src="https://images.pexels.com/photos/9159042/pexels-photo-9159042.jpeg"
+                alt="Students learning in a classroom setting with a teacher assisting and laptops on desks, creating an interactive education environment."
+              />
+              <div class="p-5">
+                <span
+                  data-template-id="pending-admin-label"
+                  class="canva-tag bg-[#ffe1d1] rounded-full px-3 py-1 text-xs font-bold"
+                  style="
+                    background: rgb(255, 225, 209);
+                    color: rgb(107, 61, 39);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Pending admin approval</span
+                >
+                <h3
+                  data-template-id="media-four-title"
+                  class="canva-text font-bold mt-3"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 19px;
+                  "
+                >
+                  Classroom activity upload
+                </h3>
+              </div>
+            </article>
+          </div>
+        </section>
+        <section id="upload" class="view" aria-labelledby="upload-heading">
+          <div class="max-w-4xl mx-auto">
+            <span
+              data-template-id="upload-eyebrow"
+              class="canva-text text-sm font-bold"
+              style="
+                color: rgb(49, 92, 134);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >CONTRIBUTE RESPONSIBLY</span
+            >
+            <h2
+              id="upload-heading"
+              data-template-id="upload-title"
+              class="canva-text title-font font-extrabold mt-2"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 800;
+                font-style: normal;
+                font-size: 24px;
+              "
+            >
+              Upload event media
+            </h2>
+            <p
+              data-template-id="upload-intro"
+              class="canva-text mt-2"
+              style="
+                color: rgb(102, 117, 141);
+                font-weight: 400;
+                font-style: normal;
+                font-size: 16px;
+              "
+            >
+              Share a school-event memory for admin review and category
+              approval.
+            </p>
+            <form
+              id="upload-form"
+              class="clay rounded-[2rem] bg-[#fdfaf3] p-6 sm:p-8 mt-6"
+            >
+              <div class="grid md:grid-cols-2 gap-5">
+                <div>
+                  <label
+                    data-template-id="event-name-label"
+                    class="canva-text font-bold"
+                    for="event-name"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Event name</label
+                  ><input
+                    id="event-name"
+                    required=""
+                    class="focus-ring inset rounded-2xl w-full mt-2 px-4 py-3 bg-transparent outline-none"
+                    type="text"
+                  />
+                </div>
+                <div>
+                  <label
+                    data-template-id="upload-category-label"
+                    class="canva-text font-bold"
+                    for="upload-category"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Category</label
+                  ><select
+                    id="upload-category"
+                    required=""
+                    class="focus-ring inset rounded-2xl w-full mt-2 px-4 py-3 bg-transparent"
+                  >
+                    <option>Academic Events</option>
+                    <option>Sports Events</option>
+                    <option>Cultural Events</option>
+                    <option>Social Events</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    data-template-id="event-date-label"
+                    class="canva-text font-bold"
+                    for="event-date"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Event date</label
+                  ><input
+                    id="event-date"
+                    required=""
+                    class="focus-ring inset rounded-2xl w-full mt-2 px-4 py-3 bg-transparent"
+                    type="date"
+                  />
+                </div>
+                <div>
+                  <label
+                    data-template-id="description-label"
+                    class="canva-text font-bold"
+                    for="upload-description"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Short description</label
+                  ><input
+                    id="upload-description"
+                    class="focus-ring inset rounded-2xl w-full mt-2 px-4 py-3 bg-transparent outline-none"
+                    type="text"
+                  />
+                </div>
+              </div>
+              <label for="media-file" class="block mt-6"
+                ><span
+                  data-template-id="dropzone-label"
+                  class="canva-text font-bold"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Media file</span
+                ><span
+                  class="mt-2 clay rounded-3xl bg-[#d9efff] min-h-40 flex flex-col items-center justify-center text-center p-6 cursor-pointer"
+                  ><i data-lucide="file-up" class="w-8 h-8"></i
+                  ><span
+                    data-template-id="dropzone-copy"
+                    class="canva-text mt-3 font-semibold"
+                    style="
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Drop a file here or choose a sample file</span
+                  ><span
+                    data-template-id="dropzone-limits"
+                    class="canva-text mt-2 text-xs"
+                    style="
+                      color: rgb(102, 117, 141);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >JPEG, PNG, WebP, MP4 · Images max 10 MB · Videos max 50 MB
+                    and 2 minutes</span
+                  ></span
+                ></label
+              ><input
+                id="media-file"
+                class="sr-only"
+                type="file"
+                accept=".jpeg,.jpg,.png,.webp,.mp4"
+              />
+              <p
+                data-template-id="review-note"
+                class="canva-text mt-5 text-sm font-semibold"
+                style="
+                  color: rgb(86, 61, 134);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                All uploads are reviewed by an admin before publishing.
+              </p>
+              <button
+                data-template-id="submit-review-button"
+                class="canva-button press focus-ring mt-6 rounded-full bg-[#315c86] text-white px-6 py-3 font-bold"
+                type="submit"
+                style="
+                  background: rgb(49, 92, 134);
+                  color: rgb(255, 255, 255);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                Submit for review
+              </button>
+            </form>
+          </div>
+        </section>
+        <section
+          id="moderation"
+          class="view"
+          aria-labelledby="moderation-heading"
+        >
+          <div
+            data-template-id="audit-notice"
+            class="canva-banner clay rounded-3xl bg-[#ffe1d1] p-5 flex gap-3"
+            style="background: rgb(255, 225, 209)"
+          >
+            <i data-lucide="shield-check" class="shrink-0"></i>
+            <p
+              data-template-id="audit-notice-text"
+              class="canva-text font-semibold"
+              style="
+                color: rgb(107, 61, 39);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+            >
+              All announcements, uploads, approvals, and rejections are logged
+              in this capstone prototype.
+            </p>
+          </div>
+          <div class="mt-7 flex justify-between gap-4 items-end">
+            <div>
+              <span
+                data-template-id="moderation-eyebrow"
+                class="canva-text text-sm font-bold"
+                style="
+                  color: rgb(49, 92, 134);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >ROLE-AWARE WORKSPACE</span
+              >
+              <h2
+                id="moderation-heading"
+                data-template-id="moderation-title"
+                class="canva-text title-font font-extrabold mt-2"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 800;
+                  font-style: normal;
+                  font-size: 24px;
+                "
+              >
+                Admin Moderation
+              </h2>
+            </div>
+            <span
+              data-template-id="role-aware-tag"
+              class="canva-tag bg-[#e7defb] rounded-full px-3 py-2 text-xs font-bold"
+              style="
+                background: rgb(231, 222, 251);
+                color: rgb(86, 61, 134);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Admin view · Prototype</span
+            >
+          </div>
+          <div class="grid xl:grid-cols-2 gap-6 mt-6">
+            <article
+              id="pending-card-one"
+              class="clay rounded-3xl bg-[#fdfaf3] p-6"
+            >
+              <div class="flex justify-between gap-3">
+                <span
+                  data-template-id="pending-one-status"
+                  class="canva-tag bg-[#ffe1d1] rounded-full px-3 py-1 text-xs font-bold"
+                  style="
+                    background: rgb(255, 225, 209);
+                    color: rgb(107, 61, 39);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                  >Pending review</span
+                ><i data-lucide="image" class="w-5"></i>
+              </div>
+              <h3
+                data-template-id="pending-one-title"
+                class="canva-text font-bold mt-4"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 19px;
+                "
+              >
+                Foundation Day decor gallery
+              </h3>
+              <p
+                data-template-id="pending-one-uploader"
+                class="canva-text text-sm mt-2"
+                style="
+                  color: rgb(102, 117, 141);
+                  font-weight: 400;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+              >
+                Uploaded by: student@nova-schola.edu.ph
+              </p>
+              <label
+                data-template-id="assign-category-label"
+                class="canva-text block font-bold text-sm mt-4"
+                for="assign-category"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 16px;
+                "
+                >Assign category</label
+              ><select
+                id="assign-category"
+                class="focus-ring rounded-xl mt-2 p-2 bg-[#d9efff]"
+              >
+                <option>Academic Events</option>
+                <option>Sports Events</option>
+                <option>Cultural Events</option>
+                <option>Social Events</option>
+              </select>
+              <div class="flex gap-3 mt-5">
+                <button
+                  type="button"
+                  class="approve-btn press focus-ring rounded-full bg-[#dff5e8] px-4 py-2 font-bold"
+                >
+                  <span
+                    data-template-id="approve-label"
+                    class="canva-text"
+                    style="
+                      background: rgb(223, 245, 232);
+                      color: rgb(36, 96, 68);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Approve</span
+                  ></button
+                ><button
+                  type="button"
+                  class="reject-btn press focus-ring rounded-full bg-[#ffe1d1] px-4 py-2 font-bold"
+                >
+                  <span
+                    data-template-id="reject-label"
+                    class="canva-text"
+                    style="
+                      background: rgb(255, 225, 209);
+                      color: rgb(107, 61, 39);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Reject</span
+                  >
+                </button>
+              </div>
+            </article>
+            <article
+              data-template-id="audit-trail-panel"
+              class="canva-panel clay rounded-3xl bg-[#e7defb] p-6"
+              style="background: rgb(231, 222, 251)"
+            >
+              <h3
+                data-template-id="audit-trail-title"
+                class="canva-text title-font font-bold"
+                style="
+                  color: rgb(35, 52, 79);
+                  font-weight: 700;
+                  font-style: normal;
+                  font-size: 19px;
+                "
+              >
+                Concise audit trail
+              </h3>
+              <ol class="mt-5 space-y-4 text-sm">
+                <li>
+                  <span
+                    data-template-id="audit-one"
+                    class="canva-text"
+                    style="
+                      color: rgb(78, 82, 97);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Sample · Upload submitted for Foundation Day review.</span
+                  >
+                </li>
+                <li>
+                  <span
+                    data-template-id="audit-two"
+                    class="canva-text"
+                    style="
+                      color: rgb(78, 82, 97);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Sample · General announcement scheduled for
+                    publishing.</span
+                  >
+                </li>
+                <li>
+                  <span
+                    data-template-id="audit-three"
+                    class="canva-text"
+                    style="
+                      color: rgb(78, 82, 97);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >Sample · Category assignment recorded by admin.</span
+                  >
+                </li>
+              </ol>
+            </article>
+          </div>
+        </section>
+        <section id="account" class="view" aria-labelledby="account-heading">
+          <div class="max-w-5xl">
+            <span
+              data-template-id="access-eyebrow"
+              class="canva-text text-sm font-bold"
+              style="
+                color: rgb(49, 92, 134);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >ACCOUNT &amp; ACCESS</span
+            >
+            <h2
+              id="account-heading"
+              data-template-id="access-title"
+              class="canva-text title-font font-extrabold mt-2"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 800;
+                font-style: normal;
+                font-size: 24px;
+              "
+            >
+              Built for the NST community
+            </h2>
+            <article
+              data-template-id="email-access-panel"
+              class="canva-card clay bg-[#d9efff] rounded-3xl p-6 mt-6"
+              style="background: rgb(217, 239, 255)"
+            >
+              <div class="flex gap-3">
+                <i data-lucide="mail-check"></i>
+                <div>
+                  <h3
+                    data-template-id="email-access-title"
+                    class="canva-text font-bold"
+                    style="
+                      color: rgb(35, 52, 79);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 19px;
+                    "
+                  >
+                    Official NST email-only access
+                  </h3>
+                  <p
+                    data-template-id="email-access-copy"
+                    class="canva-text mt-2"
+                    style="
+                      color: rgb(78, 82, 97);
+                      font-weight: 400;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                  >
+                    Access is designed for verified school community accounts
+                    only.
+                  </p>
+                  <span
+                    data-template-id="masked-email"
+                    class="canva-tag inline-block inset rounded-xl px-3 py-2 mt-4 font-bold"
+                    style="
+                      background: rgb(253, 250, 243);
+                      color: rgb(49, 92, 134);
+                      font-weight: 700;
+                      font-style: normal;
+                      font-size: 16px;
+                    "
+                    >student@nova-schola.edu.ph</span
+                  >
+                </div>
+              </div>
+            </article>
+            <h3
+              data-template-id="roles-title"
+              class="canva-text title-font font-bold mt-8"
+              style="
+                color: rgb(35, 52, 79);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 19px;
+              "
+            >
+              Role-aware permissions
+            </h3>
+            <div class="grid md:grid-cols-3 gap-5 mt-4">
+              <article
+                data-template-id="admin-role-card"
+                class="canva-card clay bg-[#e7defb] rounded-3xl p-5"
+                style="background: rgb(231, 222, 251)"
+              >
+                <i data-lucide="shield"></i>
+                <h4
+                  data-template-id="admin-role-title"
+                  class="canva-text font-bold mt-4"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Admin
+                </h4>
+                <p
+                  data-template-id="admin-role-copy"
+                  class="canva-text mt-2 text-sm"
+                  style="
+                    color: rgb(78, 82, 97);
+                    font-weight: 400;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Moderates uploads, manages categories, and oversees official
+                  content.
+                </p>
+              </article>
+              <article
+                data-template-id="teacher-role-card"
+                class="canva-card clay bg-[#dff5e8] rounded-3xl p-5"
+                style="background: rgb(223, 245, 232)"
+              >
+                <i data-lucide="book-open-check"></i>
+                <h4
+                  data-template-id="teacher-role-title"
+                  class="canva-text font-bold mt-4"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Teacher
+                </h4>
+                <p
+                  data-template-id="teacher-role-copy"
+                  class="canva-text mt-2 text-sm"
+                  style="
+                    color: rgb(78, 82, 97);
+                    font-weight: 400;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Creates public or targeted class announcements and uploads
+                  event media.
+                </p>
+              </article>
+              <article
+                data-template-id="student-role-card"
+                class="canva-card clay bg-[#ffe1d1] rounded-3xl p-5"
+                style="background: rgb(255, 225, 209)"
+              >
+                <i data-lucide="school"></i>
+                <h4
+                  data-template-id="student-role-title"
+                  class="canva-text font-bold mt-4"
+                  style="
+                    color: rgb(35, 52, 79);
+                    font-weight: 700;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Student
+                </h4>
+                <p
+                  data-template-id="student-role-copy"
+                  class="canva-text mt-2 text-sm"
+                  style="
+                    color: rgb(78, 82, 97);
+                    font-weight: 400;
+                    font-style: normal;
+                    font-size: 16px;
+                  "
+                >
+                  Views relevant updates, discovers events, and submits media
+                  for review.
+                </p>
+              </article>
+            </div>
+            <p
+              data-template-id="manual-account-note"
+              class="canva-text mt-6 text-sm font-semibold"
+              style="
+                color: rgb(86, 61, 134);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+            >
+              Accounts are manually created by the school admin. No social
+              sign-in is included.
+            </p>
+          </div>
+        </section>
+        <footer class="mt-12 pb-4 text-center">
+          <p
+            data-template-id="footer-text"
+            class="canva-text text-xs"
+            style="
+              color: rgb(102, 117, 141);
+              font-weight: 400;
+              font-style: normal;
+              font-size: 16px;
+            "
+          >
+            Nova Schola Tanauan · Bachelor of Science in Information Systems ·
+            Capstone Prototype · March 2026
+          </p>
+        </footer>
+      </main>
+    </div>
+    <div
+      id="detail-modal"
+      class="modal fixed inset-0 z-50 bg-[#23344f88] p-4 items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detail-modal-title"
+    >
+      <div
+        class="clay bg-[#fdfaf3] rounded-[2rem] max-w-2xl w-full p-7 relative"
+      >
+        <button
+          class="close-modal focus-ring absolute right-5 top-5 rounded-xl p-2"
+          type="button"
+          aria-label="Close detail"
+        >
+          <i data-lucide="x"></i></button
+        ><span
+          data-template-id="detail-modal-type"
+          class="canva-tag bg-[#d9efff] rounded-full px-3 py-1 text-xs font-bold"
+          style="
+            background: rgb(217, 239, 255);
+            color: rgb(49, 92, 134);
+            font-weight: 700;
+            font-style: normal;
+            font-size: 16px;
+          "
+          >ANNOUNCEMENT DETAIL · SAMPLE</span
+        >
+        <h2
+          id="detail-modal-title"
+          data-template-id="detail-modal-heading"
+          class="canva-text title-font font-bold mt-4"
+          style="
+            color: rgb(35, 52, 79);
+            font-weight: 700;
+            font-style: normal;
+            font-size: 24px;
+          "
+        >
+          Foundation Day 2026
+        </h2>
+        <p
+          data-template-id="detail-modal-copy"
+          class="canva-text mt-3"
+          style="
+            color: rgb(78, 82, 97);
+            font-weight: 400;
+            font-style: normal;
+            font-size: 16px;
+          "
+        >
+          General Announcements are public and can appear on the website
+          homepage and school TV screens. Class Announcements stay private and
+          only reach selected audiences.
+        </p>
+        <img
+          data-template-id="announcement-detail-image"
+          loading="lazy"
+          class="canva-image rounded-3xl w-full h-40 object-cover mt-5 media-img"
+          src="https://images.pexels.com/photos/17071464/pexels-photo-17071464.png"
+          alt="A group of teenagers posing under a balloon arch outdoors at a school celebration."
+        />
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span
+            data-template-id="audience-chip-one"
+            class="canva-tag bg-[#e7defb] rounded-full px-3 py-2 text-xs font-bold"
+            style="
+              background: rgb(231, 222, 251);
+              color: rgb(86, 61, 134);
+              font-weight: 700;
+              font-style: normal;
+              font-size: 16px;
+            "
+            >Grade 10 - Emerald</span
+          ><span
+            data-template-id="audience-chip-two"
+            class="canva-tag bg-[#dff5e8] rounded-full px-3 py-2 text-xs font-bold"
+            style="
+              background: rgb(223, 245, 232);
+              color: rgb(36, 96, 68);
+              font-weight: 700;
+              font-style: normal;
+              font-size: 16px;
+            "
+            >BSIS 3</span
+          ><span
+            data-template-id="audience-chip-three"
+            class="canva-tag bg-[#ffe1d1] rounded-full px-3 py-2 text-xs font-bold"
+            style="
+              background: rgb(255, 225, 209);
+              color: rgb(107, 61, 39);
+              font-weight: 700;
+              font-style: normal;
+              font-size: 16px;
+            "
+            >Selected students</span
+          >
+        </div>
+        <p
+          data-template-id="scheduled-meta"
+          class="canva-text text-sm mt-5"
+          style="
+            color: rgb(102, 117, 141);
+            font-weight: 400;
+            font-style: normal;
+            font-size: 16px;
+          "
+        >
+          Sample metadata · Scheduled publishing: March 2026 · Official NST
+          channel
+        </p>
+        <div class="mt-5 flex gap-3">
+          <button
+            type="button"
+            class="prototype-action focus-ring rounded-full bg-[#d9efff] px-4 py-2 font-bold"
+          >
+            <span
+              data-template-id="edit-action-label"
+              class="canva-text"
+              style="
+                background: rgb(217, 239, 255);
+                color: rgb(49, 92, 134);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Edit sample</span
+            ></button
+          ><button
+            type="button"
+            class="prototype-action focus-ring rounded-full bg-[#ffe1d1] px-4 py-2 font-bold"
+          >
+            <span
+              data-template-id="delete-action-label"
+              class="canva-text"
+              style="
+                background: rgb(255, 225, 209);
+                color: rgb(107, 61, 39);
+                font-weight: 700;
+                font-style: normal;
+                font-size: 16px;
+              "
+              >Delete sample</span
+            >
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="review-modal"
+      class="modal fixed inset-0 z-50 bg-[#23344f88] p-4 items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="review-modal-title"
+    >
+      <div class="clay bg-[#fdfaf3] rounded-[2rem] max-w-lg w-full p-7">
+        <i data-lucide="circle-check-big" class="text-[#315c86]"></i>
+        <h2
+          id="review-modal-title"
+          data-template-id="review-modal-title-text"
+          class="canva-text title-font font-bold mt-4"
+          style="
+            color: rgb(35, 52, 79);
+            font-weight: 700;
+            font-style: normal;
+            font-size: 24px;
+          "
+        >
+          Ready for review
+        </h2>
+        <p
+          data-template-id="review-modal-copy"
+          class="canva-text mt-3"
+          style="
+            color: rgb(78, 82, 97);
+            font-weight: 400;
+            font-style: normal;
+            font-size: 16px;
+          "
+        >
+          Your sample media submission has entered the admin review queue. It
+          will remain unpublished until approved.
+        </p>
+        <button
+          id="close-review"
+          type="button"
+          class="focus-ring press rounded-full bg-[#315c86] text-white px-5 py-3 font-bold mt-6"
+        >
+          <span
+            data-template-id="review-modal-button"
+            class="canva-text"
+            style="
+              background: rgb(49, 92, 134);
+              color: rgb(255, 255, 255);
+              font-weight: 700;
+              font-style: normal;
+              font-size: 16px;
+            "
+            >Done</span
+          >
+        </button>
+      </div>
+    </div>
+    <div
+      id="toast"
+      class="toast fixed bottom-6 right-6 z-[60] clay rounded-2xl bg-[#23344f] text-white px-5 py-4 font-bold"
+      role="status"
+      aria-live="polite"
+    ></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+        const toast = document.getElementById("toast");
+        function showToast(message) {
+          toast.textContent = message;
+          toast.classList.add("show");
+          setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+        function showView(name) {
+          document
+            .querySelectorAll(".view")
+            .forEach((v) => v.classList.toggle("active", v.id === name));
+          document
+            .querySelectorAll("[data-view]")
+            .forEach((b) =>
+              b.classList.toggle("active", b.dataset.view === name),
+            );
+          document.getElementById("drawer").classList.remove("open");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        document
+          .querySelectorAll("[data-view]")
+          .forEach((b) =>
+            b.addEventListener("click", () => showView(b.dataset.view)),
+          );
+        document
+          .querySelectorAll(".go-view")
+          .forEach((b) =>
+            b.addEventListener("click", () => showView(b.dataset.view)),
+          );
+        document
+          .getElementById("open-drawer")
+          .addEventListener("click", () =>
+            document.getElementById("drawer").classList.add("open"),
+          );
+        document
+          .getElementById("close-drawer")
+          .addEventListener("click", () =>
+            document.getElementById("drawer").classList.remove("open"),
+          );
+        document
+          .querySelectorAll(".expand-announcement")
+          .forEach((b) =>
+            b.addEventListener("click", () =>
+              b.nextElementSibling.classList.toggle("hidden"),
+            ),
+          );
+        const detail = document.getElementById("detail-modal");
+        document
+          .querySelectorAll(".open-detail")
+          .forEach((b) =>
+            b.addEventListener("click", () => detail.classList.add("open")),
+          );
+        document
+          .querySelector(".close-modal")
+          .addEventListener("click", () => detail.classList.remove("open"));
+        document
+          .querySelectorAll(".prototype-action")
+          .forEach((b) =>
+            b.addEventListener("click", () =>
+              showToast("Prototype action recorded."),
+            ),
+          );
+        let selectedType = "all";
+        const search = document.getElementById("announcement-search");
+        function filterAnnouncements() {
+          const q = search.value.toLowerCase();
+          document
+            .querySelectorAll(".filterable-ann")
+            .forEach(
+              (c) =>
+                (c.style.display =
+                  (selectedType === "all" || c.dataset.type === selectedType) &&
+                  c.dataset.search.includes(q)
+                    ? "block"
+                    : "none"),
+            );
+        }
+        document.querySelectorAll(".announcement-filter").forEach((b) =>
+          b.addEventListener("click", () => {
+            selectedType = b.dataset.type;
+            document
+              .querySelectorAll(".announcement-filter")
+              .forEach((x) => x.classList.remove("ring-2", "ring-[#315c86]"));
+            b.classList.add("ring-2", "ring-[#315c86]");
+            filterAnnouncements();
+          }),
+        );
+        search.addEventListener("input", filterAnnouncements);
+        const gallerySearch = document.getElementById("gallery-search"),
+          category = document.getElementById("category-filter");
+        function filterGallery() {
+          const q = gallerySearch.value.toLowerCase();
+          document
+            .querySelectorAll(".gallery-card")
+            .forEach(
+              (c) =>
+                (c.style.display =
+                  (category.value === "All categories" ||
+                    category.value === c.dataset.category) &&
+                  c.dataset.search.includes(q)
+                    ? "block"
+                    : "none"),
+            );
+        }
+        gallerySearch.addEventListener("input", filterGallery);
+        category.addEventListener("change", filterGallery);
+        document
+          .getElementById("create-announcement")
+          .addEventListener("click", () =>
+            showToast(
+              "Role-aware prototype: announcement composer opened for teachers and admins.",
+            ),
+          );
+        document
+          .getElementById("upload-form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!document.getElementById("media-file").files.length) {
+              showToast("Choose a JPEG, PNG, WebP, or MP4 sample file first.");
+              return;
+            }
+            document.getElementById("review-modal").classList.add("open");
+          });
+        document
+          .getElementById("close-review")
+          .addEventListener("click", () => {
+            document.getElementById("review-modal").classList.remove("open");
+            document.getElementById("upload-form").reset();
+            showToast("Media submitted for admin review.");
+          });
+        document.querySelectorAll(".approve-btn").forEach((b) =>
+          b.addEventListener("click", () => {
+            b
+              .closest("article")
+              .querySelector(
+                '[data-template-id="pending-one-status"]',
+              ).textContent = "Approved in prototype";
+            showToast("Upload approved and logged.");
+          }),
+        );
+        document.querySelectorAll(".reject-btn").forEach((b) =>
+          b.addEventListener("click", () => {
+            b
+              .closest("article")
+              .querySelector(
+                '[data-template-id="pending-one-status"]',
+              ).textContent = "Rejected in prototype";
+            showToast("Upload rejected and logged.");
+          }),
+        );
+      });
+    </script>
+  </body>
+</html>
