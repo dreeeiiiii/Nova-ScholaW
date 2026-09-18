@@ -192,11 +192,6 @@ describe('B1.3 status=scheduled bypass + ?upcoming=true', () => {
   });
 
   it('student ?upcoming=true with no matches → { announcements: [], total: 0 } (via new student in other section with no targeted)', async () => {
-    // Create isolated student tied to otherSection but search specific — already covered empty case via q? We test empty upcoming via new student with no general? Actually general scheduled is visible to all students, so to get 0 we need clean state — we verify that filtering works by asserting untargeted not included and general included. For true empty, delete all UPCOMING and query? Instead test that student upcoming total is consistent with announcements length.
-    const res = await getJson(baseUrl, '/api/announcements?upcoming=true', studentToken);
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    // If we delete everything, student would get 0 — instead verify that response shape has total 0 when no future announcements exist for a fresh time window far future
     // Use limit/offset beyond total to force empty page but total still correct — verify pagination doesn't zero total
     const resPaged = await getJson(baseUrl, '/api/announcements?upcoming=true&offset=100', studentToken);
     assert.equal(resPaged.status, 200);
@@ -234,5 +229,20 @@ describe('B1.3 status=scheduled bypass + ?upcoming=true', () => {
     const res = await getJson(baseUrl, '/api/announcements?upcoming=true', adminToken);
     const body = await res.json();
     assert.ok(!body.announcements.some((a) => a.title === 'UPCOMING_Published_Now'));
+  });
+
+  it('student with no scheduled general and no targeted → { announcements: [], total: 0 } true empty-state', async () => {
+    const before = await getJson(baseUrl, '/api/announcements?upcoming=true', studentToken);
+    const beforeBody = await before.json();
+    const snapshotTotal = beforeBody.total;
+    assert.ok(snapshotTotal > 0, 'precondition: there are upcoming rows to delete');
+
+    await query(`DELETE FROM announcements WHERE publish_at IS NOT NULL AND publish_at > NOW()`);
+
+    const resEmpty = await getJson(baseUrl, '/api/announcements?upcoming=true', studentToken);
+    assert.equal(resEmpty.status, 200);
+    const bodyEmpty = await resEmpty.json();
+    assert.equal(bodyEmpty.announcements.length, 0);
+    assert.equal(bodyEmpty.total, 0);
   });
 });
