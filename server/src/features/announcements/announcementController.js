@@ -126,14 +126,47 @@ export const createClassAnnouncement = async (req, res, next) => {
 
 export const listAnnouncements = async (req, res, next) => {
   try {
-    const type = req.query.type === 'general' || req.query.type === 'class' ? req.query.type : undefined;
-    const status = req.query.status === 'draft' || req.query.status === 'scheduled' || req.query.status === 'published' || req.query.status === 'archived'
-      ? req.query.status
+    const statusRaw = req.query.status;
+    const status = statusRaw === 'draft' || statusRaw === 'scheduled' || statusRaw === 'published' || statusRaw === 'archived'
+      ? statusRaw
       : undefined;
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
-    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const upcomingRaw = req.query.upcoming;
+    const isUpcoming = upcomingRaw === 'true';
     const rawQ = typeof req.query.q === 'string' ? req.query.q.trim() : '';
     const q = rawQ === '' ? undefined : rawQ;
+
+    if (isUpcoming && status !== undefined) {
+      return res.status(400).json({ status: 400, message: '?upcoming=true cannot be combined with ?status.' });
+    }
+
+    if (isUpcoming) {
+      const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+      const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+      let announcements;
+      let total;
+      if (req.user.role === 'student') {
+        announcements = await announcementRepo.listUpcomingForStudent({
+          userId: req.user.id,
+          section_id: req.user.section_id,
+          course_id: req.user.course_id,
+          limit,
+          offset,
+        });
+        total = await announcementRepo.countUpcomingForStudent({
+          userId: req.user.id,
+          section_id: req.user.section_id,
+          course_id: req.user.course_id,
+        });
+      } else {
+        announcements = await announcementRepo.listUpcoming({ limit, offset });
+        total = await announcementRepo.countUpcoming();
+      }
+      return res.json({ announcements, total });
+    }
+
+    const type = req.query.type === 'general' || req.query.type === 'class' ? req.query.type : undefined;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
 
     let announcements;
     let total;

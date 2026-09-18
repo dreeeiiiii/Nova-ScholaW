@@ -57,7 +57,11 @@ export const listAnnouncements = async ({ type, author_id, status, limit = 50, o
     conditions.push(`(a.title ILIKE $${qIdx} OR a.content ILIKE $${qIdx})`);
   }
 
-conditions.push(SCHEDULING_FILTER_ALIAS);
+  if (status === 'scheduled') {
+    conditions.push(`a.publish_at IS NOT NULL AND a.publish_at > NOW()`);
+  } else {
+    conditions.push(SCHEDULING_FILTER_ALIAS);
+  }
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
@@ -76,6 +80,103 @@ conditions.push(SCHEDULING_FILTER_ALIAS);
      params
   );
    return rows;
+};
+
+export const listUpcoming = async ({ limit = 10, offset = 0 } = {}) => {
+  const limitNum = Math.min(Math.max(Number(limit) || 10, 1), 50);
+  const offsetNum = Math.max(Number(offset) || 0, 0);
+  const { rows } = await query(
+    `SELECT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
+       FROM announcements a
+       LEFT JOIN users u ON u.id = a.author_id
+      WHERE a.publish_at IS NOT NULL AND a.publish_at > NOW()
+      ORDER BY a.publish_at ASC
+      LIMIT $1 OFFSET $2`,
+    [limitNum, offsetNum]
+  );
+  return rows;
+};
+
+export const countUpcoming = async () => {
+  const { rows } = await query(
+    `SELECT COUNT(*)::int AS total FROM announcements WHERE publish_at IS NOT NULL AND publish_at > NOW()`
+  );
+  return rows[0].total;
+};
+
+export const listUpcomingForStudent = async ({ userId, section_id, course_id, limit = 10, offset = 0 } = {}) => {
+  const limitNum = Math.min(Math.max(Number(limit) || 10, 1), 50);
+  const offsetNum = Math.max(Number(offset) || 0, 0);
+  const conditions = [];
+  const params = [userId];
+  let paramIndex = 1;
+
+  if (section_id !== null && section_id !== undefined) {
+    paramIndex++;
+    params.push(section_id);
+    conditions.push(`at.target_type = 'section' AND at.section_id = $${paramIndex}`);
+  }
+  if (course_id !== null && course_id !== undefined) {
+    paramIndex++;
+    params.push(course_id);
+    conditions.push(`at.target_type = 'course' AND at.course_id = $${paramIndex}`);
+  }
+  conditions.push(`at.target_type = 'student' AND at.student_id = $1`);
+  const targetConditions = conditions.join(' OR ');
+
+  const { rows } = await query(
+    `SELECT DISTINCT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
+       FROM announcements a
+       LEFT JOIN announcement_targets at ON at.announcement_id = a.id
+       LEFT JOIN users u ON u.id = a.author_id
+      WHERE a.publish_at IS NOT NULL AND a.publish_at > NOW()
+        AND (
+          a.type = 'general'
+          OR (
+            a.type = 'class'
+            AND (${targetConditions})
+          )
+        )
+      ORDER BY a.publish_at ASC
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+    [...params, limitNum, offsetNum]
+  );
+  return rows;
+};
+
+export const countUpcomingForStudent = async ({ userId, section_id, course_id } = {}) => {
+  const conditions = [];
+  const params = [userId];
+  let paramIndex = 1;
+
+  if (section_id !== null && section_id !== undefined) {
+    paramIndex++;
+    params.push(section_id);
+    conditions.push(`at.target_type = 'section' AND at.section_id = $${paramIndex}`);
+  }
+  if (course_id !== null && course_id !== undefined) {
+    paramIndex++;
+    params.push(course_id);
+    conditions.push(`at.target_type = 'course' AND at.course_id = $${paramIndex}`);
+  }
+  conditions.push(`at.target_type = 'student' AND at.student_id = $1`);
+  const targetConditions = conditions.join(' OR ');
+
+  const { rows } = await query(
+    `SELECT COUNT(DISTINCT a.id)::int AS total
+       FROM announcements a
+       LEFT JOIN announcement_targets at ON at.announcement_id = a.id
+      WHERE a.publish_at IS NOT NULL AND a.publish_at > NOW()
+        AND (
+          a.type = 'general'
+          OR (
+            a.type = 'class'
+            AND (${targetConditions})
+          )
+        )`,
+    params
+  );
+  return rows[0].total;
 };
 
 export const listForStudent = async ({ userId, section_id, course_id, limit = 50, offset = 0, q } = {}) => {
@@ -193,7 +294,11 @@ export const countAnnouncements = async ({ type, author_id, status, q } = {}) =>
     conditions.push(`(title ILIKE $${qIdx} OR content ILIKE $${qIdx})`);
   }
 
-  conditions.push(SCHEDULING_FILTER);
+  if (status === 'scheduled') {
+    conditions.push(`publish_at IS NOT NULL AND publish_at > NOW()`);
+  } else {
+    conditions.push(SCHEDULING_FILTER);
+  }
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 

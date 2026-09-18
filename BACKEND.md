@@ -157,7 +157,7 @@ export const listCategories = async () => {
 | **auth** | Login, JWT issuance, current-user lookup, logout | `users` (read) | `authRoutes.js` | `authController.js` |
 | **users** | User CRUD (admin-only), activate/deactivate, student search (teacher+admin) | `users` | `userRoutes.js` | `userController.js`, `userModel.js` |
 | **academic** | Sections & courses CRUD, delete-guards | `sections`, `courses` | `academicRoutes.js` | `academicController.js`, `sectionModel.js`, `courseModel.js` |
-| **announcements** | Create/list/edit/delete announcements, targeting, TV feed, image upload, search (`q` on list) | `announcements`, `announcement_targets` | `announcementRoutes.js` | `announcementController.js`, `announcementModel.js`, `upload.js` |
+| **announcements** | Create/list/edit/delete announcements, targeting, TV feed, image upload, search (`q`), scheduled (`?status=scheduled` bypass) & upcoming (`?upcoming=true`) | `announcements`, `announcement_targets` | `announcementRoutes.js` | `announcementController.js`, `announcementModel.js`, `upload.js` |
 | **gallery** | Media upload, approve/reject, browse, search, my-uploads | `gallery_media` | `galleryRoutes.js` | `galleryController.js`, `galleryModel.js`, `galleryUpload.js` |
 | **categories** | Gallery category CRUD | `categories` | `categoryRoutes.js` | `categoryController.js`, `categoryModel.js` |
 | **dashboard** | Admin aggregate statistics | `users`, `announcements`, `gallery_media` (reads only) | `dashboardRoutes.js` | `dashboardController.js`, `dashboardModel.js` |
@@ -235,7 +235,24 @@ router.get('/search', searchGallery);                         // public (no auth
 const teacherOrAdmin = [authenticate, requireRole('admin', 'teacher')];
 router.get('/students/search', teacherOrAdmin, searchStudents); // teacher + admin
 router.get('/', adminOnly, listUsers);                        // admin only (unchanged)
+
+// src/features/announcements/announcementController.js — GET /api/announcements query semantics
+// ?q=string — ILIKE on title OR content (additive with type/status/limit/offset, student-aware)
+// ?status=scheduled — bypasses SCHEDULING_FILTER and returns publish_at > NOW() (teacher/admin only)
+// ?upcoming=true — publish_at in the future (not "future event dates"); bypasses filter, ordered by publish_at ASC
+//   limit 10 default max 50, role-aware (student: general+targeted scheduled), mutually exclusive with ?status (400)
 ```
+
+### Announcements query parameters (GET /api/announcements)
+
+| Param | Type | Notes |
+| --- | --- | --- |
+| `type` | `general\|class` | Filter by announcement type (teacher/admin). Ignored for students. Silently ignored when `upcoming=true`. |
+| `status` | `draft\|scheduled\|published\|archived` | Teacher/admin only. `scheduled` bypasses the scheduling filter (`publish_at > NOW()`). All other values keep `SCHEDULING_FILTER`. Mutually exclusive with `upcoming=true` (→ 400). |
+| `upcoming` | `true` | When `upcoming=true` the endpoint returns **announcements whose `publish_at` is in the future** — not "events with future dates". Bypasses `SCHEDULING_FILTER`, ordered by `publish_at ASC`, `limit` default `10` max `50`, `offset` supported. Role-aware: admin/teacher → all scheduled; student → scheduled general + scheduled class targeting them. `?type` is silently ignored. |
+| `q` | `string` | Case-insensitive substring (`ILIKE`) on `title` OR `content`. Additive with `type/status`. Empty/missing → no filter. Ignored when `upcoming=true`. |
+| `limit` | `int` | Default `50` (or `10` for `upcoming`), max `100` (or `50` for `upcoming`). |
+| `offset` | `int` | Default `0`. |
 
 # Database Access
 
