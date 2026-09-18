@@ -35,7 +35,7 @@ export const findById = async (id) => {
 const SCHEDULING_FILTER = `(publish_at IS NULL OR publish_at <= NOW()) AND (expires_at IS NULL OR expires_at > NOW())`;
 const SCHEDULING_FILTER_ALIAS = `(a.publish_at IS NULL OR a.publish_at <= NOW()) AND (a.expires_at IS NULL OR a.expires_at > NOW())`;
 
-export const listAnnouncements = async ({ type, author_id, status, limit = 50, offset = 0 } = {}) => {
+export const listAnnouncements = async ({ type, author_id, status, limit = 50, offset = 0, q } = {}) => {
   const conditions = [];
   const params = [];
 
@@ -50,6 +50,11 @@ export const listAnnouncements = async ({ type, author_id, status, limit = 50, o
   if (status) {
     params.push(status);
     conditions.push(`a.status = $${params.length}`);
+  }
+  if (typeof q === 'string' && q.trim() !== '') {
+    params.push(`%${q.trim()}%`);
+    const qIdx = params.length;
+    conditions.push(`(a.title ILIKE $${qIdx} OR a.content ILIKE $${qIdx})`);
   }
 
 conditions.push(SCHEDULING_FILTER_ALIAS);
@@ -69,11 +74,11 @@ conditions.push(SCHEDULING_FILTER_ALIAS);
        ORDER BY a.created_at DESC
        LIMIT $${limitParam} OFFSET $${offsetParam}`,
      params
-   );
+  );
    return rows;
- };
+};
 
-export const listForStudent = async ({ userId, section_id, course_id, limit = 50, offset = 0 } = {}) => {
+export const listForStudent = async ({ userId, section_id, course_id, limit = 50, offset = 0, q } = {}) => {
   const conditions = [];
   const params = [userId];
   let paramIndex = 1;
@@ -90,19 +95,27 @@ export const listForStudent = async ({ userId, section_id, course_id, limit = 50
   }
   conditions.push(`at.target_type = 'student' AND at.student_id = $1`);
 
+  const hasQ = typeof q === 'string' && q.trim() !== '';
+  let qIdx = null;
+  if (hasQ) {
+    params.push(`%${q.trim()}%`);
+    qIdx = params.length;
+  }
+
   params.push(limit);
   const limitParam = params.length;
   params.push(offset);
   const offsetParam = params.length;
 
   const targetConditions = conditions.join(' OR ');
+  const qCondition = hasQ ? ` AND (a.title ILIKE $${qIdx} OR a.content ILIKE $${qIdx})` : '';
 const { rows } = await query(
     `SELECT DISTINCT a.${ANNOUNCEMENT_COLUMNS.split(',').join(', a.')}, u.full_name AS author_name
        FROM announcements a
        LEFT JOIN announcement_targets at ON at.announcement_id = a.id
        LEFT JOIN users u ON u.id = a.author_id
 WHERE a.status = 'published'
-          AND ${SCHEDULING_FILTER_ALIAS}
+          AND ${SCHEDULING_FILTER_ALIAS}${qCondition}
          AND (
            a.type = 'general'
            OR (
@@ -158,7 +171,7 @@ export const getTargets = async (announcement_id) => {
   return rows;
 };
 
-export const countAnnouncements = async ({ type, author_id, status } = {}) => {
+export const countAnnouncements = async ({ type, author_id, status, q } = {}) => {
   const conditions = [];
   const params = [];
 
@@ -173,6 +186,11 @@ export const countAnnouncements = async ({ type, author_id, status } = {}) => {
   if (status) {
     params.push(status);
     conditions.push(`status = $${params.length}`);
+  }
+  if (typeof q === 'string' && q.trim() !== '') {
+    params.push(`%${q.trim()}%`);
+    const qIdx = params.length;
+    conditions.push(`(title ILIKE $${qIdx} OR content ILIKE $${qIdx})`);
   }
 
   conditions.push(SCHEDULING_FILTER);

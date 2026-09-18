@@ -132,6 +132,8 @@ export const listAnnouncements = async (req, res, next) => {
       : undefined;
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
     const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const rawQ = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    const q = rawQ === '' ? undefined : rawQ;
 
     let announcements;
     let total;
@@ -143,11 +145,12 @@ export const listAnnouncements = async (req, res, next) => {
         course_id: req.user.course_id,
         limit,
         offset,
+        q,
       });
       total = announcements.length;
     } else {
-      announcements = await announcementRepo.listAnnouncements({ type, author_id: undefined, status, limit, offset });
-      total = await announcementRepo.countAnnouncements({ type, author_id: undefined, status });
+      announcements = await announcementRepo.listAnnouncements({ type, author_id: undefined, status, limit, offset, q });
+      total = await announcementRepo.countAnnouncements({ type, author_id: undefined, status, q });
     }
 
     return res.json({ announcements, total });
