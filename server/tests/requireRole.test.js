@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import requireRole from '../src/middleware/requireRole.js';
+import requireRole from '../src/shared/middleware/requireRole.js';
 
 const makeRes = () => {
   const res = { statusCode: null, body: null };

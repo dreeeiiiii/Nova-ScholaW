@@ -52,15 +52,35 @@ const AmbientBlobs = () => {
 };
 
 const Navbar = () => {
-  const { isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll(); // sync on mount in case page loads mid-scroll
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Lock body scroll while the mobile/tablet menu is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
+  // Close the menu if the viewport grows past the desktop breakpoint
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setMobileOpen(false);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [mobileOpen]);
 
   const navLinks = [
     { label: 'Features', href: '#features' },
@@ -70,100 +90,136 @@ const Navbar = () => {
   ];
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={`fixed top-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 transition-all duration-300 ${
-        scrolled
-          ? 'bg-surface/90 backdrop-blur-xl shadow-clay'
-          : 'bg-surface/70 backdrop-blur-md shadow-clay-sm'
-      }`}
-      style={{ borderRadius: 9999 }}
-    >
-      <nav className="relative mx-auto flex items-center px-5 py-3">
-        {/* Left: Logo */}
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-clay-sm bg-primary font-heading text-sm font-extrabold text-white">
-            NSH
-          </div>
-          <span className="hidden font-heading text-lg font-bold text-text-main sm:block">
-            Nova Schola Hub
-          </span>
-        </Link>
-
-        {/* Center: Navigation links */}
-        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="rounded-clay-pill px-4 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-primary/10 hover:text-primary"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Right: Action buttons */}
-        <div className="ml-auto hidden items-center gap-2.5 md:flex">
-          <Link
-            to="/login"
-            className="clay-btn-sm rounded-clay-pill bg-surface px-5 py-2.5 text-sm font-semibold text-text-main transition-all hover:shadow-clay-hover"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/gallery"
-            className="clay-btn rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-clay-hover"
-          >
-            View Gallery
-          </Link>
-        </div>
-
-        {/* Mobile: Hamburger */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="clay-btn-sm ml-auto flex h-10 w-10 items-center justify-center rounded-clay-pill bg-surface text-text-main md:hidden"
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
-      </nav>
-
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="overflow-hidden border-t border-primary/10 px-5 pb-4 md:hidden"
-          >
-            <div className="flex flex-col gap-2 pt-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-clay-pill px-4 py-2.5 text-sm font-medium text-text-muted hover:bg-primary/10"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <Link
-                to="/login"
-                onClick={() => setMobileOpen(false)}
-                className="clay-btn rounded-clay-pill bg-primary px-4 py-2.5 text-center text-sm font-semibold text-white"
-              >
-                Sign In
-              </Link>
+    <div className="pointer-events-none fixed inset-x-0 top-2 z-50 flex justify-center px-3 sm:top-4 sm:px-4">
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className={`pointer-events-auto w-full max-w-5xl overflow-hidden transition-all duration-300 ${
+          mobileOpen ? 'rounded-clay' : 'rounded-clay-pill'
+        } ${
+          scrolled
+            ? 'bg-surface/90 backdrop-blur-xl shadow-clay'
+            : 'bg-surface/70 backdrop-blur-md shadow-clay-sm'
+        }`}
+      >
+        <nav className="relative mx-auto flex items-center gap-2 px-3 py-2.5 sm:px-5 sm:py-3">
+          {/* Left: Logo */}
+          <Link to="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-clay-sm bg-primary font-heading text-xs font-extrabold text-white sm:h-10 sm:w-10 sm:text-sm">
+              NSH
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+            <span className="hidden font-heading text-base font-bold text-text-main sm:block sm:text-lg">
+              Nova Schola Hub
+            </span>
+          </Link>
+
+          {/* Center links — only at lg+ so tablets get the drawer instead */}
+          <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-0.5 lg:flex">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="rounded-clay-pill px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-primary/10 hover:text-primary xl:px-4"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Action buttons — only at lg+ */}
+          <div className="ml-auto hidden items-center gap-2 lg:flex">
+            <Link
+              to="/login"
+              className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2.5 text-sm font-semibold text-text-main transition-all hover:shadow-clay-hover xl:px-5"
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/gallery"
+              className="clay-btn rounded-clay-pill bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:shadow-clay-hover xl:px-5"
+            >
+              View Gallery
+            </Link>
+          </div>
+
+          {/* Mobile + Tablet: Hamburger */}
+<button
+type="button"
+onClick={() => setMobileOpen((v) => !v)}
+className="clay-btn-sm relative ml-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-clay-pill bg-surface text-text-main transition-transform active:scale-95 lg:hidden"
+aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+aria-expanded={mobileOpen}
+aria-controls="mobile-menu"
+>
+<motion.span
+  animate={{ rotate: mobileOpen ? 90 : 0, opacity: mobileOpen ? 0 : 1 }}
+  transition={{ duration: 0.18, ease: 'easeOut' }}
+  className="absolute"
+>
+  <Menu size={18} />
+</motion.span>
+<motion.span
+  animate={{ rotate: mobileOpen ? 0 : -90, opacity: mobileOpen ? 1 : 0 }}
+  transition={{ duration: 0.18, ease: 'easeOut' }}
+  className="absolute"
+>
+  <X size={18} />
+</motion.span>
+</button>
+        </nav>
+
+<AnimatePresence>
+{mobileOpen && (
+  <motion.div
+    id="mobile-menu"
+    initial={{ height: 0, opacity: 0 }}
+    animate={{ height: 'auto', opacity: 1 }}
+    exit={{ height: 0, opacity: 0 }}
+    transition={{ duration: 0.25, ease: 'easeOut' }}
+    className="overflow-hidden lg:hidden"
+  >
+    {/* Inset top divider — stays inside the rounded corners */}
+    <div className="mx-3 h-px bg-primary/10 sm:mx-5" />
+
+    <div className="max-h-[calc(100dvh-6rem)] overflow-y-auto px-3 pb-4 pt-3 sm:px-5">
+      <div className="flex flex-col gap-1">
+        {navLinks.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            onClick={() => setMobileOpen(false)}
+            className="flex min-h-[44px] items-center rounded-clay-pill px-4 py-2.5 text-sm font-medium text-text-muted transition-colors hover:bg-primary/10 hover:text-primary"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+
+      <div className="my-3 h-px bg-primary/10" />
+
+      <div className="flex flex-col gap-2">
+        <Link
+          to="/login"
+          onClick={() => setMobileOpen(false)}
+          className="clay-btn-sm flex min-h-[44px] items-center justify-center rounded-clay-pill bg-surface px-4 py-2.5 text-center text-sm font-semibold text-text-main"
+        >
+          Sign In
+        </Link>
+        <Link
+          to="/gallery"
+          onClick={() => setMobileOpen(false)}
+          className="clay-btn flex min-h-[44px] items-center justify-center rounded-clay-pill bg-primary px-4 py-2.5 text-center text-sm font-semibold text-white"
+        >
+          View Gallery
+        </Link>
+      </div>
+    </div>
+  </motion.div>
+)}
+</AnimatePresence>
+      </motion.header>
+    </div>
   );
 };
 

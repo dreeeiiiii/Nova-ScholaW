@@ -14,8 +14,8 @@
  * hashPassword from ../src/utils/password.js. Does not touch the schema,
  * routes, controllers, or models.
  */
-import pool, { closePool } from '../src/config/db.js';
-import { hashPassword } from '../src/utils/password.js';
+import pool, { closePool } from '../src/shared/config/db.js';
+import { hashPassword } from '../src/shared/utils/password.js';
 
 const RESET = process.argv.includes('--reset');
 const DEMO_PASSWORD = 'Nova1234!';

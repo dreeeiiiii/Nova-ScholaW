@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { once } from "node:events";
 
 import createApp from "../src/app.js";
-import { query, closePool } from "../src/config/db.js";
-import { hashPassword } from "../src/utils/password.js";
+import { query, closePool } from "../src/shared/config/db.js";
+import { hashPassword } from "../src/shared/utils/password.js";
 
 const domain = "my.nst.edu.ph";
 

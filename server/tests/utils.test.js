@@ -2,9 +2,9 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import jwt from 'jsonwebtoken';
 
-import config from '../src/config/env.js';
-import { hashPassword, comparePassword } from '../src/utils/password.js';
-import { signToken, verifyToken } from '../src/utils/jwt.js';
+import config from '../src/shared/config/env.js';
+import { hashPassword, comparePassword } from '../src/shared/utils/password.js';
+import { signToken, verifyToken } from '../src/shared/utils/jwt.js';
 
 describe('password utilities', () => {
   it('hashes a plaintext password', async () => {

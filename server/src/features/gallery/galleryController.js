@@ -1,0 +1,207 @@
+import fs from 'node:fs';
+import { uploadMedia, handleGalleryUploadError } from './galleryUpload.js';
+import { validateUploadedFile } from '../../shared/utils/validateMedia.js';
+import { audit } from '../audit/auditService.js';
+import { parseId } from '../../shared/utils/parseId.js';
+import * as galleryModel from './galleryModel.js';
+
+const getFileUrl = (file) => {
+  const isVideo = file.mimetype === 'video/mp4';
+  const subfolder = isVideo ? 'videos' : 'images';
+  return `/uploads/gallery/${subfolder}/${file.filename}`;
+};
+
+const determineMediaType = (file) => {
+  if (file.mimetype === 'video/mp4') return 'video';
+  return 'image';
+};
+
+export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async (req, res, next) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ status: 400, message: 'No file provided.' });
+    }
+
+    const categoryId = req.body.category_id;
+    const title = req.body.title;
+    const description = req.body.description || '';
+
+    if (!categoryId) {
+      fs.unlink(file.path, () => {});
+      return res.status(400).json({ status: 400, message: 'category_id is required.' });
+    }
+    if (!title || title.trim() === '') {
+      fs.unlink(file.path, () => {});
+      return res.status(400).json({ status: 400, message: 'title is required.' });
+    }
+    const caption = description.trim() !== '' ? description.trim() : title.trim();
+
+    const mediaType = determineMediaType(file);
+    await validateUploadedFile(file, mediaType);
+
+    const fileUrl = getFileUrl(file);
+
+    try {
+      const media = await galleryModel.insertMedia({
+        uploader_id: req.user.id,
+        category_id: categoryId,
+        media_type: mediaType,
+        file_url: fileUrl,
+        original_filename: file.originalname,
+        caption,
+      });
+
+      await audit(req, 'gallery.upload', 'gallery_media', media.id, {
+        media_type: mediaType,
+        category_id: categoryId,
+        original_filename: file.originalname,
+      });
+
+      return res.status(201).json({ media });
+    } catch (dbErr) {
+      if (dbErr.code === '23503') {
+        fs.unlink(file.path, () => {});
+        return res.status(400).json({ status: 400, message: 'category_id does not exist.' });
+      }
+      throw dbErr;
+    }
+  } catch (err) {
+    if (err.message && (err.message.includes('Invalid file type') || err.message.includes('File too large') || err.message.includes('Could not validate') || err.message.includes('Could not determine') || err.message.includes('Unknown media type'))) {
+      return res.status(400).json({ status: 400, message: err.message });
+    }
+    return next(err);
+  }
+}];
+
+export const listPendingMedia = async (req, res, next) => {
+  try {
+    const media = await galleryModel.listPending();
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const approveMedia = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    const existing = await galleryModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    if (existing.status !== 'pending') {
+      return res.status(400).json({ status: 400, message: 'Media is not pending approval.' });
+    }
+
+    const media = await galleryModel.approve(id, req.user.id);
+
+    await audit(req, 'gallery.approve', 'gallery_media', id, null);
+
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const rejectMedia = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    const { rejection_reason } = req.body || {};
+    if (!rejection_reason || rejection_reason.trim() === '') {
+      return res.status(400).json({ status: 400, message: 'rejection_reason is required.' });
+    }
+
+    const existing = await galleryModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    if (existing.status !== 'pending') {
+      return res.status(400).json({ status: 400, message: 'Media is not pending approval.' });
+    }
+
+    const media = await galleryModel.reject(id, req.user.id, rejection_reason);
+
+    await audit(req, 'gallery.reject', 'gallery_media', id, { rejection_reason });
+
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const myUploads = async (req, res, next) => {
+  try {
+    const media = await galleryModel.listByUploader(req.user.id);
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const browseGallery = async (req, res, next) => {
+  try {
+    const { category_id, year, month, media_type, limit = 20, offset = 0 } = req.query;
+
+    const { media, total } = await galleryModel.browse({ category_id, year, month, media_type, limit, offset });
+
+    return res.json({ media, total });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getGalleryItem = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    const media = await galleryModel.findApprovedById(id);
+
+    if (!media) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const searchGallery = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.trim() === '') {
+      return res.status(400).json({ status: 400, message: 'q query parameter is required.' });
+    }
+
+    const { media, total } = await galleryModel.search(q.trim());
+
+    return res.json({ media, total });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export default {
+  uploadMediaHandler,
+  listPendingMedia,
+  approveMedia,
+  rejectMedia,
+  myUploads,
+  browseGallery,
+  getGalleryItem,
+  searchGallery,
+};

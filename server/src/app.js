@@ -4,18 +4,18 @@ import helmet from 'helmet';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import config from './config/env.js';
-import { checkConnection } from './config/db.js';
-import errorHandler from './middleware/errorHandler.js';
-import notFound from './middleware/notFound.js';
-import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import academicRoutes from './routes/academicRoutes.js';
-import announcementRoutes from './routes/announcementRoutes.js';
-import categoryRoutes from './routes/categoryRoutes.js';
-import galleryRoutes from './routes/galleryRoutes.js';
-import dashboardRoutes from './routes/dashboardRoutes.js';
-import auditLogRoutes from './routes/auditLogRoutes.js';
+import config from './shared/config/env.js';
+import { checkConnection } from './shared/config/db.js';
+import errorHandler from './shared/middleware/errorHandler.js';
+import notFound from './shared/middleware/notFound.js';
+import authRoutes from './features/auth/authRoutes.js';
+import userRoutes from './features/users/userRoutes.js';
+import academicRoutes from './features/academic/academicRoutes.js';
+import announcementRoutes from './features/announcements/announcementRoutes.js';
+import categoryRoutes from './features/categories/categoryRoutes.js';
+import galleryRoutes from './features/gallery/galleryRoutes.js';
+import dashboardRoutes from './features/dashboard/dashboardRoutes.js';
+import auditLogRoutes from './features/audit/auditLogRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

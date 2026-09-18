@@ -1,4 +1,4 @@
-import pool from '../../src/config/db.js';
+import pool from '../../src/shared/config/db.js';
 
 export const EXPECTED_TABLES = Object.freeze([
   'users',

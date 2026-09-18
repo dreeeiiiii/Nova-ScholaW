@@ -1,6 +1,6 @@
-import config from './config/env.js';
-import { getClient, closePool } from './config/db.js';
-import { hashPassword } from './utils/password.js';
+import config from './shared/config/env.js';
+import { getClient, closePool } from './shared/config/db.js';
+import { hashPassword } from './shared/utils/password.js';
 
 const SECTIONS = [
   { name: 'Grade 10 - Emerald', grade_level: 'Grade 10' },

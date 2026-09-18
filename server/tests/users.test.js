@@ -2,11 +2,11 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 
-import config from '../src/config/env.js';
+import config from '../src/shared/config/env.js';
 import createApp from '../src/app.js';
-import { query, closePool } from '../src/config/db.js';
-import { signToken } from '../src/utils/jwt.js';
-import { hashPassword } from '../src/utils/password.js';
+import { query, closePool } from '../src/shared/config/db.js';
+import { signToken } from '../src/shared/utils/jwt.js';
+import { hashPassword } from '../src/shared/utils/password.js';
 
 const domain = config.nstEmailDomain || 'my.nst.edu.ph';
 const ADMIN_EMAIL = `usertest_admin@${domain}`;
