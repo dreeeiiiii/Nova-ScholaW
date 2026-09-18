@@ -155,7 +155,7 @@ export const listCategories = async () => {
 | Feature | Responsibility | Main tables | Public entry | Key files |
 | --- | --- | --- | --- | --- |
 | **auth** | Login, JWT issuance, current-user lookup, logout | `users` (read) | `authRoutes.js` | `authController.js` |
-| **users** | User CRUD (admin-only), activate/deactivate | `users` | `userRoutes.js` | `userController.js`, `userModel.js` |
+| **users** | User CRUD (admin-only), activate/deactivate, student search (teacher+admin) | `users` | `userRoutes.js` | `userController.js`, `userModel.js` |
 | **academic** | Sections & courses CRUD, delete-guards | `sections`, `courses` | `academicRoutes.js` | `academicController.js`, `sectionModel.js`, `courseModel.js` |
 | **announcements** | Create/list/edit/delete announcements, targeting, TV feed, image upload | `announcements`, `announcement_targets` | `announcementRoutes.js` | `announcementController.js`, `announcementModel.js`, `upload.js` |
 | **gallery** | Media upload, approve/reject, browse, search, my-uploads | `gallery_media` | `galleryRoutes.js` | `galleryController.js`, `galleryModel.js`, `galleryUpload.js` |
@@ -230,6 +230,11 @@ router.post('/upload', authenticated, uploadMediaHandler);   // any logged-in us
 router.get('/pending', adminOnly, listPendingMedia);          // admin only
 router.patch('/:id/approve', adminOnly, approveMedia);        // admin only
 router.get('/search', searchGallery);                         // public (no auth)
+
+// src/features/users/userRoutes.js
+const teacherOrAdmin = [authenticate, requireRole('admin', 'teacher')];
+router.get('/students/search', teacherOrAdmin, searchStudents); // teacher + admin
+router.get('/', adminOnly, listUsers);                        // admin only (unchanged)
 ```
 
 # Database Access

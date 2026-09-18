@@ -9,17 +9,21 @@ import {
   updateUser,
   deactivateUser,
   activateUser,
+  searchStudents,
 } from './userController.js';
 
 const router = Router();
 
-router.use(authenticate, requireRole('admin'));
+const adminOnly = [authenticate, requireRole('admin')];
+const teacherOrAdmin = [authenticate, requireRole('admin', 'teacher')];
 
-router.get('/', listUsers);
-router.get('/:id', getUser);
-router.post('/', createUser);
-router.put('/:id', updateUser);
-router.patch('/:id/deactivate', deactivateUser);
-router.patch('/:id/activate', activateUser);
+router.get('/students/search', teacherOrAdmin, searchStudents);
+
+router.get('/', adminOnly, listUsers);
+router.get('/:id', adminOnly, getUser);
+router.post('/', adminOnly, createUser);
+router.put('/:id', adminOnly, updateUser);
+router.patch('/:id/deactivate', adminOnly, deactivateUser);
+router.patch('/:id/activate', adminOnly, activateUser);
 
 export default router;

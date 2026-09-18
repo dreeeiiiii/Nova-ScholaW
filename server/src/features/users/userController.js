@@ -45,6 +45,24 @@ const readFullName = (body) =>
     ? body.full_name.trim()
     : null;
 
+export const searchStudents = async (req, res, next) => {
+  try {
+    const qRaw = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    if (qRaw === '') {
+      return res.status(400).json({ status: 400, message: 'q query parameter is required.' });
+    }
+    const limitRaw = req.query.limit;
+    const limitNum = Math.min(Math.max(Number(limitRaw) || 20, 1), 50);
+    if (!Number.isFinite(Number(limitRaw)) && limitRaw !== undefined) {
+      // still clamp via Number conversion; no extra validation needed
+    }
+    const students = await userRepo.searchStudents({ q: qRaw, limit: limitNum });
+    return res.json({ students });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const listUsers = async (req, res, next) => {
   try {
     const role = ROLE_LIST.includes(req.query.role) ? req.query.role : undefined;

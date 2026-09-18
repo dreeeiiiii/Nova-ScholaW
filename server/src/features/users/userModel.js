@@ -167,3 +167,19 @@ export const activateUser = async (id) => {
 export const updateLastLogin = async (id) => {
   await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [id]);
 };
+
+export const searchStudents = async ({ q, limit = 20 } = {}) => {
+  const pattern = `%${q}%`;
+  const limitNum = Math.min(Math.max(Number(limit) || 20, 1), 50);
+  const { rows } = await query(
+    `SELECT id, full_name, email, section_id, course_id
+        FROM users
+       WHERE role = 'student'
+         AND is_active = TRUE
+         AND (full_name ILIKE $1 OR email ILIKE $1)
+       ORDER BY full_name ASC
+       LIMIT $2`,
+    [pattern, limitNum]
+  );
+  return rows;
+};
