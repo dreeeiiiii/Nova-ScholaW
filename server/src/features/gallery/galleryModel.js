@@ -3,19 +3,19 @@ import { query } from '../../shared/config/db.js';
 const MEDIA_COLUMNS = `
   id, uploader_id, category_id, media_type, file_url,
   original_filename, caption, duration_seconds, status,
-  reviewed_by, reviewed_at, rejection_reason, created_at, updated_at
+  reviewed_by, reviewed_at, rejection_reason, featured, created_at, updated_at
 `;
 
 const GM_COLUMNS = `
   gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
   gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
-  gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.created_at, gm.updated_at
+  gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.featured, gm.created_at, gm.updated_at
 `;
 
 const GM_WITH_JOINS_COLUMNS = `
   gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
   gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
-  gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.created_at, gm.updated_at,
+  gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.featured, gm.created_at, gm.updated_at,
   c.name AS category_name, u.full_name AS uploader_name, u.email AS uploader_email
 `;
 
@@ -83,7 +83,7 @@ export const listByUploader = async (uploaderId) => {
   return rows;
 };
 
-export const browse = async ({ category_id, year, month, media_type, limit = 20, offset = 0 } = {}) => {
+export const browse = async ({ category_id, year, month, media_type, featured, limit = 20, offset = 0 } = {}) => {
   const conditions = [`gm.status = 'approved'`];
   const params = [];
   let paramIndex = 1;
@@ -103,6 +103,9 @@ export const browse = async ({ category_id, year, month, media_type, limit = 20,
   if (media_type) {
     params.push(media_type);
     conditions.push(`gm.media_type = $${paramIndex++}`);
+  }
+  if (featured === true) {
+    conditions.push(`gm.featured = true`);
   }
 
   const limitNum = Math.min(Number(limit) || 20, 100);
@@ -177,6 +180,17 @@ export const search = async (searchTerm, limit = 50) => {
   );
 
   return { media, total: countRows[0].total };
+};
+
+export const setFeatured = async (id, featured) => {
+  const { rows } = await query(
+    `UPDATE gallery_media
+        SET featured = $1, updated_at = NOW()
+      WHERE id = $2
+      RETURNING ${MEDIA_COLUMNS}`,
+    [featured, id]
+  );
+  return rows[0] ?? null;
 };
 
 export default {

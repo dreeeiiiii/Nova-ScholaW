@@ -158,7 +158,7 @@ export const listCategories = async () => {
 | **users** | User CRUD (admin-only), activate/deactivate, student search (teacher+admin) | `users` | `userRoutes.js` | `userController.js`, `userModel.js` |
 | **academic** | Sections & courses CRUD, delete-guards | `sections`, `courses` | `academicRoutes.js` | `academicController.js`, `sectionModel.js`, `courseModel.js` |
 | **announcements** | Create/list/edit/delete announcements, targeting, TV feed, image upload, search (`q`), scheduled (`?status=scheduled` bypass) & upcoming (`?upcoming=true`) | `announcements`, `announcement_targets` | `announcementRoutes.js` | `announcementController.js`, `announcementModel.js`, `upload.js` |
-| **gallery** | Media upload, approve/reject, browse, search, my-uploads | `gallery_media` | `galleryRoutes.js` | `galleryController.js`, `galleryModel.js`, `galleryUpload.js` |
+| **gallery** | Media upload, approve/reject, browse (`?featured=true`), search, my-uploads, featured toggle (`PATCH /:id/feature`) | `gallery_media` (`featured BOOLEAN DEFAULT false`) | `galleryRoutes.js` | `galleryController.js`, `galleryModel.js`, `galleryUpload.js` |
 | **categories** | Gallery category CRUD | `categories` | `categoryRoutes.js` | `categoryController.js`, `categoryModel.js` |
 | **dashboard** | Admin aggregate statistics | `users`, `announcements`, `gallery_media` (reads only) | `dashboardRoutes.js` | `dashboardController.js`, `dashboardModel.js` |
 | **audit** | Audit log writing (service) + admin-only listing | `audit_logs` | `auditLogRoutes.js` | `auditService.js`, `auditLogController.js`, `auditLogModel.js` |
@@ -253,6 +253,15 @@ router.get('/', adminOnly, listUsers);                        // admin only (unc
 | `q` | `string` | Case-insensitive substring (`ILIKE`) on `title` OR `content`. Additive with `type/status`. Empty/missing → no filter. Ignored when `upcoming=true`. |
 | `limit` | `int` | Default `50` (or `10` for `upcoming`), max `100` (or `50` for `upcoming`). |
 | `offset` | `int` | Default `0`. |
+
+### Gallery query parameters (GET /api/gallery) and featured toggle
+
+| Param / Endpoint | Type | Notes |
+| --- | --- | --- |
+| `featured` (query) | `true` | `GET /api/gallery?featured=true` returns only rows where `featured = true`. Any other value (`false`, missing, garbage) → no filter (returns both featured and unfeatured). Partial index `idx_gallery_media_featured WHERE featured = true`. |
+| `PATCH /api/gallery/:id/feature` | body `{ featured: boolean }` | Admin only. `featured` must be strict `boolean` (→ 400 otherwise). Toggles `gallery_media.featured`, updates `updated_at`, audits `gallery.feature`, returns `{ media }` with `featured` field. `404` if id not found. |
+
+Gallery `gallery_media` schema: `featured BOOLEAN NOT NULL DEFAULT false` (`DATABASE_SCHEMA.sql:164`, migration `ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT false` + `CREATE INDEX IF NOT EXISTS idx_gallery_media_featured ON gallery_media(featured) WHERE featured = true`). Every `browse` / `search` / `findApprovedById` row now includes `featured`.
 
 # Database Access
 

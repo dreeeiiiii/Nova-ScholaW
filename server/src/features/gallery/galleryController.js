@@ -152,10 +152,38 @@ export const myUploads = async (req, res, next) => {
 export const browseGallery = async (req, res, next) => {
   try {
     const { category_id, year, month, media_type, limit = 20, offset = 0 } = req.query;
+    const featured = req.query.featured === 'true' ? true : undefined;
 
-    const { media, total } = await galleryModel.browse({ category_id, year, month, media_type, limit, offset });
+    const { media, total } = await galleryModel.browse({ category_id, year, month, media_type, featured, limit, offset });
 
     return res.json({ media, total });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const featureMedia = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    const { featured } = req.body ?? {};
+    if (typeof featured !== 'boolean') {
+      return res.status(400).json({ status: 400, message: 'featured must be a boolean.' });
+    }
+
+    const existing = await galleryModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    const media = await galleryModel.setFeatured(id, featured);
+
+    await audit(req, 'gallery.feature', 'gallery_media', id, { featured });
+
+    return res.json({ media });
   } catch (err) {
     return next(err);
   }
@@ -204,4 +232,5 @@ export default {
   browseGallery,
   getGalleryItem,
   searchGallery,
+  featureMedia,
 };

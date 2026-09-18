@@ -161,6 +161,7 @@ CREATE TABLE gallery_media (
     reviewed_by        BIGINT      REFERENCES users(id) ON DELETE SET NULL,  -- admin
     reviewed_at        TIMESTAMPTZ,
     rejection_reason   TEXT,                                         -- set when rejected
+    featured           BOOLEAN     NOT NULL DEFAULT false,             -- dashboard featured
     created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -172,6 +173,7 @@ CREATE INDEX idx_gallery_media_uploader     ON gallery_media (uploader_id);
 CREATE INDEX idx_gallery_media_created      ON gallery_media (created_at DESC);
 CREATE INDEX idx_gallery_media_status_created
     ON gallery_media (status, created_at DESC);
+CREATE INDEX idx_gallery_media_featured ON gallery_media (featured) WHERE featured = true;
 
 -- ============================================================================
 -- 8. audit_logs — automatic record of announcements, uploads, approvals, ...

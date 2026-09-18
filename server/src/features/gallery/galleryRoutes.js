@@ -10,6 +10,7 @@ import {
   browseGallery,
   getGalleryItem,
   searchGallery,
+  featureMedia,
 } from './galleryController.js';
 
 const router = Router();
@@ -20,6 +21,7 @@ router.post('/upload', authenticated, uploadMediaHandler);
 router.get('/pending', adminOnly, listPendingMedia);
 router.patch('/:id/approve', adminOnly, approveMedia);
 router.patch('/:id/reject', adminOnly, rejectMedia);
+router.patch('/:id/feature', adminOnly, featureMedia);
 router.get('/mine', authenticated, myUploads);
 router.get('/search', searchGallery);
 router.get('/', browseGallery);
