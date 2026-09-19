@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from "next/server";
+import { config } from "@/lib/config";
+import { getTokenFromCookie } from "@/lib/auth";
+
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const token = await getTokenFromCookie();
+  if (!token) {
+    return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+  }
+
+  const backendUrl = `${config.API_URL}/api/announcements/${encodeURIComponent(id)}`;
+  const res = await fetch(backendUrl, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
+
+  const text = await res.text();
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  if (!res.ok) {
+    const message = (data as { message?: string })?.message ?? (typeof data === "string" ? data : "Failed to fetch announcement");
+    return NextResponse.json({ message }, { status: res.status });
+  }
+
+  return NextResponse.json(data);
+}
