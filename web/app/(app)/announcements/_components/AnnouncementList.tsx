@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import AnnouncementCard from "./AnnouncementCard";
 import AnnouncementDetailModal from "./AnnouncementDetailModal";
+import DeleteAnnouncementModal from "./DeleteAnnouncementModal";
 
 type Announcement = {
   id: number | string;
@@ -13,6 +14,7 @@ type Announcement = {
   type: string;
   status?: string;
   created_at: string;
+  author_id?: number | string;
 };
 
 type Props = {
@@ -20,14 +22,15 @@ type Props = {
   total: number;
   initialType: "all" | "general" | "class";
   initialQ: string;
-  userRole: string;
+  currentUser?: { id: number | string; role: string } | null;
 };
 
-export default function AnnouncementList({ announcements, total, initialType, initialQ }: Props) {
+export default function AnnouncementList({ announcements, total, initialType, initialQ, currentUser }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState(initialQ);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number | string; title: string } | null>(null);
 
   // Keep local q in sync when URL changes (e.g., back/forward)
   useEffect(() => {
@@ -110,12 +113,29 @@ export default function AnnouncementList({ announcements, total, initialType, in
           </div>
         ) : (
           announcements.map((a) => (
-            <AnnouncementCard key={String(a.id)} announcement={a} onOpen={setSelectedId} />
+            <AnnouncementCard
+              key={String(a.id)}
+              announcement={a}
+              onOpen={setSelectedId}
+              currentUser={currentUser ?? undefined}
+              onDelete={(id, title) => setDeleteTarget({ id, title })}
+            />
           ))
         )}
       </div>
 
       <AnnouncementDetailModal openId={selectedId} onClose={() => setSelectedId(null)} />
+      {deleteTarget && (
+        <DeleteAnnouncementModal
+          announcementId={deleteTarget.id}
+          announcementTitle={deleteTarget.title}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={() => {
+            setDeleteTarget(null);
+            router.refresh();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -124,7 +124,7 @@ export default async function AnnouncementsPage({
         total={total}
         initialType={type}
         initialQ={q ?? ""}
-        userRole={user.role}
+        currentUser={user ? { id: user.id, role: user.role } : null}
       />
     </div>
   );
