@@ -4,6 +4,7 @@ import { validateUploadedFile } from '../../shared/utils/validateMedia.js';
 import { audit } from '../audit/auditService.js';
 import { parseId } from '../../shared/utils/parseId.js';
 import * as galleryModel from './galleryModel.js';
+import { findCategoryById } from '../categories/categoryModel.js';
 
 const getFileUrl = (file) => {
   const isVideo = file.mimetype === 'video/mp4';
@@ -189,6 +190,51 @@ export const featureMedia = async (req, res, next) => {
   }
 };
 
+export const reassignCategory = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    if (!req.body || !Object.prototype.hasOwnProperty.call(req.body, 'category_id')) {
+      return res.status(400).json({ status: 400, message: 'category_id is required.' });
+    }
+
+    const { category_id } = req.body;
+
+    let newCategoryId;
+    if (category_id === null) {
+      newCategoryId = null;
+    } else if (typeof category_id === 'number' && Number.isInteger(category_id) && category_id > 0) {
+      const cat = await findCategoryById(category_id);
+      if (!cat) {
+        return res.status(400).json({ status: 400, message: 'Category does not exist.' });
+      }
+      newCategoryId = category_id;
+    } else {
+      return res.status(400).json({ status: 400, message: 'category_id must be an integer or null.' });
+    }
+
+    const existing = await galleryModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    if (existing.status !== 'pending') {
+      return res.status(400).json({ status: 400, message: 'Only pending media can have its category reassigned.' });
+    }
+
+    const media = await galleryModel.updateCategory(id, newCategoryId);
+
+    await audit(req, 'gallery.category_update', 'gallery_media', id, { category_id: newCategoryId });
+
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const getGalleryItem = async (req, res, next) => {
   try {
     const id = parseId(req.params.id);
@@ -272,4 +318,5 @@ export default {
   getGalleryItem,
   searchGallery,
   featureMedia,
+  reassignCategory,
 };

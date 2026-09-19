@@ -11,6 +11,7 @@ import {
   getGalleryItem,
   searchGallery,
   featureMedia,
+  reassignCategory,
 } from './galleryController.js';
 
 const router = Router();
@@ -22,6 +23,7 @@ router.get('/pending', adminOnly, listPendingMedia);
 router.patch('/:id/approve', adminOnly, approveMedia);
 router.patch('/:id/reject', adminOnly, rejectMedia);
 router.patch('/:id/feature', adminOnly, featureMedia);
+router.patch('/:id/category', adminOnly, reassignCategory);
 router.get('/mine', authenticated, myUploads);
 router.get('/search', searchGallery);
 router.get('/', browseGallery);

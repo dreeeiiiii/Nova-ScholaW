@@ -149,20 +149,7 @@ export const findApprovedById = async (id) => {
   return rows[0] ?? null;
 };
 
-export const search = async (args, maybeLimit) => {
-  // Backward compat: search(searchTerm, limit) → search({ q: searchTerm, limit })
-  let q;
-  let category_id;
-  let year;
-  let media_type;
-  let limit = 20;
-  let offset = 0;
-  if (typeof args === 'string') {
-    q = args;
-    if (maybeLimit !== undefined) limit = maybeLimit;
-  } else {
-    ({ q, category_id, year, media_type, limit = 20, offset = 0 } = args || {});
-  }
+export const search = async ({ q, category_id, year, media_type, limit = 20, offset = 0 } = {}) => {
 
   const pattern = `%${q}%`;
   const conditions = [`gm.status = 'approved'`, `(gm.caption ILIKE $1 OR gm.original_filename ILIKE $1 OR c.name ILIKE $1)`];
@@ -224,6 +211,17 @@ export const setFeatured = async (id, featured) => {
   return rows[0] ?? null;
 };
 
+export const updateCategory = async (id, categoryId) => {
+  const { rows } = await query(
+    `UPDATE gallery_media
+        SET category_id = $1, updated_at = NOW()
+      WHERE id = $2
+      RETURNING ${MEDIA_COLUMNS}`,
+    [categoryId, id]
+  );
+  return rows[0] ?? null;
+};
+
 export default {
   insertMedia,
   findById,
@@ -234,4 +232,6 @@ export default {
   browse,
   findApprovedById,
   search,
+  setFeatured,
+  updateCategory,
 };
