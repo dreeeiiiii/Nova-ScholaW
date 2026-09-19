@@ -30,3 +30,34 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   return NextResponse.json(data);
 }
+
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const token = await getTokenFromCookie();
+  if (!token) return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ message: "Invalid JSON" }, { status: 400 });
+  }
+
+  const res = await fetch(`${config.API_URL}/api/announcements/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+  if (!res.ok) {
+    const msg = (data as { message?: string })?.message ?? "Failed to update announcement";
+    return NextResponse.json({ message: msg }, { status: res.status });
+  }
+  return NextResponse.json(data, { status: res.status });
+}

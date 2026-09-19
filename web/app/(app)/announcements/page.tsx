@@ -106,12 +106,12 @@ export default async function AnnouncementsPage({
           <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Announcements</h1>
         </div>
         {(user.role === "admin" || user.role === "teacher") && (
-          <span
-            title="Create flow coming in Phase 4"
-            className="rounded-full bg-[#315c86] px-5 py-3 text-sm font-bold text-white opacity-60"
+          <Link
+            href="/announcements/create"
+            className="rounded-full bg-[#315c86] px-5 py-3 text-sm font-bold text-white shadow"
           >
             Create announcement
-          </span>
+          </Link>
         )}
       </div>
 
