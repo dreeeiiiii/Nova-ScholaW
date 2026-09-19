@@ -277,6 +277,26 @@ Gallery `gallery_media` schema: `featured BOOLEAN NOT NULL DEFAULT false` (`DATA
 
 All filters are **AND-combined** with the `q` clause and `gm.status='approved'`. Response `{ media: [...], total: <int> }` where `total` is a proper `COUNT(*)` of the filtered approved set (previously client-side filtered, now server-side — pagination totals are correct). Media rows include `featured` (B1.4). Public (no auth) — unchanged.
 
+### Announcement targets detail (GET /api/announcements/:id)
+
+`GET /api/announcements/:id` returns `{ announcement: {...}, targets: [...] }` (unchanged shape, unchanged announcement row, no `targets` added to list endpoint `GET /api/announcements`). Each `targets` row preserves backward-compatible ID fields and adds display names via single `LEFT JOIN` query (no N+1):
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | `int` | Target row id — preserved |
+| `announcement_id` | `int` | FK — preserved |
+| `target_type` | `section\|course\|student` | Preserved |
+| `section_id` | `int\|null` | Preserved |
+| `course_id` | `int\|null` | Preserved |
+| `student_id` | `int\|null` | Preserved |
+| `created_at` | `timestamptz` | Preserved, `ORDER BY at.created_at` unchanged |
+| `section_name` | `string\|null` | **New** `sections.name` via `LEFT JOIN sections` (null when `target_type` ≠ `section`) |
+| `course_name` | `string\|null` | **New** `courses.name` via `LEFT JOIN courses` |
+| `student_full_name` | `string\|null` | **New** `users.full_name` via `LEFT JOIN users` on `student_id` |
+| `student_email` | `string\|null` | **New** `users.email` via same JOIN |
+
+SQL (`announcementModel.getTargets`): `SELECT at.id, at.announcement_id, at.target_type, at.section_id, at.course_id, at.student_id, at.created_at, s.name AS section_name, c.name AS course_name, u.full_name AS student_full_name, u.email AS student_email FROM announcement_targets at LEFT JOIN sections s ON s.id=at.section_id LEFT JOIN courses c ON c.id=at.course_id LEFT JOIN users u ON u.id=at.student_id WHERE at.announcement_id=$1 ORDER BY at.created_at`.
+
 # Database Access
 
 The backend connects to PostgreSQL through `shared/config/db.js`, which exports:

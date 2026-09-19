@@ -263,10 +263,14 @@ export const deleteAnnouncement = async (id) => {
 
 export const getTargets = async (announcement_id) => {
   const { rows } = await query(
-    `SELECT id, announcement_id, target_type, section_id, course_id, student_id, created_at
-       FROM announcement_targets
-      WHERE announcement_id = $1
-      ORDER BY created_at`,
+    `SELECT at.id, at.announcement_id, at.target_type, at.section_id, at.course_id, at.student_id, at.created_at,
+            s.name AS section_name, c.name AS course_name, u.full_name AS student_full_name, u.email AS student_email
+       FROM announcement_targets at
+       LEFT JOIN sections s ON s.id = at.section_id
+       LEFT JOIN courses c ON c.id = at.course_id
+       LEFT JOIN users u ON u.id = at.student_id
+      WHERE at.announcement_id = $1
+      ORDER BY at.created_at`,
     [announcement_id]
   );
   return rows;
