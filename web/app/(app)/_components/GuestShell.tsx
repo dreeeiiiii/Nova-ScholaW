@@ -4,7 +4,10 @@ import { GraduationCap } from "lucide-react";
 export default function GuestShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen w-full bg-[#fbf7ef]">
-      <header className="flex items-center justify-between bg-white/80 px-6 py-4 backdrop-blur-sm">
+      <header
+        data-testid="guest-header"
+        className="flex items-center justify-between bg-white/80 px-6 py-4 backdrop-blur-sm"
+      >
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#d9efff] clay text-[#315c86]">
             <GraduationCap size={20} />

@@ -2,16 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { config } from "@/lib/config.server";
 import { getTokenFromCookie } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const token = await getTokenFromCookie();
   if (!token) return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
 
-  const formData = await req.formData();
+  const { id } = await params;
+  const body = await req.json();
 
-  const res = await fetch(`${config.API_URL}/api/gallery/upload`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+  const res = await fetch(`${config.API_URL}/api/gallery/${id}/reject`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
 
   const text = await res.text();
@@ -23,7 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!res.ok) {
-    const msg = (data as { message?: string })?.message ?? "Upload failed";
+    const msg = (data as { message?: string })?.message ?? "Failed to reject media";
     return NextResponse.json({ message: msg }, { status: res.status });
   }
 

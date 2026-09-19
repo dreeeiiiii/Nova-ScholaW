@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { config } from "@/lib/config";
+import { config } from "@/lib/config.server";
 import { setTokenCookie } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {

@@ -329,7 +329,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
             disabled={saving || uploading}
             className="clay-btn rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? "Saving…" : type === "class" ? "Publish class announcement" : "Publish"}
+            {saving ? "Saving…" : mode === "edit" ? "Save changes" : type === "class" ? "Publish class announcement" : "Publish"}
           </button>
         </div>
       </form>

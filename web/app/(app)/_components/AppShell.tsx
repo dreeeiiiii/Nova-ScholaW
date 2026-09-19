@@ -40,7 +40,11 @@ export default function AppShell({ user, children }: { user: User; children: Rea
 
   return (
     <div className="min-h-screen w-full bg-[#fbf7ef] lg:flex">
-      <aside className="desktop-sidebar hidden w-72 shrink-0 p-6 lg:block" aria-label="Main navigation">
+      <aside
+        data-testid="sidebar"
+        className="desktop-sidebar hidden w-72 shrink-0 p-6 lg:block"
+        aria-label="Main navigation"
+      >
         <div className="clay flex h-full flex-col rounded-[2rem] bg-[#fdfaf3] p-5">
           <div className="mb-9 flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d9efff] clay text-[#315c86]">
@@ -52,13 +56,14 @@ export default function AppShell({ user, children }: { user: User; children: Rea
             </div>
           </div>
 
-          <nav className="space-y-2" aria-label="School hub sections">
+          <nav data-testid="sidebar-nav" className="space-y-2" aria-label="School hub sections">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
                   className="nav-item flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-[#23344f] hover:translate-y-[-1px] hover:shadow-[5px_5px_11px_#d7d3ca,-4px_-4px_10px_#fff]"
                 >
                   <Icon size={18} />

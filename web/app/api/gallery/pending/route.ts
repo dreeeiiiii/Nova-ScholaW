@@ -2,16 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { config } from "@/lib/config.server";
 import { getTokenFromCookie } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const token = await getTokenFromCookie();
   if (!token) return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
 
-  const formData = await req.formData();
-
-  const res = await fetch(`${config.API_URL}/api/gallery/upload`, {
-    method: "POST",
+  const res = await fetch(`${config.API_URL}/api/gallery/pending`, {
     headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+    cache: "no-store",
   });
 
   const text = await res.text();
@@ -23,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!res.ok) {
-    const msg = (data as { message?: string })?.message ?? "Upload failed";
+    const msg = (data as { message?: string })?.message ?? "Failed to fetch pending media";
     return NextResponse.json({ message: msg }, { status: res.status });
   }
 

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
-import { config } from "./config";
+import { config } from "./config.server";
 
 export const COOKIE_NAME = "ns_token";
 // Must stay in sync with server JWT expiry (server/.env JWT_EXPIRES_IN=8h)

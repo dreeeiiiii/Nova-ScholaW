@@ -1,4 +1,4 @@
-import { config } from "./config";
+import { config } from "./config.server";
 import { getTokenFromCookie } from "./auth";
 
 type FetchOptions = Omit<RequestInit, "headers"> & {
