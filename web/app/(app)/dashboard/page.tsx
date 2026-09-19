@@ -1,9 +1,10 @@
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
 
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   return (
     <div className="space-y-6">
