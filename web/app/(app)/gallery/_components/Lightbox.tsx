@@ -6,12 +6,12 @@ import { resolveMediaUrl } from "@/lib/url";
 
 type Media = {
   id: number | string;
-  caption?: string;
+  caption?: string | null;
   file_url: string;
   media_type: string;
-  category_name?: string;
+  category_name?: string | null;
   created_at?: string;
-  original_filename?: string;
+  original_filename?: string | null;
 };
 
 export default function Lightbox({ media, onClose }: { media: Media | null; onClose: () => void }) {
