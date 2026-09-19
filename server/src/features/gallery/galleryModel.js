@@ -149,34 +149,65 @@ export const findApprovedById = async (id) => {
   return rows[0] ?? null;
 };
 
-export const search = async (searchTerm, limit = 50) => {
-  const pattern = `%${searchTerm}%`;
+export const search = async (args, maybeLimit) => {
+  // Backward compat: search(searchTerm, limit) → search({ q: searchTerm, limit })
+  let q;
+  let category_id;
+  let year;
+  let media_type;
+  let limit = 20;
+  let offset = 0;
+  if (typeof args === 'string') {
+    q = args;
+    if (maybeLimit !== undefined) limit = maybeLimit;
+  } else {
+    ({ q, category_id, year, media_type, limit = 20, offset = 0 } = args || {});
+  }
+
+  const pattern = `%${q}%`;
+  const conditions = [`gm.status = 'approved'`, `(gm.caption ILIKE $1 OR gm.original_filename ILIKE $1 OR c.name ILIKE $1)`];
+  const params = [pattern];
+  let paramIndex = 2;
+
+  if (category_id !== undefined && category_id !== null) {
+    params.push(category_id);
+    conditions.push(`gm.category_id = $${paramIndex++}`);
+  }
+  if (year !== undefined && year !== null) {
+    params.push(year);
+    conditions.push(`EXTRACT(YEAR FROM gm.created_at) = $${paramIndex++}`);
+  }
+  if (media_type) {
+    params.push(media_type);
+    conditions.push(`gm.media_type = $${paramIndex++}`);
+  }
+
+  const limitNum = Math.min(Number(limit) || 20, 100);
+  const offsetNum = Math.max(Number(offset) || 0, 0);
+
+  params.push(limitNum);
+  const limitParam = params.length;
+  params.push(offsetNum);
+  const offsetParam = params.length;
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
   const { rows: media } = await query(
     `SELECT ${GM_WITH_JOINS_COLUMNS}
        FROM gallery_media gm
        ${MEDIA_JOINS}
-      WHERE gm.status = 'approved'
-        AND (
-          gm.caption ILIKE $1
-          OR gm.original_filename ILIKE $1
-          OR c.name ILIKE $1
-        )
+       ${whereClause}
        ORDER BY gm.created_at DESC
-       LIMIT $2`,
-    [pattern, limit]
+       LIMIT $${limitParam} OFFSET $${offsetParam}`,
+    params
   );
 
   const { rows: countRows } = await query(
     `SELECT COUNT(*)::int AS total
        FROM gallery_media gm
-       LEFT JOIN categories c ON c.id = gm.category_id
-      WHERE gm.status = 'approved'
-        AND (
-          gm.caption ILIKE $1
-          OR gm.original_filename ILIKE $1
-          OR c.name ILIKE $1
-        )`,
-    [pattern]
+       ${MEDIA_JOINS}
+       ${whereClause}`,
+    params.slice(0, paramIndex - 1)
   );
 
   return { media, total: countRows[0].total };

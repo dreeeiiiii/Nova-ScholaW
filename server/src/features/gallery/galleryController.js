@@ -210,12 +210,51 @@ export const getGalleryItem = async (req, res, next) => {
 
 export const searchGallery = async (req, res, next) => {
   try {
-    const { q } = req.query;
+    const { q, category_id: rawCategoryId, year: rawYear, media_type: rawMediaType, limit: rawLimit, offset: rawOffset } = req.query;
     if (!q || q.trim() === '') {
       return res.status(400).json({ status: 400, message: 'q query parameter is required.' });
     }
 
-    const { media, total } = await galleryModel.search(q.trim());
+    let category_id;
+    if (rawCategoryId !== undefined && rawCategoryId !== '') {
+      category_id = parseId(rawCategoryId);
+      if (category_id === null) {
+        return res.status(400).json({ status: 400, message: 'Invalid category_id.' });
+      }
+    }
+
+    let year;
+    if (rawYear !== undefined && rawYear !== '') {
+      const parsedYear = Number(rawYear);
+      if (!Number.isInteger(parsedYear) || parsedYear < 1000 || parsedYear > 9999) {
+        return res.status(400).json({ status: 400, message: 'Invalid year.' });
+      }
+      year = parsedYear;
+    }
+
+    let media_type;
+    if (rawMediaType !== undefined && rawMediaType !== '') {
+      if (rawMediaType !== 'image' && rawMediaType !== 'video') {
+        return res.status(400).json({ status: 400, message: 'Invalid media_type. Must be image or video.' });
+      }
+      media_type = rawMediaType;
+    }
+
+    const limit = rawLimit !== undefined ? Math.min(Math.max(Number(rawLimit) || 20, 1), 100) : 20;
+    // Validate limit numeric? Non-numeric falls to default via Number conversion above; keep behavior
+    if (rawLimit !== undefined && Number.isNaN(Number(rawLimit))) {
+      // still default; no 400 — matches browse behavior
+    }
+    const offset = Math.max(Number(rawOffset) || 0, 0);
+
+    const { media, total } = await galleryModel.search({
+      q: q.trim(),
+      category_id,
+      year,
+      media_type,
+      limit,
+      offset,
+    });
 
     return res.json({ media, total });
   } catch (err) {

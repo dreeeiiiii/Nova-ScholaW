@@ -263,6 +263,19 @@ router.get('/', adminOnly, listUsers);                        // admin only (unc
 
 Gallery `gallery_media` schema: `featured BOOLEAN NOT NULL DEFAULT false` (`DATABASE_SCHEMA.sql:164`, migration `ALTER TABLE gallery_media ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT false` + `CREATE INDEX IF NOT EXISTS idx_gallery_media_featured ON gallery_media(featured) WHERE featured = true`). Every `browse` / `search` / `findApprovedById` row now includes `featured`.
 
+### Gallery search parameters (GET /api/gallery/search)
+
+| Param | Type | Notes |
+| --- | --- | --- |
+| `q` | `string` **required** | Case-insensitive (`ILIKE`) on `caption` OR `original_filename` OR `category.name`. Empty/missing → `400`. |
+| `category_id` | `int` | Optional. Filter `gm.category_id = $N` via `parseId`. Non-numeric → `400`. |
+| `year` | `int` | Optional. `EXTRACT(YEAR FROM gm.created_at) = $N` (matches `browse()` semantics). Non-numeric/out-of-range → `400`. |
+| `media_type` | `image\|video` | Optional. Must be exactly `image` or `video` → `400` otherwise. |
+| `limit` | `int` | Default `20` max `100`. |
+| `offset` | `int` | Default `0`. |
+
+All filters are **AND-combined** with the `q` clause and `gm.status='approved'`. Response `{ media: [...], total: <int> }` where `total` is a proper `COUNT(*)` of the filtered approved set (previously client-side filtered, now server-side — pagination totals are correct). Media rows include `featured` (B1.4). Public (no auth) — unchanged.
+
 # Database Access
 
 The backend connects to PostgreSQL through `shared/config/db.js`, which exports:
