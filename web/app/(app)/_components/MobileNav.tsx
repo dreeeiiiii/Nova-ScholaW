@@ -24,6 +24,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
   "Upload Media": UploadCloud,
   Moderation: ClipboardList,
   Users: Users,
+  Categories: Tags,
   "Audit Logs": ShieldCheck,
 };
 

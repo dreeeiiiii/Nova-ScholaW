@@ -45,7 +45,7 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
               key={String(m.id)}
               type="button"
               onClick={() => setSelected(m)}
-              className="clay overflow-hidden rounded-3xl bg-[#fdfaf3] text-left transition hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#315c86]"
+              className="clay overflow-hidden rounded-3xl bg-[#fdfaf3] text-left transition hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#315c86] focus-visible:ring-offset-2"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-[#fbf7ef]">
                 {m.media_type === "video" ? (
