@@ -10,7 +10,7 @@ type Category = { id: number | string; name: string };
 type Media = {
   id: number | string;
   uploader_id: number | string;
-  category_id: number | string;
+  category_id: number | string | null;
   media_type: string;
   file_url: string;
   original_filename: string;

@@ -75,13 +75,9 @@ test("teacher-cannot-see-edit-on-others-announcement", async ({ page }) => {
 
   // Logout, login as teacher2
   await page.getByTestId("logout").click();
-  // Logout handler does router.push("/login") + router.refresh(); the refresh can win the
-  // race and leave the URL on the logged-out public page (e.g. /announcements) instead of
-  // /login. Wait for the sidebar (AppShell) to unmount so we proceed only after the session
-  // is actually cleared, regardless of which URL logout landed on.
-  await page.waitForURL("/login", { timeout: 8000 }).catch(() => {});
-  await expect(page.getByTestId("sidebar")).toBeHidden();
+  await page.waitForURL("/login", { timeout: 15000 });
   await loginAs(page, credentials.teacher2.email, credentials.teacher2.password);
+  await page.getByTestId("sidebar").waitFor({ state: "visible" });
   await expect(page.getByTestId("sidebar")).toBeVisible();
   await page.goto("/announcements");
   const card = page.locator("article", { hasText: title });
