@@ -1,6 +1,6 @@
 # Backend Overview
 
-NovaSchola is a school portal API for managing announcements, a media gallery, user accounts, and academic structure (sections and courses). The backend is built with Node.js (ES Modules), Express 4, PostgreSQL (via `pg`), and JWT-based authentication. Run `npm start` to launch the server, `npm test` to run the test suite (112 tests, 14 suites), and `npm run db:seed` to populate the database with test data. The entry point is `src/server.js`, which creates the app via `src/app.js`.
+NovaSchola is a school portal API for managing announcements, a media gallery, user accounts, and academic structure (sections and courses). The backend is built with Node.js (ES Modules), Express 4, PostgreSQL (via `pg`), and JWT-based authentication. Run `npm start` to launch the server, `npm test` to run the test suite (193 tests, 21 suites), and `npm run db:seed` to populate the database with test data. The entry point is `src/server.js`, which creates the app via `src/app.js`.
 
 # Folder Structure
 
@@ -556,7 +556,7 @@ Create `tests/notifications.test.js`. Follow the pattern in existing test files 
 npm test
 ```
 
-Confirm all tests pass (baseline: 112 passing). If your new feature has tests, the count will increase.
+Confirm all tests pass (baseline: 193 passing). If your new feature has tests, the count will increase.
 
 ### Decision table
 

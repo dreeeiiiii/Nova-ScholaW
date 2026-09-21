@@ -97,6 +97,8 @@ Open http://localhost:3000/login.
 | Teacher | `teacher@my.nst.edu.ph` | `Nova1234!` |
 | Student | `student1@my.nst.edu.ph` | `Nova1234!` |
 
+> **E2E fixtures:** Playwright tests use `b22test_*@my.nst.edu.ph` accounts (see `web/e2e/fixtures.ts`: `b22test_admin`, `b22test_teacher`, `b22test_student`, etc.).
+
 ## Migrations & seed
 
 ```bash
@@ -109,7 +111,8 @@ npm run db:seed      # node src/seed.js — idempotent demo data
 
 ```bash
 cd server
-npm test             # node --test, requires DATABASE_URL — 112 tests
+npm test             # node --test, requires DATABASE_URL — 193 tests (21 suites)
+cd web && npx playwright test  # 13 E2E tests
 ```
 
 The suite covers auth, users/roles, announcements (incl. visibility + TV feed),
