@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   LayoutDashboard,
   Megaphone,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { MobileNav } from "./MobileNav";
 import { LogoutButton } from "./LogoutButton";
+import AppNav from "./AppNav";
 
 type NavItem = {
   href: string;
@@ -58,22 +58,7 @@ export default function AppShell({ user, children }: { user: User; children: Rea
             </div>
           </div>
 
-          <nav data-testid="sidebar-nav" className="space-y-2" aria-label="School hub sections">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="nav-item flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-[#23344f] hover:translate-y-[-1px] hover:shadow-[5px_5px_11px_#d7d3ca,-4px_-4px_10px_#fff]"
-                >
-                  <Icon size={18} />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          <AppNav navItems={navItems.map(({ href, label }) => ({ href, label }))} />
 
           <div className="mt-auto">
             <div className="flex items-center gap-3 rounded-2xl bg-[#e7defb] p-4">
