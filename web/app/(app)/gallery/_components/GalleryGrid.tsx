@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { resolveMediaUrl } from "@/lib/url";
 import Lightbox from "./Lightbox";
@@ -29,7 +30,11 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
   if (media.length === 0) {
     return (
       <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-        <p className="text-sm text-text-muted">No media found.</p>
+        <p className="text-sm font-medium text-[#23344f]">No media found.</p>
+        <p className="mt-1 text-xs text-[#66758d]">Try adjusting filters or share a memory.</p>
+        <Link href="/gallery/upload" className="mt-4 inline-block rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white">
+          Upload media
+        </Link>
       </div>
     );
   }
