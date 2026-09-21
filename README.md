@@ -8,23 +8,22 @@ a public TV slideshow display, and full audit logging.
 
 | Layer | Tech |
 | ----- | ---- |
-| Frontend | React 18 + Vite 5 + Tailwind CSS 3, React Router 7, Axios |
+| Frontend | Next.js 16 + React 19 + Tailwind CSS 4, lucide-react, App Router |
 | Backend | Node.js 18+ + Express 4, Multer uploads, `pg` (Neon PostgreSQL) |
 | Auth | JWT (`jsonwebtoken`) + bcrypt, NST email-domain validation |
 | Database | PostgreSQL (Neon) — 8 tables, see `DATABASE_SCHEMA.sql` |
-| Deploy | Vercel (client) · Render / Railway (server) · Neon (DB) |
+| Deploy | Vercel (web) · Render / Railway (server) · Neon (DB) |
 
 ## Project structure
 
 ```
 NovaScholaW/
-├── client/            # Vite React frontend
-│   └── src/
-│       ├── pages/     # Login, Dashboard, Announcements, Gallery, TvDisplay, admin/*
-│       ├── components/# ProtectedRoute, AudiencePicker, AnnouncementCard, ...
-│       ├── context/   # AuthContext (token persistence, /auth/me bootstrap)
-│       └── services/  # api.js (Axios + JWT interceptor + 401 → logout)
-├── server/            # Express API
+├── web/               # Next.js frontend (port 3000)
+│   └── app/
+│       ├── (app)/     # Protected app routes (dashboard, announcements, gallery, admin/*)
+│       ├── api/       # Route handlers proxying to backend
+│       └── lib/       # auth, api, config
+├── server/            # Express API (port 5000)
 │   └── src/
 │       ├── routes/    # auth, users, academic, announcements, gallery, categories, dashboard, audit-logs
 │       ├── controllers/
@@ -60,13 +59,13 @@ npm run dev            # nodemon on http://localhost:5000
 ### Frontend
 
 ```bash
-cd client
+cd web
 npm install
-cp .env.example .env   # VITE_API_URL=http://localhost:5000/api (or leave unset for the dev proxy)
-npm run dev            # Vite on http://localhost:5173
+cp .env.example .env.local   # then fill in API_URL if needed (defaults to http://localhost:5000)
+npm run dev            # Next.js on http://localhost:3000
 ```
 
-Open http://localhost:5173/login.
+Open http://localhost:3000/login.
 
 ### Environment variables
 
@@ -79,16 +78,16 @@ Open http://localhost:5173/login.
 | `DATABASE_URL` | Yes (prod) | `postgresql://user:pass@host/db?sslmode=require` |
 | `JWT_SECRET` | Yes (prod) | long random string |
 | `JWT_EXPIRES_IN` | No | `8h` |
-| `CLIENT_ORIGIN` | Yes (prod) | `http://localhost:5173` |
+| `CLIENT_ORIGIN` | Yes (prod) | `http://localhost:3000` |
 | `UPLOAD_DIR` | Yes (prod) | `uploads` |
 | `NST_EMAIL_DOMAIN` | Yes (prod) | `my.nst.edu.ph` |
 | `MAX_IMAGE_SIZE_MB` / `MAX_VIDEO_SIZE_MB` / `MAX_VIDEO_DURATION_SECONDS` | No | `10` / `50` / `120` |
 
-**Client** (`client/.env`, see `client/.env.example`):
+**Web** (`web/.env.local`, see `web/.env.example`):
 
 | Var | Required | Example |
 | --- | -------- | ------- |
-| `VITE_API_URL` | Yes (prod) | `https://<api-host>/api` (dev: `http://localhost:5000/api` or unset for proxy) |
+| `API_URL` | No | `http://localhost:5000` (server URL, defaults if unset) |
 
 ## Demo accounts (seeded)
 
@@ -141,7 +140,7 @@ and schema/utils.
 
 Full checklist in [`scripts/DEPLOY.md`](scripts/DEPLOY.md). Summary:
 
-- **Client → Vercel:** root `client`, build `npm run build` → `dist`, set `VITE_API_URL`.
+- **Web → Vercel:** root `web`, build `npm run build` → `.next`, set `API_URL`.
 - **Server → Render/Railway:** root `server`, build `npm install`, start `npm start`,
   health check `/api/health`, set all production env vars.
 - **DB:** Neon (already configured) — no action needed.
