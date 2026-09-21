@@ -6,6 +6,7 @@ import {
   UploadCloud,
   ClipboardList,
   Users,
+  Tags,
   ShieldCheck,
   GraduationCap,
   UserRound,
@@ -27,6 +28,7 @@ const allNavItems: NavItem[] = [
   { href: "/gallery/upload", label: "Upload Media", icon: UploadCloud, roles: ["admin", "teacher", "student"] },
   { href: "/admin/moderation", label: "Moderation", icon: ClipboardList, roles: ["admin"] },
   { href: "/admin/users", label: "Users", icon: Users, roles: ["admin"] },
+  { href: "/admin/categories", label: "Categories", icon: Tags, roles: ["admin"] },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ShieldCheck, roles: ["admin"] },
 ];
 
