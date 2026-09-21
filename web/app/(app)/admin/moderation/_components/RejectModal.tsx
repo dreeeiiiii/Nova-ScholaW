@@ -112,9 +112,9 @@ export default function RejectModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-xl bg-white p-2 shadow"
+            className="rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -145,14 +145,14 @@ export default function RejectModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#23344f] shadow hover:bg-gray-50"
+              className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#23344f] shadow hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-[#ffe1d1] px-5 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 disabled:opacity-60"
+              className="rounded-full bg-[#ffe1d1] px-5 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
             >
               {loading ? "Rejecting…" : "Reject"}
             </button>

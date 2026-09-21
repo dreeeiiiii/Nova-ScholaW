@@ -225,9 +225,9 @@ export default function ModerationQueue({
                   Pending review
                 </span>
                 {m.media_type === "video" ? (
-                  <Video size={18} className="shrink-0 text-[#66758d]" />
+                  <Video size={18} className="shrink-0 text-[#66758d]" aria-hidden="true" />
                 ) : (
-                  <Image size={18} className="shrink-0 text-[#66758d]" />
+                  <Image size={18} className="shrink-0 text-[#66758d]" aria-hidden="true" />
                 )}
               </div>
 

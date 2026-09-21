@@ -48,7 +48,7 @@ export default function AppNav({ navItems }: { navItems: NavItem[] }) {
                 : "text-[#23344f] hover:translate-y-[-1px] hover:shadow-[5px_5px_11px_#d7d3ca,-4px_-4px_10px_#fff]"
             }`}
           >
-            <Icon size={18} />
+            <Icon size={18} aria-hidden="true" />
             {item.label}
           </Link>
         );

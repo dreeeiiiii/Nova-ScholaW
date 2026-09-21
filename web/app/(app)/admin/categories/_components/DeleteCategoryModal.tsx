@@ -91,7 +91,7 @@ export default function DeleteCategoryModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full bg-[#f0e6d8] px-5 py-2 text-sm font-bold text-[#6b3d27]"
+            className="rounded-full bg-[#f0e6d8] px-5 py-2 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
           >
             Cancel
           </button>
@@ -99,7 +99,7 @@ export default function DeleteCategoryModal({
             type="button"
             onClick={handleDelete}
             disabled={submitting}
-            className="rounded-full bg-[#ffe1d1] px-5 py-2 text-sm font-bold text-[#6b3d27] hover:brightness-95 disabled:opacity-60"
+            className="rounded-full bg-[#ffe1d1] px-5 py-2 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
           >
             {submitting ? "Deleting…" : "Delete"}
           </button>

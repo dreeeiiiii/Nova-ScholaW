@@ -91,9 +91,9 @@ export default function DeleteAnnouncementModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-xl bg-white p-2 shadow"
+            className="rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -109,7 +109,7 @@ export default function DeleteAnnouncementModal({
             type="button"
             onClick={onClose}
             disabled={pending}
-            className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-text-main shadow"
+            className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-text-main shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
           >
             Cancel
           </button>
@@ -117,7 +117,7 @@ export default function DeleteAnnouncementModal({
             type="button"
             onClick={onDelete}
             disabled={pending}
-            className="rounded-full bg-danger px-5 py-2.5 text-sm font-bold text-white shadow disabled:opacity-60"
+            className="rounded-full bg-danger px-5 py-2.5 text-sm font-bold text-white shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
           >
             {pending ? "Deleting..." : "Delete"}
           </button>

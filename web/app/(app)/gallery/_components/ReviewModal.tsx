@@ -74,12 +74,12 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
           type="button"
           onClick={() => (onClose ? onClose() : handleDone())}
           aria-label="Close"
-          className="absolute right-4 top-4 rounded-xl bg-white p-2 shadow"
+          className="absolute right-4 top-4 rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
         >
-          <X size={18} />
+          <X size={18} aria-hidden="true" />
         </button>
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
-          <CircleCheckBig size={28} className="text-success" />
+          <CircleCheckBig size={28} className="text-success" aria-hidden="true" />
         </div>
         <h2 className="mt-4 font-heading text-lg font-bold text-[#23344f]">Ready for review</h2>
         <p className="mt-2 text-sm leading-relaxed text-text-muted">
@@ -89,7 +89,7 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
           ref={closeBtnRef}
           type="button"
           onClick={handleDone}
-          className="mt-6 w-full rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white"
+          className="mt-6 w-full rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
         >
           Done
         </button>
