@@ -73,11 +73,11 @@ export default function AnnouncementList({ announcements, total, initialType, in
 
   return (
     <div>
-      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 md:flex-row">
+      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:p-6 md:flex-row">
         <label className="sr-only" htmlFor="announcement-search">
           Search announcements
         </label>
-        <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7]">
+        <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7] min-h-[44px]">
           <Search size={16} className="text-text-muted" />
           <input
             id="announcement-search"
@@ -85,7 +85,7 @@ export default function AnnouncementList({ announcements, total, initialType, in
             placeholder="Search announcements"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="w-full bg-transparent p-3 text-sm outline-none placeholder:text-text-muted"
+            className="w-full bg-transparent p-3 text-sm outline-none placeholder:text-text-muted min-h-[44px]"
           />
         </div>
         <div className="flex gap-2">
@@ -100,7 +100,7 @@ export default function AnnouncementList({ announcements, total, initialType, in
                 key={pill.key}
                 type="button"
                 onClick={() => onTypeClick(pill.key as never)}
-                className={`rounded-full px-4 py-2 text-sm font-bold ${isActive ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}
+                className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${isActive ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}
               >
                 {pill.label}
               </button>

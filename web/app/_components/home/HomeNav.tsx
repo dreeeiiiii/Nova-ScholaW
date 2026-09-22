@@ -4,7 +4,7 @@ export default function HomeNav() {
   return (
     <header className="sticky top-0 z-30 bg-base/80 backdrop-blur supports-[backdrop-filter]:bg-base/80">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 min-h-[44px]">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#d9efff] text-sm font-extrabold text-[#315c86] clay-card">
             NSH
           </div>

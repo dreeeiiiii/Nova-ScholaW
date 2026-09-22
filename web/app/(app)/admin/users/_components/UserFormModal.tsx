@@ -161,11 +161,11 @@ export default function UserFormModal({
         role="dialog"
         aria-modal="true"
         aria-label={mode === "create" ? "Create user" : "Edit user"}
-        className="clay max-h-[90vh] w-full max-w-lg overflow-auto rounded-3xl bg-[#fdfaf3] p-6"
+        className="clay max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-[#fdfaf3] p-4 sm:p-6"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-extrabold text-[#23344f]">{mode === "create" ? "Add user" : "Edit user"}</h2>
-          <button type="button" onClick={onClose} className="rounded-full bg-[#f0e6d8] px-3 py-1 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2">
+          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0e6d8] text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] min-w-[44px]">
             Close
           </button>
         </div>

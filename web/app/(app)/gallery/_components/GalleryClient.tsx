@@ -104,9 +104,9 @@ export default function GalleryClient({
           </Link>
         </div>
       )}
-      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4">
-        <div className="flex flex-col gap-3 md:flex-row">
-          <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7]">
+      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7] min-h-[44px]">
             <Search size={16} className="text-text-muted" />
             <input
               id="gallery-search"
@@ -114,7 +114,7 @@ export default function GalleryClient({
               placeholder="Search captions, filenames, categories…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              className="w-full bg-transparent p-3 text-sm outline-none placeholder:text-text-muted"
+              className="w-full bg-transparent p-3 text-sm outline-none placeholder:text-text-muted min-h-[44px]"
             />
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function GalleryClient({
           <select
             value={initialCategory}
             onChange={(e) => updateParam("category_id", e.target.value)}
-            className="rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none"
+            className="w-full rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none min-h-[44px] sm:w-auto"
           >
             <option value="">All categories</option>
             {categories.map((c) => (
@@ -136,7 +136,7 @@ export default function GalleryClient({
           <select
             value={initialYear}
             onChange={(e) => updateParam("year", e.target.value)}
-            className="rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none"
+            className="w-full rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none min-h-[44px] sm:w-auto"
           >
             <option value="">All years</option>
             {YEAR_OPTIONS.map((y) => (
@@ -158,7 +158,7 @@ export default function GalleryClient({
                   key={opt.v || "all"}
                   type="button"
                   onClick={() => updateParam("media_type", opt.v)}
-                  className={`rounded-full px-4 py-2 text-sm font-bold ${active ? "bg-[#d9efff] text-[#23446c]" : "bg-white text-text-muted"}`}
+                  className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${active ? "bg-[#d9efff] text-[#23446c]" : "bg-white text-text-muted"}`}
                 >
                   {opt.label}
                 </button>

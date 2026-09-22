@@ -103,12 +103,12 @@ export default async function AnnouncementsPage({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-bold tracking-wide text-[#315c86]">OFFICIAL UPDATES</p>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Announcements</h1>
+          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f] sm:text-3xl">Announcements</h1>
         </div>
         {(user.role === "admin" || user.role === "teacher") && (
           <Link
             href="/announcements/create"
-            className="rounded-full bg-[#315c86] px-5 py-3 text-sm font-bold text-white shadow"
+            className="w-full rounded-full bg-[#315c86] px-5 py-3 text-sm font-bold text-white shadow min-h-[44px] flex items-center justify-center sm:w-auto"
           >
             Create announcement
           </Link>

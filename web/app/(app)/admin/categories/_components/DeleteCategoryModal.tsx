@@ -78,7 +78,7 @@ export default function DeleteCategoryModal({
         role="dialog"
         aria-modal="true"
         aria-label="Delete category"
-        className="clay w-full max-w-md rounded-3xl bg-[#fdfaf3] p-6"
+        className="clay max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-[#fdfaf3] p-4 sm:p-6"
       >
         <h2 className="text-lg font-extrabold text-[#23344f]">Delete &ldquo;{category.name}&rdquo;?</h2>
         <p className="mt-2 text-sm text-[#66758d]">
@@ -87,11 +87,11 @@ export default function DeleteCategoryModal({
 
         {error && <p className="mt-3 rounded-xl bg-[#ffe1d1] px-3 py-2 text-sm font-medium text-[#6b3d27]">{error}</p>}
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full bg-[#f0e6d8] px-5 py-2 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="w-full rounded-full bg-[#f0e6d8] px-5 py-2.5 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] sm:w-auto"
           >
             Cancel
           </button>
@@ -99,7 +99,7 @@ export default function DeleteCategoryModal({
             type="button"
             onClick={handleDelete}
             disabled={submitting}
-            className="rounded-full bg-[#ffe1d1] px-5 py-2 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+            className="w-full rounded-full bg-[#ffe1d1] px-5 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60 min-h-[44px] sm:w-auto"
           >
             {submitting ? "Deleting…" : "Delete"}
           </button>

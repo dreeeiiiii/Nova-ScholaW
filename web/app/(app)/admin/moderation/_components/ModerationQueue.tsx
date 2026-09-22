@@ -205,7 +205,7 @@ export default function ModerationQueue({
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-2">
+      <div className="grid gap-5 grid-cols-1 xl:grid-cols-2">
         {media.map((m) => {
           const src = resolveMediaUrl(m.file_url);
           const title = m.caption?.trim() || m.original_filename || "Untitled upload";
@@ -251,7 +251,7 @@ export default function ModerationQueue({
                 disabled={isSaving}
                 onChange={(e) => handleCategoryChange(m, e.target.value)}
                 onFocus={handleFocus}
-                className="mt-2 w-full rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] disabled:opacity-60"
+                className="mt-2 w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] disabled:opacity-60 min-h-[44px]"
               >
                 <option value="">Uncategorized</option>
                 {categories.map((c) => (
@@ -276,7 +276,7 @@ export default function ModerationQueue({
                   type="button"
                   onClick={() => handleApprove(m)}
                   disabled={actionLoading === String(m.id) || isSaving}
-                  className="rounded-full bg-[#dff5e8] px-4 py-2 text-sm font-bold text-[#246044] hover:brightness-95 disabled:opacity-60"
+                  className="rounded-full bg-[#dff5e8] px-4 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 disabled:opacity-60 min-h-[44px]"
                 >
                   {actionLoading === String(m.id) ? "Approving…" : "Approve"}
                 </button>
@@ -284,7 +284,7 @@ export default function ModerationQueue({
                   type="button"
                   onClick={() => handleReject(m)}
                   disabled={actionLoading === String(m.id) || isSaving}
-                  className="rounded-full bg-[#ffe1d1] px-4 py-2 text-sm font-bold text-[#6b3d27] hover:brightness-95 disabled:opacity-60"
+                  className="rounded-full bg-[#ffe1d1] px-4 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 disabled:opacity-60 min-h-[44px]"
                 >
                   Reject
                 </button>

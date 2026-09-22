@@ -100,7 +100,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@my.nst.edu.ph"
-              className="clay-input mt-1.5 block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted"
+              className="clay-input mt-1.5 block w-full px-4 py-3 text-sm text-text-main placeholder-text-muted min-h-[44px]"
               required
             />
           </div>
@@ -116,7 +116,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="clay-input mt-1.5 block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted"
+              className="clay-input mt-1.5 block w-full px-4 py-3 text-sm text-text-main placeholder-text-muted min-h-[44px]"
               required
             />
           </div>
@@ -124,13 +124,13 @@ function LoginForm() {
           <button
             type="submit"
             disabled={pending}
-            className="clay-btn mt-6 w-full rounded-clay-pill bg-[#315c86] px-4 py-2.5 text-sm font-bold text-white shadow-clay focus:outline-none focus-visible:ring-2 focus-visible:ring-[#315c86] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="clay-btn mt-6 w-full rounded-clay-pill bg-[#315c86] px-4 py-2.5 text-sm font-bold text-white shadow-clay focus:outline-none focus-visible:ring-2 focus-visible:ring-[#315c86] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 min-h-[44px]"
           >
             {pending ? "Logging in…" : "Log in"}
           </button>
 
           <div className="mt-4 text-center text-sm">
-            <Link href="/" className="font-semibold text-[#315c86] hover:text-[#23446c]">
+            <Link href="/" className="inline-flex items-center justify-center font-semibold text-[#315c86] hover:text-[#23446c] min-h-[44px] px-2">
               ← Back to home
             </Link>
           </div>

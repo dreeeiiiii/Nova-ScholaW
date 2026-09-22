@@ -115,11 +115,11 @@ export default function CategoryFormModal({
         role="dialog"
         aria-modal="true"
         aria-label={mode === "create" ? "Create category" : "Rename category"}
-        className="clay w-full max-w-md rounded-3xl bg-[#fdfaf3] p-6"
+        className="clay max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-[#fdfaf3] p-4 sm:p-6"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-extrabold text-[#23344f]">{mode === "create" ? "Add category" : "Rename category"}</h2>
-          <button type="button" onClick={onClose} className="rounded-full bg-[#f0e6d8] px-3 py-1 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2">
+          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0e6d8] text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] min-w-[44px]">
             Close
           </button>
         </div>
@@ -133,7 +133,7 @@ export default function CategoryFormModal({
               onChange={(e) => setName(e.target.value)}
               maxLength={50}
               placeholder="Category name"
-              className="mt-1 w-full rounded-xl bg-white p-2 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+              className="mt-1 w-full rounded-xl bg-white p-2.5 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
               required
             />
             <span className="mt-1 block text-xs text-[#66758d]">{name.trim().length}/50</span>
@@ -141,18 +141,18 @@ export default function CategoryFormModal({
 
           {error && <p className="rounded-xl bg-[#ffe1d1] px-3 py-2 text-sm font-medium text-[#6b3d27]">{error}</p>}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full bg-[#f0e6d8] px-5 py-2 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+              className="w-full rounded-full bg-[#f0e6d8] px-5 py-2.5 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-full bg-[#dff5e8] px-5 py-2 text-sm font-bold text-[#246044] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+              className="w-full rounded-full bg-[#dff5e8] px-5 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60 min-h-[44px] sm:w-auto"
             >
               {submitting ? "Saving…" : mode === "create" ? "Create" : "Save"}
             </button>

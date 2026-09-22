@@ -50,7 +50,7 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
-          className="clay rounded-2xl bg-[#fdfaf3] p-3"
+          className="clay rounded-2xl bg-[#fdfaf3] p-3 min-h-[44px] min-w-[44px] flex items-center justify-center"
         >
           {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
         </button>
@@ -70,7 +70,7 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
       >
         <div className="mb-7 flex items-center justify-between">
           <span className="font-heading text-base font-bold text-[#23344f]">Nova Schola Hub</span>
-          <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="rounded-xl p-2">
+          <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center">
             <X size={20} aria-hidden="true" />
           </button>
         </div>
@@ -83,7 +83,7 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold ${active ? "bg-[#d9efff] text-[#23446c] shadow-[inset_3px_3px_7px_#c5d9e8,inset_-3px_-3px_7px_#effaff]" : "text-text-main hover:bg-white"}`}
+                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold min-h-[44px] ${active ? "bg-[#d9efff] text-[#23446c] shadow-[inset_3px_3px_7px_#c5d9e8,inset_-3px_-3px_7px_#effaff]" : "text-text-main hover:bg-white"}`}
               >
                 <Icon size={18} aria-hidden="true" />
                 {item.label}

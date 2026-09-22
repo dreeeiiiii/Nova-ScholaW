@@ -147,13 +147,13 @@ export default function AuditLogTable({
   if (logs.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="clay flex flex-wrap gap-3 rounded-3xl bg-[#fdfaf3] p-4">
-          <label className="flex flex-1 flex-col gap-1 text-sm">
+        <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:flex-row">
+          <label className="flex w-full flex-1 flex-col gap-1 text-sm">
             <span className="text-xs font-bold text-[#23344f]">Action</span>
             <select
               value={action ?? ""}
               onChange={(e) => handleActionChange(e.target.value)}
-              className="rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+              className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
             >
               <option value="">All actions</option>
               {ACTION_OPTIONS.map((opt) => (
@@ -163,12 +163,12 @@ export default function AuditLogTable({
               ))}
             </select>
           </label>
-          <label className="flex flex-1 flex-col gap-1 text-sm">
+          <label className="flex w-full flex-1 flex-col gap-1 text-sm">
             <span className="text-xs font-bold text-[#23344f]">Entity type</span>
             <select
               value={entityType ?? ""}
               onChange={(e) => handleEntityChange(e.target.value)}
-              className="rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+              className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
             >
               <option value="">All entities</option>
               {ENTITY_OPTIONS.map((opt) => (
@@ -190,13 +190,13 @@ export default function AuditLogTable({
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="clay flex flex-wrap gap-3 rounded-3xl bg-[#fdfaf3] p-4">
-        <label className="flex flex-1 flex-col gap-1 text-sm">
+      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:flex-row">
+        <label className="flex w-full flex-1 flex-col gap-1 text-sm">
           <span className="text-xs font-bold text-[#23344f]">Action</span>
           <select
             value={action ?? ""}
             onChange={(e) => handleActionChange(e.target.value)}
-            className="rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+            className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
           >
             <option value="">All actions</option>
             {ACTION_OPTIONS.map((opt) => (
@@ -206,12 +206,12 @@ export default function AuditLogTable({
             ))}
           </select>
         </label>
-        <label className="flex flex-1 flex-col gap-1 text-sm">
+        <label className="flex w-full flex-1 flex-col gap-1 text-sm">
           <span className="text-xs font-bold text-[#23344f]">Entity type</span>
           <select
             value={entityType ?? ""}
             onChange={(e) => handleEntityChange(e.target.value)}
-            className="rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+            className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
           >
             <option value="">All entities</option>
             {ENTITY_OPTIONS.map((opt) => (
@@ -264,7 +264,7 @@ export default function AuditLogTable({
                           <button
                             type="button"
                             onClick={() => needsTruncate && toggleExpand(log.id)}
-                            className={`text-left font-mono text-xs ${needsTruncate ? "cursor-pointer hover:underline" : ""} text-[#23344f]`}
+                            className={`text-left font-mono text-xs ${needsTruncate ? "cursor-pointer hover:underline" : ""} text-[#23344f] min-h-[44px] py-2`}
                             title={needsTruncate && !isExpanded ? "Click to expand" : undefined}
                           >
                             {truncated}
@@ -331,7 +331,7 @@ export default function AuditLogTable({
             type="button"
             onClick={handleLoadMore}
             disabled={loading}
-            className="rounded-full bg-[#d9efff] px-6 py-2 text-sm font-bold text-[#315c86] hover:brightness-95 disabled:opacity-60"
+            className="w-full rounded-full bg-[#d9efff] px-6 py-2.5 text-sm font-bold text-[#315c86] hover:brightness-95 disabled:opacity-60 min-h-[44px] sm:w-auto"
           >
             {loading ? "Loading…" : "Load more"}
           </button>

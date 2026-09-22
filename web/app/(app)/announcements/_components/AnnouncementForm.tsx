@@ -198,10 +198,10 @@ export default function AnnouncementForm({ mode, initial }: Props) {
     }
   }
 
-  const inputCls = "clay-input block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted";
+  const inputCls = "clay-input block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted min-h-[44px]";
 
   return (
-    <div className="clay-card rounded-clay p-6">
+    <div className="clay-card rounded-clay p-4 sm:p-6">
       <h2 className="mb-4 font-heading text-lg font-bold text-text-main">
         {mode === "edit" ? "Edit Announcement" : "Create Announcement"}
       </h2>
@@ -252,7 +252,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`rounded-clay-pill px-5 py-2.5 text-sm font-bold transition-colors ${type === t ? "bg-primary text-white shadow-clay-sm" : "bg-surface text-text-muted hover:text-primary"}`}
+                className={`rounded-clay-pill px-5 py-2.5 text-sm font-bold transition-colors min-h-[44px] ${type === t ? "bg-primary text-white shadow-clay-sm" : "bg-surface text-text-muted hover:text-primary"}`}
               >
                 {t === "general" ? "General" : "Class"}
               </button>
@@ -320,14 +320,14 @@ export default function AnnouncementForm({ mode, initial }: Props) {
           <button
             type="button"
             onClick={() => router.push("/announcements")}
-            className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2.5 text-sm font-semibold text-text-main"
+            className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2.5 text-sm font-semibold text-text-main min-h-[44px] w-full sm:w-auto"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving || uploading}
-            className="clay-btn rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60"
+            className="clay-btn rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60 min-h-[44px] w-full sm:w-auto"
           >
             {saving ? "Saving…" : mode === "edit" ? "Save changes" : type === "class" ? "Publish class announcement" : "Publish"}
           </button>

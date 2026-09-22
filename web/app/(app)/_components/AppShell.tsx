@@ -44,7 +44,7 @@ export default function AppShell({ user, children }: { user: User; children: Rea
     <div className="min-h-screen w-full bg-[#fbf7ef] lg:flex">
       <aside
         data-testid="sidebar"
-        className="desktop-sidebar hidden w-72 shrink-0 p-6 lg:block"
+        className="desktop-sidebar hidden w-72 shrink-0 p-6 lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto"
         aria-label="Main navigation"
       >
         <div className="clay flex h-full flex-col rounded-[2rem] bg-[#fdfaf3] p-5">

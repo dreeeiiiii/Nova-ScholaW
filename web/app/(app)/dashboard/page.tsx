@@ -107,7 +107,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <div className="clay relative flex min-h-[330px] items-end overflow-hidden rounded-[2rem] bg-[#e7defb] p-7 sm:p-10">
+      <div className="clay relative flex min-h-[240px] items-end overflow-hidden rounded-[2rem] bg-[#e7defb] p-7 sm:min-h-[330px] sm:p-10">
         <img
           src="https://images.pexels.com/photos/18587790/pexels-photo-18587790.jpeg"
           alt=""
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
 
       {/* At a glance */}
       <section aria-labelledby="stats-heading">
-        <h2 id="stats-heading" className="mb-4 font-heading text-xl font-bold text-[#23344f]">
+        <h2 id="stats-heading" className="mb-4 font-heading text-lg font-bold text-[#23344f] sm:text-xl">
           At a glance
         </h2>
         <div className={`grid gap-4 ${isAdmin ? "grid-cols-2 xl:grid-cols-4" : "grid-cols-1 sm:grid-cols-3"}`}>
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
             <h2 id="latest-heading" className="font-heading text-lg font-bold text-[#23344f]">
               Latest Announcements
             </h2>
-            <Link href="/announcements" className="text-sm font-bold text-[#315c86] underline">
+            <Link href="/announcements" className="inline-flex items-center text-sm font-bold text-[#315c86] underline min-h-[44px] px-2">
               Browse all
             </Link>
           </div>

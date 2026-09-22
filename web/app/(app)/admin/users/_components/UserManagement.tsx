@@ -174,13 +174,13 @@ export default function UserManagement({
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="clay flex flex-wrap gap-3 rounded-3xl bg-[#fdfaf3] p-4">
-        <label className="flex min-w-[180px] flex-col gap-1 text-sm">
+      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:flex-row sm:flex-wrap">
+        <label className="flex w-full flex-col gap-1 text-sm sm:w-auto sm:min-w-[180px]">
           <span className="text-xs font-bold text-[#23344f]">Role</span>
           <select
             value={role ?? ""}
             onChange={(e) => handleRoleChange(e.target.value)}
-            className="rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+            className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px] sm:w-auto"
           >
             <option value="">All roles</option>
             <option value="admin">admin</option>
@@ -188,21 +188,21 @@ export default function UserManagement({
             <option value="student">student</option>
           </select>
         </label>
-        <label className="flex flex-1 flex-col gap-1 text-sm">
+        <label className="flex w-full flex-1 flex-col gap-1 text-sm">
           <span className="text-xs font-bold text-[#23344f]">Search</span>
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search name or email"
-            className="rounded-xl bg-white p-2 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+            className="w-full rounded-xl bg-white p-2.5 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
           />
         </label>
-        <div className="flex items-end">
+        <div className="flex w-full items-end sm:w-auto">
           <button
             type="button"
             onClick={() => setFormState({ mode: "create" })}
-            className="rounded-full bg-[#dff5e8] px-5 py-2 text-sm font-bold text-[#246044] hover:brightness-95"
+            className="w-full rounded-full bg-[#dff5e8] px-5 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 min-h-[44px] sm:w-auto"
           >
             Add user
           </button>
@@ -260,7 +260,7 @@ export default function UserManagement({
                             <button
                               type="button"
                               onClick={() => setFormState({ mode: "edit", user: u })}
-                              className="rounded-full bg-[#d9efff] px-3 py-1 text-xs font-bold text-[#23446c] hover:brightness-95"
+                              className="rounded-full bg-[#d9efff] px-4 py-2.5 text-xs font-bold text-[#23446c] hover:brightness-95 min-h-[44px]"
                             >
                               Edit
                             </button>
@@ -268,7 +268,7 @@ export default function UserManagement({
                               type="button"
                               onClick={() => handleToggleActive(u)}
                               disabled={actionLoading === String(u.id)}
-                              className={`rounded-full px-3 py-1 text-xs font-bold hover:brightness-95 disabled:opacity-60 ${u.is_active ? "bg-[#ffe1d1] text-[#6b3d27]" : "bg-[#dff5e8] text-[#246044]"}`}
+                              className={`rounded-full px-4 py-2.5 text-xs font-bold hover:brightness-95 disabled:opacity-60 min-h-[44px] ${u.is_active ? "bg-[#ffe1d1] text-[#6b3d27]" : "bg-[#dff5e8] text-[#246044]"}`}
                             >
                               {actionLoading === String(u.id) ? "..." : u.is_active ? "Deactivate" : "Activate"}
                             </button>
@@ -310,7 +310,7 @@ export default function UserManagement({
                   <button
                     type="button"
                     onClick={() => setFormState({ mode: "edit", user: u })}
-                    className="rounded-full bg-[#d9efff] px-4 py-2 text-xs font-bold text-[#23446c]"
+                    className="rounded-full bg-[#d9efff] px-4 py-2.5 text-xs font-bold text-[#23446c] min-h-[44px]"
                   >
                     Edit
                   </button>
@@ -318,7 +318,7 @@ export default function UserManagement({
                     type="button"
                     onClick={() => handleToggleActive(u)}
                     disabled={actionLoading === String(u.id)}
-                    className={`rounded-full px-4 py-2 text-xs font-bold disabled:opacity-60 ${u.is_active ? "bg-[#ffe1d1] text-[#6b3d27]" : "bg-[#dff5e8] text-[#246044]"}`}
+                    className={`rounded-full px-4 py-2.5 text-xs font-bold disabled:opacity-60 min-h-[44px] ${u.is_active ? "bg-[#ffe1d1] text-[#6b3d27]" : "bg-[#dff5e8] text-[#246044]"}`}
                   >
                     {u.is_active ? "Deactivate" : "Activate"}
                   </button>
@@ -337,7 +337,7 @@ export default function UserManagement({
             type="button"
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className="rounded-full bg-[#d9efff] px-6 py-2 text-sm font-bold text-[#315c86] hover:brightness-95 disabled:opacity-60"
+            className="w-full rounded-full bg-[#d9efff] px-6 py-2.5 text-sm font-bold text-[#315c86] hover:brightness-95 disabled:opacity-60 min-h-[44px] sm:w-auto"
           >
             {loadingMore ? "Loading…" : "Load more"}
           </button>

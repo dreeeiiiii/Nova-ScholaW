@@ -81,7 +81,7 @@ export default function CategoryManagement({ initialCategories }: { initialCateg
         <button
           type="button"
           onClick={() => setFormState({ mode: "create" })}
-          className="rounded-full bg-[#dff5e8] px-5 py-2 text-sm font-bold text-[#246044] hover:brightness-95"
+          className="w-full rounded-full bg-[#dff5e8] px-5 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 min-h-[44px] sm:w-auto"
         >
           Add category
         </button>
@@ -92,45 +92,73 @@ export default function CategoryManagement({ initialCategories }: { initialCateg
           <p className="text-sm font-medium text-[#23344f]">No categories yet</p>
         </div>
       ) : (
-        <div className="clay overflow-hidden rounded-3xl bg-[#fdfaf3]">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#fbf7ef] text-xs font-bold text-[#66758d]">
-                <tr>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Created</th>
-                  <th className="px-4 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categories.map((cat) => (
-                  <tr key={String(cat.id)} className="border-t border-[#f0e6d8]">
-                    <td className="px-4 py-3 font-medium text-[#23344f]">{cat.name}</td>
-                    <td className="px-4 py-3 text-xs text-[#66758d]">{formatDate(cat.created_at)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setFormState({ mode: "edit", category: cat })}
-                          className="rounded-full bg-[#d9efff] px-3 py-1 text-xs font-bold text-[#23446c] hover:brightness-95"
-                        >
-                          Rename
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTarget(cat)}
-                          className="rounded-full bg-[#ffe1d1] px-3 py-1 text-xs font-bold text-[#6b3d27] hover:brightness-95"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <>
+          <div className="hidden md:block">
+            <div className="clay overflow-hidden rounded-3xl bg-[#fdfaf3]">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#fbf7ef] text-xs font-bold text-[#66758d]">
+                    <tr>
+                      <th className="px-4 py-3">Name</th>
+                      <th className="px-4 py-3">Created</th>
+                      <th className="px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.map((cat) => (
+                      <tr key={String(cat.id)} className="border-t border-[#f0e6d8]">
+                        <td className="px-4 py-3 font-medium text-[#23344f]">{cat.name}</td>
+                        <td className="px-4 py-3 text-xs text-[#66758d]">{formatDate(cat.created_at)}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setFormState({ mode: "edit", category: cat })}
+                              className="rounded-full bg-[#d9efff] px-4 py-2.5 text-xs font-bold text-[#23446c] hover:brightness-95 min-h-[44px]"
+                            >
+                              Rename
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleteTarget(cat)}
+                              className="rounded-full bg-[#ffe1d1] px-4 py-2.5 text-xs font-bold text-[#6b3d27] hover:brightness-95 min-h-[44px]"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
+          <div className="grid gap-4 md:hidden">
+            {categories.map((cat) => (
+              <div key={String(cat.id)} className="clay rounded-3xl bg-[#fdfaf3] p-5">
+                <p className="font-bold text-[#23344f]">{cat.name}</p>
+                <p className="mt-1 text-xs text-[#66758d]">{formatDate(cat.created_at)}</p>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormState({ mode: "edit", category: cat })}
+                    className="rounded-full bg-[#d9efff] px-4 py-2.5 text-xs font-bold text-[#23446c] min-h-[44px]"
+                  >
+                    Rename
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(cat)}
+                    className="rounded-full bg-[#ffe1d1] px-4 py-2.5 text-xs font-bold text-[#6b3d27] min-h-[44px]"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {formState && (
