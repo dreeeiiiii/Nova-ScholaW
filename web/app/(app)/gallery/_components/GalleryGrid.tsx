@@ -13,6 +13,7 @@ type Media = {
   category_name?: string;
   created_at?: string;
   original_filename?: string;
+  uploader_name?: string | null;
 };
 
 function formatDate(iso?: string) {
@@ -69,6 +70,9 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
                 <p className="mt-1 text-xs text-text-muted">
                   {m.category_name || "Uncategorized"} · {formatDate(m.created_at)}
                 </p>
+                {m.uploader_name && (
+                  <p className="mt-1 text-xs text-text-muted">Uploaded by: {m.uploader_name}</p>
+                )}
               </div>
             </button>
           );

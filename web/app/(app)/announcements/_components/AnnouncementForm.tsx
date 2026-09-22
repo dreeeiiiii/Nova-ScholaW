@@ -18,6 +18,7 @@ type Props = {
     publish_at?: string | null;
     expires_at?: string | null;
     targets?: Targets;
+    show_on_tv?: boolean;
   };
 };
 
@@ -40,6 +41,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
 
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
   const [cloudinaryPublicId, setCloudinaryPublicId] = useState((initial as { cloudinary_public_id?: string })?.cloudinary_public_id ?? "");
+  const [showOnTv, setShowOnTv] = useState<boolean>((initial as { show_on_tv?: boolean })?.show_on_tv ?? true);
   const [previewUrl, setPreviewUrl] = useState(initial?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -172,9 +174,12 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       };
       if (isClass) {
+        payload.show_on_tv = false;
         payload.section_ids = targets.section_ids;
         payload.course_ids = targets.course_ids;
         payload.student_ids = targets.student_ids;
+      } else {
+        payload.show_on_tv = showOnTv;
       }
 
       const endpoint = isClass ? "/api/announcements/class" : "/api/announcements/general";
@@ -317,6 +322,21 @@ export default function AnnouncementForm({ mode, initial }: Props) {
             />
           </div>
         </div>
+
+        {!isClass && (
+          <label className="flex items-start gap-3 rounded-xl bg-[#f0f0ff]/50 p-3">
+            <input
+              type="checkbox"
+              checked={showOnTv}
+              onChange={(e) => setShowOnTv(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-[#d9d7e2] text-[#315c86] focus:ring-[#315c86]"
+            />
+            <span className="flex-1">
+              <span className="block text-sm font-semibold text-text-main">Show on TV display</span>
+              <span className="block text-xs text-text-muted">Appears on the school lobby TV slideshow.</span>
+            </span>
+          </label>
+        )}
 
         {isClass && <AudiencePicker value={targets} onChange={setTargets} />}
 

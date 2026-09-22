@@ -67,7 +67,7 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
       onClick={handleBackdrop}
       role="dialog"
       aria-modal="true"
-      aria-label="Ready for review"
+      aria-label="Upload successful"
     >
       <div className="clay w-full max-w-md rounded-[2rem] bg-[#fdfaf3] p-6 text-center">
         <button
@@ -81,9 +81,9 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
           <CircleCheckBig size={28} className="text-success" aria-hidden="true" />
         </div>
-        <h2 className="mt-4 font-heading text-lg font-bold text-[#23344f]">Ready for review</h2>
+        <h2 className="mt-4 font-heading text-lg font-bold text-[#23344f]">Upload successful</h2>
         <p className="mt-2 text-sm leading-relaxed text-text-muted">
-          Your media submission has entered the admin review queue. It will remain unpublished until approved.
+          Your upload is now live in the gallery. Admins may remove it later if it violates our guidelines.
         </p>
         <button
           ref={closeBtnRef}

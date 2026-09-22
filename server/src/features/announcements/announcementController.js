@@ -41,6 +41,8 @@ export const createGeneralAnnouncement = async (req, res, next) => {
     const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
     const publish_at = readOptionalDate(req.body?.publish_at);
     const expires_at = readOptionalDate(req.body?.expires_at);
+    const rawShowOnTv = req.body?.show_on_tv;
+    const show_on_tv = rawShowOnTv === undefined ? true : Boolean(rawShowOnTv);
 
     if (title === null || content === null) {
       return res.status(400).json({
@@ -59,6 +61,7 @@ export const createGeneralAnnouncement = async (req, res, next) => {
       content,
       image_url,
       cloudinary_public_id,
+      show_on_tv,
       status,
       publish_at,
       expires_at,
@@ -246,6 +249,14 @@ export const updateAnnouncement = async (req, res, next) => {
       : undefined;
     const publish_at = readOptionalDate(req.body?.publish_at);
     const expires_at = readOptionalDate(req.body?.expires_at);
+    const hasShowOnTv = Object.prototype.hasOwnProperty.call(req.body, 'show_on_tv');
+    const rawShowOnTv = req.body?.show_on_tv;
+    let show_on_tv;
+    if (existing.type === 'class') {
+      show_on_tv = false;
+    } else if (hasShowOnTv) {
+      show_on_tv = Boolean(rawShowOnTv);
+    }
 
     const section_ids = parseArrayOfIds(req.body?.section_ids, 'section_ids');
     const course_ids = parseArrayOfIds(req.body?.course_ids, 'course_ids');
@@ -258,6 +269,7 @@ export const updateAnnouncement = async (req, res, next) => {
     if (content !== null) fields.content = content;
     if (image_url !== null) fields.image_url = image_url;
     if (cloudinary_public_id !== null) fields.cloudinary_public_id = cloudinary_public_id;
+    if (show_on_tv !== undefined) fields.show_on_tv = show_on_tv;
     if (status !== undefined) fields.status = status;
     if (publish_at !== null) fields.publish_at = publish_at;
     if (expires_at !== null) fields.expires_at = expires_at;

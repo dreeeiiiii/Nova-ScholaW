@@ -1,7 +1,7 @@
 import { query, getClient } from '../../shared/config/db.js';
 
 const ANNOUNCEMENT_COLUMNS = `
-  id, author_id, type, title, content, image_url, cloudinary_public_id, status, publish_at, expires_at,
+  id, author_id, type, title, content, image_url, cloudinary_public_id, show_on_tv, status, publish_at, expires_at,
   created_at, updated_at
 `;
 
@@ -12,15 +12,17 @@ export const createAnnouncement = async ({
   content,
   image_url,
   cloudinary_public_id,
+  show_on_tv,
   status,
   publish_at,
   expires_at,
 }) => {
+  const tv = show_on_tv ?? (type === 'general' ? true : false);
   const { rows } = await query(
-    `INSERT INTO announcements (author_id, type, title, content, image_url, cloudinary_public_id, status, publish_at, expires_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO announcements (author_id, type, title, content, image_url, cloudinary_public_id, show_on_tv, status, publish_at, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING ${ANNOUNCEMENT_COLUMNS}`,
-    [author_id, type, title, content, image_url ?? null, cloudinary_public_id ?? null, status, publish_at ?? null, expires_at ?? null]
+    [author_id, type, title, content, image_url ?? null, cloudinary_public_id ?? null, tv, status, publish_at ?? null, expires_at ?? null]
   );
   return rows[0];
 };
@@ -320,6 +322,7 @@ export const findPublishedGeneral = async ({ limit = 20 } = {}) => {
        FROM announcements
       WHERE type = 'general'
         AND status = 'published'
+        AND show_on_tv = true
         AND (publish_at IS NULL OR publish_at <= NOW())
         AND (expires_at IS NULL OR expires_at > NOW())
        ORDER BY created_at DESC
@@ -335,8 +338,8 @@ export const createClassWithTargets = async ({ author_id, title, content, image_
     await client.query('BEGIN');
 
     const { rows: annRows } = await client.query(
-      `INSERT INTO announcements (author_id, type, title, content, image_url, cloudinary_public_id, status, publish_at, expires_at)
-       VALUES ($1, 'class', $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO announcements (author_id, type, title, content, image_url, cloudinary_public_id, show_on_tv, status, publish_at, expires_at)
+       VALUES ($1, 'class', $2, $3, $4, $5, false, $6, $7, $8)
        RETURNING ${ANNOUNCEMENT_COLUMNS}`,
       [author_id, title, content, image_url ?? null, cloudinary_public_id ?? null, status, publish_at ?? null, expires_at ?? null]
     );

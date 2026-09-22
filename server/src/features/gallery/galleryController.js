@@ -40,6 +40,9 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     });
 
     try {
+      const status = 'approved';
+      const reviewedBy = req.user.id;
+      const reviewedAt = new Date();
       const media = await galleryModel.insertMedia({
         uploader_id: req.user.id,
         category_id: categoryId,
@@ -48,6 +51,11 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
         cloudinary_public_id: public_id,
         original_filename: file.originalname,
         caption,
+        status,
+        reviewed_by: reviewedBy,
+        reviewed_at: reviewedAt,
+        rejection_reason: null,
+        featured: false,
       });
 
       await audit(req, 'gallery.upload', 'gallery_media', media.id, {
@@ -140,6 +148,16 @@ export const rejectMedia = async (req, res, next) => {
 export const myUploads = async (req, res, next) => {
   try {
     const media = await galleryModel.listByUploader(req.user.id);
+    return res.json({ media });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const listRecentMedia = async (req, res, next) => {
+  try {
+    const limit = req.query.limit ? Math.min(Math.max(Number(req.query.limit) || 50, 1), 100) : 50;
+    const media = await galleryModel.listRecent({ limit });
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -349,4 +367,5 @@ export default {
   featureMedia,
   reassignCategory,
   deleteGalleryMedia,
+  listRecentMedia,
 };

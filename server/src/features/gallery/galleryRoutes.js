@@ -13,6 +13,7 @@ import {
   featureMedia,
   reassignCategory,
   deleteGalleryMedia,
+  listRecentMedia,
 } from './galleryController.js';
 
 const router = Router();
@@ -21,6 +22,7 @@ const authenticated = [authenticate];
 
 router.post('/upload', authenticated, uploadMediaHandler);
 router.get('/pending', adminOnly, listPendingMedia);
+router.get('/recent', adminOnly, listRecentMedia);
 router.patch('/:id/approve', adminOnly, approveMedia);
 router.patch('/:id/reject', adminOnly, rejectMedia);
 router.patch('/:id/feature', adminOnly, featureMedia);

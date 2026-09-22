@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import GalleryGrid from "./GalleryGrid";
@@ -46,6 +46,10 @@ export default function GalleryClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState(initialQ);
+  const [isPending, startTransition] = useTransition();
+  const [optimisticCategory, setOptimisticCategory] = useState<string | null>(null);
+  const [optimisticYear, setOptimisticYear] = useState<string | null>(null);
+  const [optimisticMediaType, setOptimisticMediaType] = useState<string | null>(null);
   const searchParamsRef = useRef(searchParams);
   useEffect(() => {
     searchParamsRef.current = searchParams;
@@ -54,6 +58,13 @@ export default function GalleryClient({
   useEffect(() => {
     setQ(initialQ);
   }, [initialQ]);
+
+  // Clear optimistic selections once the server confirms the new filters
+  useEffect(() => {
+    setOptimisticCategory(null);
+    setOptimisticYear(null);
+    setOptimisticMediaType(null);
+  }, [initialCategory, initialYear, initialMediaType]);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,7 +76,9 @@ export default function GalleryClient({
       if (trimmed === urlQ) return;
       if (trimmed) params.set("q", trimmed);
       else params.delete("q");
-      router.replace(`?${params.toString()}`);
+      startTransition(() => {
+        router.replace(`?${params.toString()}`);
+      });
     }, 400);
     return () => {
       cancelled = true;
@@ -76,15 +89,24 @@ export default function GalleryClient({
   function updateParam(key: string, value: string) {
     const current = searchParams.get(key) ?? "";
     if (current === value) return;
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) params.set(key, value);
-    else params.delete(key);
-    // keep q if present
-    if (q.trim() && !params.has("q") && initialQ) {
-      // already handled
-    }
-    router.replace(`?${params.toString()}`);
+    if (key === "category_id") setOptimisticCategory(value || null);
+    if (key === "year") setOptimisticYear(value || null);
+    if (key === "media_type") setOptimisticMediaType(value || null);
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) params.set(key, value);
+      else params.delete(key);
+      // keep q if present
+      if (q.trim() && !params.has("q") && initialQ) {
+        // already handled
+      }
+      router.replace(`?${params.toString()}`);
+    });
   }
+
+  const activeCategory = optimisticCategory ?? initialCategory;
+  const activeYear = optimisticYear ?? initialYear;
+  const activeMediaType = optimisticMediaType ?? initialMediaType;
 
   return (
     <div className="space-y-6">
@@ -121,7 +143,7 @@ export default function GalleryClient({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <select
-            value={initialCategory}
+            value={activeCategory}
             onChange={(e) => updateParam("category_id", e.target.value)}
             className="w-full rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none min-h-[44px] sm:w-auto"
           >
@@ -134,7 +156,7 @@ export default function GalleryClient({
           </select>
 
           <select
-            value={initialYear}
+            value={activeYear}
             onChange={(e) => updateParam("year", e.target.value)}
             className="w-full rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none min-h-[44px] sm:w-auto"
           >
@@ -152,13 +174,13 @@ export default function GalleryClient({
               { v: "image", label: "Image" },
               { v: "video", label: "Video" },
             ].map((opt) => {
-              const active = initialMediaType === opt.v;
+              const active = activeMediaType === opt.v;
               return (
                 <button
                   key={opt.v || "all"}
                   type="button"
                   onClick={() => updateParam("media_type", opt.v)}
-                  className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${active ? "bg-[#d9efff] text-[#23446c]" : "bg-white text-text-muted"}`}
+                  className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${active ? "bg-[#d9efff] text-[#23446c] ring-2 ring-[#315c86]" : "bg-white text-text-muted"}`}
                 >
                   {opt.label}
                 </button>
@@ -168,9 +190,19 @@ export default function GalleryClient({
         </div>
       </div>
 
-      <p className="text-xs text-text-muted">{total} result{total === 1 ? "" : "s"}</p>
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-text-muted">{total} result{total === 1 ? "" : "s"}</p>
+        {isPending && (
+          <span className="inline-flex items-center gap-2 text-xs text-text-muted" role="status" aria-live="polite">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[#315c86]" aria-hidden="true" />
+            Updating…
+          </span>
+        )}
+      </div>
 
-      <GalleryGrid media={media} />
+      <div className={`transition-opacity ${isPending ? "opacity-60" : ""}`} aria-busy={isPending}>
+        <GalleryGrid media={media} />
+      </div>
     </div>
   );
 }

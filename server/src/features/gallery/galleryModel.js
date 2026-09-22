@@ -24,12 +24,12 @@ const MEDIA_JOINS = `
   LEFT JOIN users u ON u.id = gm.uploader_id
 `;
 
-export const insertMedia = async ({ uploader_id, category_id, media_type, file_url, cloudinary_public_id, original_filename, caption }) => {
+export const insertMedia = async ({ uploader_id, category_id, media_type, file_url, cloudinary_public_id, original_filename, caption, status = 'pending', reviewed_by = null, reviewed_at = null, rejection_reason = null, featured = false }) => {
   const { rows } = await query(
-    `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, cloudinary_public_id, original_filename, caption, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
+    `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, cloudinary_public_id, original_filename, caption, status, reviewed_by, reviewed_at, rejection_reason, featured)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING ${MEDIA_COLUMNS}`,
-    [uploader_id, category_id, media_type, file_url, cloudinary_public_id ?? null, original_filename, caption]
+    [uploader_id, category_id, media_type, file_url, cloudinary_public_id ?? null, original_filename, caption, status, reviewed_by, reviewed_at, rejection_reason, featured]
   );
   return rows[0];
 };
@@ -227,6 +227,21 @@ export const deleteMedia = async (id) => {
   return rows[0] ?? null;
 };
 
+export const listRecent = async ({ limit = 50 } = {}) => {
+  const limitNum = Math.min(Math.max(Number(limit) || 50, 1), 100);
+  const { rows } = await query(
+    `SELECT ${GM_WITH_JOINS_COLUMNS}
+       FROM gallery_media gm
+       ${MEDIA_JOINS}
+      WHERE gm.status = 'approved'
+        AND gm.created_at >= NOW() - INTERVAL '7 days'
+      ORDER BY gm.created_at DESC
+      LIMIT $1`,
+    [limitNum]
+  );
+  return rows;
+};
+
 export default {
   insertMedia,
   findById,
@@ -240,4 +255,5 @@ export default {
   setFeatured,
   updateCategory,
   deleteMedia,
+  listRecent,
 };

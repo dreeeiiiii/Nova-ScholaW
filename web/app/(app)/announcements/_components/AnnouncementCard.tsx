@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Monitor } from "lucide-react";
 import { resolveMediaUrl } from "@/lib/url";
 
 type Announcement = {
@@ -9,7 +10,9 @@ type Announcement = {
   content: string;
   type: string;
   author_id?: number | string;
+  author_name?: string | null;
   image_url?: string | null;
+  show_on_tv?: boolean;
 };
 
 type CurrentUser = {
@@ -46,8 +49,20 @@ export default function AnnouncementCard({
         <span className={`rounded-full px-3 py-1 text-xs font-bold ${isGeneral ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}>
           {isGeneral ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
         </span>
+        {isGeneral && (announcement.show_on_tv ?? true) && (
+          <span
+            title="Shows on TV display"
+            className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold text-[#315c86] ring-1 ring-[#d9efff]"
+          >
+            <Monitor size={12} aria-hidden="true" />
+            TV
+          </span>
+        )}
       </div>
       <h3 className="mt-3 font-heading text-base font-bold text-[#23344f]">{announcement.title}</h3>
+      {announcement.author_name && (
+        <p className="mt-1 text-xs text-text-muted">By: {announcement.author_name}</p>
+      )}
       <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-text-muted">{announcement.content}</p>
       <div className="mt-3 flex items-center justify-between">
         <button

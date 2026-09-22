@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
-import ModerationQueue from "./_components/ModerationQueue";
+import ModerationTabs from "./_components/ModerationTabs";
 
 type PendingMedia = {
   id: number | string;
@@ -57,7 +57,7 @@ export default async function ModerationPage() {
         </p>
       </div>
 
-      <ModerationQueue initialMedia={media} error={error} />
+      <ModerationTabs initialPending={media} pendingError={error} />
     </div>
   );
 }

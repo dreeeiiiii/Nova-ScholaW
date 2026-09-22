@@ -84,6 +84,7 @@ CREATE TABLE announcements (
     content               TEXT        NOT NULL,
     image_url             VARCHAR(500),                                -- optional image attachment
     cloudinary_public_id  TEXT,                                        -- Cloudinary public_id for new uploads
+    show_on_tv            BOOLEAN     NOT NULL DEFAULT true,           -- TV kiosk visibility for general announcements
     status                VARCHAR(20) NOT NULL DEFAULT 'draft'
                 CHECK (status IN ('draft', 'scheduled', 'published', 'archived')),
     publish_at  TIMESTAMPTZ,                                 -- set when scheduled

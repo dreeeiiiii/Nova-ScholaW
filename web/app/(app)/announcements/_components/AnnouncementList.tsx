@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import AnnouncementCard from "./AnnouncementCard";
@@ -31,11 +31,18 @@ export default function AnnouncementList({ announcements, total, initialType, in
   const [q, setQ] = useState(initialQ);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number | string; title: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [optimisticType, setOptimisticType] = useState<"all" | "general" | "class" | null>(null);
 
   // Keep local q in sync when URL changes (e.g., back/forward)
   useEffect(() => {
     setQ(initialQ);
   }, [initialQ]);
+
+  // Clear the optimistic pill once the server confirms the new filter
+  useEffect(() => {
+    setOptimisticType(null);
+  }, [initialType]);
 
   // Debounced update of URL ?q
   useEffect(() => {
@@ -50,7 +57,12 @@ export default function AnnouncementList({ announcements, total, initialType, in
       if (initialType !== "all") params.set("type", initialType);
       // reset offset/pagination if any
       params.delete("offset");
-      router.replace(`?${params.toString()}`);
+      // No change — bail out so a stale timeout can't clobber the URL
+      // or ping-pong the router with identical navigations
+      if (params.toString() === searchParams.toString()) return;
+      startTransition(() => {
+        router.replace(`?${params.toString()}`);
+      });
     }, 400);
 
     return () => {
@@ -60,16 +72,19 @@ export default function AnnouncementList({ announcements, total, initialType, in
   }, [q, router, searchParams, initialType]);
 
   function onTypeClick(next: "all" | "general" | "class") {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "all") params.delete("type");
-    else params.set("type", next);
-    if (q.trim()) params.set("q", q.trim());
-    else params.delete("q");
-    params.delete("offset");
-    router.replace(`?${params.toString()}`);
+    setOptimisticType(next);
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === "all") params.delete("type");
+      else params.set("type", next);
+      if (q.trim()) params.set("q", q.trim());
+      else params.delete("q");
+      params.delete("offset");
+      router.replace(`?${params.toString()}`);
+    });
   }
 
-  const activeType = initialType;
+  const activeType = optimisticType ?? initialType;
 
   return (
     <div>
@@ -100,7 +115,7 @@ export default function AnnouncementList({ announcements, total, initialType, in
                 key={pill.key}
                 type="button"
                 onClick={() => onTypeClick(pill.key as never)}
-                className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${isActive ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}
+                className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${isActive ? "bg-[#d9efff] text-[#23446c] ring-2 ring-[#315c86]" : "bg-[#e7defb] text-[#563d86]"}`}
               >
                 {pill.label}
               </button>
@@ -109,9 +124,17 @@ export default function AnnouncementList({ announcements, total, initialType, in
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-text-muted">{total} result{total === 1 ? "" : "s"}</p>
+      <div className="mt-4 flex items-center gap-3">
+        <p className="text-xs text-text-muted">{total} result{total === 1 ? "" : "s"}</p>
+        {isPending && (
+          <span className="inline-flex items-center gap-2 text-xs text-text-muted" role="status" aria-live="polite">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[#315c86]" aria-hidden="true" />
+            Updating…
+          </span>
+        )}
+      </div>
 
-      <div className="mt-4 grid gap-5 md:grid-cols-2">
+      <div className={`mt-4 grid gap-5 transition-opacity md:grid-cols-2 ${isPending ? "opacity-60" : ""}`} aria-busy={isPending}>
         {announcements.length === 0 ? (
           <div className="clay rounded-3xl bg-[#fdfaf3] p-6 md:col-span-2">
             <p className="text-sm text-text-muted">No announcements found.</p>

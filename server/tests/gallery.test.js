@@ -144,7 +144,7 @@ describe("gallery endpoints", () => {
     if (server) await new Promise((r) => server.close(r));
   });
 
-  it("Student uploads valid JPEG → 201 with status='pending'", async () => {
+  it("Student uploads valid JPEG → 201 with status='approved'", async () => {
     const jpegBuffer = Buffer.from([
       0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00,
       0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
@@ -157,7 +157,9 @@ describe("gallery endpoints", () => {
     assert.equal(res.status, 201);
     const data = await res.json();
     assert.ok(data.media);
-    assert.equal(data.media.status, "pending");
+    assert.equal(data.media.status, "approved");
+    assert.equal(data.media.reviewed_by, studentId);
+    assert.ok(data.media.reviewed_at);
     assert.equal(data.media.media_type, "image");
     assert.ok(
       data.media.file_url.startsWith("/uploads/gallery/images/") ||
@@ -212,17 +214,14 @@ describe("gallery endpoints", () => {
   });
 
   it("Admin approves a pending upload → status='approved'", async () => {
-    const jpegBuffer = Buffer.from([
-      0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00,
-      0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
-    ]);
-    const { boundary, body } = buildMultipart(jpegBuffer, "approve_test.jpg", "image/jpeg", {
-      category_id: String(categoryId),
-      title: "Approve Test",
-    });
-    const uploadRes = await uploadFile(baseUrl, "/api/gallery/upload", { boundary, body }, studentToken);
-    assert.equal(uploadRes.status, 201);
-    const mediaId = (await uploadRes.json()).media.id;
+    // Uploads default to approved, so insert a pending row directly
+    const { rows } = await query(
+      `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
+       VALUES ($1, $2, 'image', '/uploads/gallery/images/approve_test.jpg', 'approve_test.jpg', 'Approve Test', 'pending')
+       RETURNING id`,
+      [studentId, categoryId]
+    );
+    const mediaId = rows[0].id;
 
     const res = await patchJson(baseUrl, `/api/gallery/${mediaId}/approve`, {}, adminToken);
     assert.equal(res.status, 200);
@@ -232,16 +231,14 @@ describe("gallery endpoints", () => {
   });
 
   it("Admin rejects with reason → status='rejected' + rejection_reason set", async () => {
-    const jpegBuffer = Buffer.from([
-      0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00,
-      0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
-    ]);
-    const { boundary, body } = buildMultipart(jpegBuffer, "reject_test.jpg", "image/jpeg", {
-      category_id: String(categoryId),
-      title: "Reject Test",
-    });
-    const uploadRes = await uploadFile(baseUrl, "/api/gallery/upload", { boundary, body }, studentToken);
-    const mediaId = (await uploadRes.json()).media.id;
+    // Uploads default to approved, so insert a pending row directly
+    const { rows } = await query(
+      `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
+       VALUES ($1, $2, 'image', '/uploads/gallery/images/reject_test.jpg', 'reject_test.jpg', 'Reject Test', 'pending')
+       RETURNING id`,
+      [studentId, categoryId]
+    );
+    const mediaId = rows[0].id;
 
     const res = await patchJson(baseUrl, `/api/gallery/${mediaId}/reject`, { rejection_reason: "Inappropriate content" }, adminToken);
     assert.equal(res.status, 200);

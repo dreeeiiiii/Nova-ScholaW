@@ -12,6 +12,14 @@ type Announcement = {
   created_at: string;
 };
 
+function trimContent(text: string, max = 250): string {
+  if (text.length <= max) return text;
+  const sliced = text.slice(0, max);
+  const lastSpace = sliced.lastIndexOf(" ");
+  if (lastSpace > 0) return sliced.slice(0, lastSpace) + "…";
+  return sliced + "…";
+}
+
 export default function TvSlideshow({
   initialAnnouncements,
   animate,
@@ -24,6 +32,7 @@ export default function TvSlideshow({
   const [time, setTime] = useState<Date | null>(null);
   const [prefersReduced, setPrefersReduced] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   // Respect prefers-reduced-motion
   useEffect(() => {
@@ -36,14 +45,14 @@ export default function TvSlideshow({
 
   const shouldAnimate = animate && !prefersReduced;
 
-  // Clock
+  // Clock 1s
   useEffect(() => {
     setTime(new Date());
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  // Poll every 60s
+  // Poll 60s
   useEffect(() => {
     const id = setInterval(async () => {
       try {
@@ -65,88 +74,201 @@ export default function TvSlideshow({
     return () => clearInterval(id);
   }, [announcements.length]);
 
-  // Trigger fade/slide on index change when animating
+  // Trigger fade/slide on index change
   useEffect(() => {
-    if (!shouldAnimate) return;
+    if (!shouldAnimate) {
+      setVisible(true);
+      return;
+    }
     setVisible(false);
     const t = setTimeout(() => setVisible(true), 20);
     return () => clearTimeout(t);
   }, [currentIndex, shouldAnimate]);
 
-  // Keep index in bounds when announcements change
+  // Keep index in bounds
   useEffect(() => {
     if (currentIndex >= announcements.length) setCurrentIndex(0);
   }, [announcements.length, currentIndex]);
 
+  // Progress bar: animate 0→100 over 10s, reset on index change
+  useEffect(() => {
+    if (announcements.length <= 1) {
+      setProgress(100);
+      return;
+    }
+    if (!shouldAnimate) {
+      setProgress(100);
+      return;
+    }
+    setProgress(0);
+    const raf = requestAnimationFrame(() => {
+      // double raf to ensure transition triggers
+      requestAnimationFrame(() => setProgress(100));
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [currentIndex, announcements.length, shouldAnimate]);
+
+  const timeStr = time ? time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
+  const dateStr = time
+    ? time.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+    : "";
+
   if (announcements.length === 0) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-[#1a1f2e] p-6 text-center">
-        <div>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10">
-            <Megaphone size={28} className="text-white/80" aria-hidden="true" />
+      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-b from-[#0f1419] to-[#1a1f2e] text-white">
+        {/* Ambient blobs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-[#315c86] opacity-20 blur-3xl" />
+          <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full bg-[#e7defb] opacity-20 blur-3xl" />
+          <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d9efff] opacity-20 blur-3xl" />
+        </div>
+
+        {/* Top bar */}
+        <div className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d9efff] text-sm font-extrabold text-[#315c86]">
+              NSH
+            </div>
+            <div>
+              <p className="font-heading text-sm font-extrabold text-white">Nova Schola Hub</p>
+              <p className="text-xs text-white/60">Official School Updates</p>
+            </div>
           </div>
-          <p className="font-heading text-2xl font-bold text-white">No announcements</p>
-          <p className="mt-2 text-sm text-white/60">No announcements to display</p>
+          <div className="text-right">
+            <p className="font-heading text-2xl font-bold tabular-nums text-white sm:text-3xl">{timeStr}</p>
+            <p className="text-xs text-white/60">{dateStr}</p>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex flex-1 items-center justify-center p-6">
+          <div className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-white/5 p-10 text-center backdrop-blur-md shadow-2xl">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5">
+              <Megaphone size={48} className="text-white/30" aria-hidden="true" />
+            </div>
+            <h1 className="font-heading text-2xl font-bold text-white">No announcements right now</h1>
+            <p className="mt-2 text-sm text-white/50">Check back soon.</p>
+          </div>
         </div>
       </div>
     );
   }
 
   const current = announcements[currentIndex % announcements.length];
-  const timeStr = time ? time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--";
+  const trimmedContent = trimContent(current.content);
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-[#1a1f2e] text-white">
-      {/* Clock top-right */}
-      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
-        <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-white backdrop-blur">
-          <Clock size={16} aria-hidden="true" />
-          {timeStr}
-        </span>
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-b from-[#0f1419] to-[#1a1f2e] text-white">
+      {/* Ambient blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-[#315c86] opacity-20 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full bg-[#e7defb] opacity-20 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d9efff] opacity-20 blur-3xl" />
       </div>
 
-      <div className="flex flex-1 items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-4xl text-center">
-          <div
-            key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
-            className={shouldAnimate ? "transition-all duration-400 ease-out" : ""}
-            style={
-              shouldAnimate
-                ? {
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? "translateY(0)" : "translateY(8px)",
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d9efff] text-sm font-extrabold text-[#315c86]">
+            NSH
+          </div>
+          <div>
+            <p className="font-heading text-sm font-extrabold text-white">Nova Schola Hub</p>
+            <p className="text-xs text-white/60">Official School Updates</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="font-heading text-6xl font-extrabold tabular-nums text-white sm:text-7xl">{timeStr}</p>
+          <p className="mt-1 flex items-center justify-end gap-2 text-sm text-white/60">
+            <Clock size={14} aria-hidden="true" />
+            {dateStr}
+          </p>
+        </div>
+      </div>
+
+      {/* Main card */}
+      <div className="relative z-10 flex flex-1 items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-5xl">
+          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md">
+            {current.image_url ? (
+              <>
+                <div className="relative">
+                  <img
+                    src={resolveMediaUrl(current.image_url)}
+                    alt=""
+                    className="aspect-video w-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent" aria-hidden="true" />
+                </div>
+                <div
+                  key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
+                  className={shouldAnimate ? "transition-all" : ""}
+                  style={
+                    shouldAnimate
+                      ? {
+                          opacity: visible ? 1 : 0,
+                          transform: visible ? "translateY(0)" : "translateY(8px)",
+                          transitionDuration: "600ms",
+                          transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+                        }
+                      : undefined
                   }
-                : undefined
-            }
-          >
-            {current.image_url && (
-              <img
-                src={resolveMediaUrl(current.image_url)}
-                alt=""
-                className="mx-auto mb-6 max-h-64 w-auto rounded-2xl object-cover shadow-lg sm:max-h-80"
-              />
+                >
+                  <div className="p-8 sm:p-12">
+                    <h1 className="font-heading text-4xl font-extrabold leading-tight text-white sm:text-5xl break-words">
+                      {current.title}
+                    </h1>
+                    <p className="mt-4 text-lg leading-relaxed text-white/80 sm:text-2xl break-words">
+                      {trimmedContent}
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div
+                key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
+                className={`p-8 sm:p-12 text-center ${shouldAnimate ? "transition-all" : ""}`}
+                style={
+                  shouldAnimate
+                    ? {
+                        opacity: visible ? 1 : 0,
+                        transform: visible ? "translateY(0)" : "translateY(8px)",
+                        transitionDuration: "600ms",
+                        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+                      }
+                    : undefined
+                }
+              >
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
+                  <Megaphone size={48} className="text-white/20" aria-hidden="true" />
+                </div>
+                <h1 className="font-heading text-4xl font-extrabold leading-tight text-white sm:text-5xl break-words">
+                  {current.title}
+                </h1>
+                <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-white/80 sm:text-2xl break-words">
+                  {trimmedContent}
+                </p>
+              </div>
             )}
-            <h1 className="font-heading text-3xl font-extrabold text-white sm:text-5xl break-words">
-              {current.title}
-            </h1>
-            <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-white/80 sm:text-2xl break-words">
-              {current.content}
-            </p>
           </div>
 
-          <div className="mt-10">
-            <div className="mx-auto h-2 w-48 overflow-hidden rounded-full bg-white/15">
+          {/* Bottom bar */}
+          <div className="mt-6 flex items-center justify-between gap-4">
+            <span className="text-sm text-white/40">
+              {currentIndex + 1} / {announcements.length}
+            </span>
+            <div className="flex-1 mx-4 h-1 overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-white"
+                key={currentIndex}
+                className="h-full rounded-full bg-[#d9efff]"
                 style={{
-                  width: `${((currentIndex + 1) / announcements.length) * 100}%`,
-                  transition: shouldAnimate ? "width 0.4s ease-out" : "none",
+                  width: `${progress}%`,
+                  transition: shouldAnimate && announcements.length > 1 ? "width 10s linear" : "none",
                 }}
               />
             </div>
-            <p className="mt-2 text-sm text-white/60">
-              {currentIndex + 1} of {announcements.length}
-            </p>
+            <span className="text-sm text-white/40 min-w-[40px] text-right">
+              {!shouldAnimate ? "static" : ""}
+            </span>
           </div>
         </div>
       </div>

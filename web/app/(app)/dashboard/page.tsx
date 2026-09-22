@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
 import { resolveMediaUrl } from "@/lib/url";
-import { Megaphone, CalendarDays, Images, Clock3 } from "lucide-react";
+import { Megaphone, CalendarDays, Images, Clock3, Monitor } from "lucide-react";
 
 type Announcement = {
   id: number | string;
@@ -123,6 +123,20 @@ export default async function DashboardPage() {
           </p>
         </div>
       </div>
+
+      {isAdmin && (
+        <div className="flex justify-end">
+          <Link
+            href="/tv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-[#d9efff] px-5 py-2.5 text-sm font-bold text-[#315c86] min-h-[44px]"
+          >
+            <Monitor size={16} aria-hidden="true" />
+            Open TV display
+          </Link>
+        </div>
+      )}
 
       {/* At a glance */}
       <section aria-labelledby="stats-heading">

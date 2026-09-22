@@ -107,13 +107,8 @@ describe('B1.4 gallery featured column', () => {
     assert.equal(res.status, 201);
     const data = await res.json();
     assert.equal(data.media.featured, false);
+    assert.equal(data.media.status, 'approved');
     mediaId1 = data.media.id;
-
-    // approve so it appears in browse
-    const appr = await patchJson(baseUrl, `/api/gallery/${mediaId1}/approve`, {}, adminToken);
-    assert.equal(appr.status, 200);
-    const apprBody = await appr.json();
-    assert.equal(apprBody.media.featured, false);
   });
 
   it('GET /api/gallery?featured=true returns only flagged rows', async () => {
@@ -123,8 +118,6 @@ describe('B1.4 gallery featured column', () => {
     assert.equal(res.status, 201);
     const mid = (await res.json()).media.id;
     mediaIdFeatured = mid;
-    const appr = await patchJson(baseUrl, `/api/gallery/${mid}/approve`, {}, adminToken);
-    assert.equal(appr.status, 200);
 
     const feat = await patchJson(baseUrl, `/api/gallery/${mid}/feature`, { featured: true }, adminToken);
     assert.equal(feat.status, 200);

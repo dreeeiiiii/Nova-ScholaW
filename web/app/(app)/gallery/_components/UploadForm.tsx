@@ -327,7 +327,7 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
         >
           {pending ? "Uploading…" : "Submit for review"}
         </button>
-        <p className="mt-2 text-center text-xs text-text-muted">All uploads are reviewed by an admin before publishing.</p>
+        <p className="mt-2 text-center text-xs text-text-muted">Uploads are published immediately. Content that violates school guidelines will be removed.</p>
       </form>
 
       {showReview && (

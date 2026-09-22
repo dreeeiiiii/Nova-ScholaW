@@ -85,24 +85,29 @@ describe('B1.6 PATCH /api/gallery/:id/category (pending-only reassign)', () => {
     adminToken = await login(ADMIN_EMAIL);
     teacherToken = await login(TEACHER_EMAIL);
 
-    // Create pending media (will be reassigned)
-    const { boundary: b1, body: body1 } = buildMultipart(jpeg, 'catpending.jpg', 'image/jpeg', { category_id: String(catAId), title: 'CATREASSIGN Pending' });
-    const up1 = await uploadFile(baseUrl, '/api/gallery/upload', { boundary: b1, body: body1 }, adminToken);
-    assert.equal(up1.status, 201);
-    pendingId = (await up1.json()).media.id;
+    // Create pending media directly (uploads now default to approved)
+    const pendRes = await query(
+      `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
+       VALUES ($1, $2, 'image', '/uploads/gallery/images/catpending.jpg', 'catpending.jpg', 'CATREASSIGN Pending', 'pending')
+       RETURNING id`,
+      [adminId, catAId]
+    );
+    pendingId = pendRes.rows[0].id;
 
-    // Create approved media
+    // Create approved media (upload defaults to approved, no approve PATCH needed)
     const { boundary: b2, body: body2 } = buildMultipart(jpeg, 'catapproved.jpg', 'image/jpeg', { category_id: String(catAId), title: 'CATREASSIGN Approved' });
     const up2 = await uploadFile(baseUrl, '/api/gallery/upload', { boundary: b2, body: body2 }, adminToken);
-    const mid2 = (await up2.json()).media.id;
-    const appr = await patchJson(baseUrl, `/api/gallery/${mid2}/approve`, {}, adminToken);
-    assert.equal(appr.status, 200);
-    approvedId = mid2;
+    assert.equal(up2.status, 201);
+    approvedId = (await up2.json()).media.id;
 
-    // Create rejected media
-    const { boundary: b3, body: body3 } = buildMultipart(jpeg, 'catrejected.jpg', 'image/jpeg', { category_id: String(catAId), title: 'CATREASSIGN Rejected' });
-    const up3 = await uploadFile(baseUrl, '/api/gallery/upload', { boundary: b3, body: body3 }, adminToken);
-    const mid3 = (await up3.json()).media.id;
+    // Create rejected media: insert pending directly, then reject via endpoint
+    const rejIns = await query(
+      `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
+       VALUES ($1, $2, 'image', '/uploads/gallery/images/catrejected.jpg', 'catrejected.jpg', 'CATREASSIGN Rejected', 'pending')
+       RETURNING id`,
+      [adminId, catAId]
+    );
+    const mid3 = rejIns.rows[0].id;
     const rej = await patchJson(baseUrl, `/api/gallery/${mid3}/reject`, { rejection_reason: 'bad content test' }, adminToken);
     assert.equal(rej.status, 200);
     rejectedId = mid3;
