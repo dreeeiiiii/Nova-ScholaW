@@ -5,6 +5,7 @@ import Hero from "./_components/home/Hero";
 import HowToUse from "./_components/home/HowToUse";
 import Benefits from "./_components/home/Benefits";
 import AboutProject from "./_components/home/AboutProject";
+import CTASection from "./_components/home/CTASection";
 import Footer from "./_components/home/Footer";
 
 export default async function HomePage() {
@@ -19,6 +20,7 @@ export default async function HomePage() {
         <HowToUse />
         <Benefits />
         <AboutProject />
+        <CTASection />
       </main>
       <Footer />
     </div>
