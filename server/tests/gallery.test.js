@@ -159,7 +159,10 @@ describe("gallery endpoints", () => {
     assert.ok(data.media);
     assert.equal(data.media.status, "pending");
     assert.equal(data.media.media_type, "image");
-    assert.ok(data.media.file_url.startsWith("/uploads/gallery/images/"));
+    assert.ok(
+      data.media.file_url.startsWith("/uploads/gallery/images/") ||
+        data.media.file_url.startsWith("https://res.cloudinary.com/")
+    );
     assert.ok(data.media.file_url.endsWith(".jpg"));
   });
 

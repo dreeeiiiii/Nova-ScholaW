@@ -15,13 +15,13 @@ export function validateMediaFile(file, mediaType) {
     }
 
     if (!rules.allowedMimeTypes.includes(file.mimetype)) {
-      fs.unlink(file.path, () => {});
+      if (file.path) fs.unlink(file.path, () => {});
       return reject(new Error(`Invalid file type. Expected ${rules.allowedMimeTypes.join(', ')}.`));
     }
 
     const maxBytes = rules.maxSizeMb * 1024 * 1024;
     if (file.size > maxBytes) {
-      fs.unlink(file.path, () => {});
+      if (file.path) fs.unlink(file.path, () => {});
       return reject(new Error(`File too large. Maximum size is ${rules.maxSizeMb} MB.`));
     }
 
@@ -66,7 +66,20 @@ export function validateVideoDuration(filePath) {
 export async function validateUploadedFile(file, mediaType) {
   await validateMediaFile(file, mediaType);
   if (mediaType === 'video') {
-    await validateVideoDuration(file.path);
+    if (file.path) {
+      await validateVideoDuration(file.path);
+    } else if (file.buffer) {
+      // For memory storage, write buffer to temp file for ffprobe
+      const os = await import('node:os');
+      const path = await import('node:path');
+      const tmpPath = path.join(os.tmpdir(), `upload-${Date.now()}-${Math.round(Math.random() * 1e9)}.mp4`);
+      await fs.promises.writeFile(tmpPath, file.buffer);
+      try {
+        await validateVideoDuration(tmpPath);
+      } finally {
+        fs.unlink(tmpPath, () => {});
+      }
+    }
   }
 }
 

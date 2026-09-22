@@ -2,6 +2,7 @@ import * as announcementRepo from './announcementModel.js';
 import { audit } from '../audit/auditService.js';
 import { parseId } from '../../shared/utils/parseId.js';
 import { readNonEmpty, readOptionalString, readOptionalDate } from '../../shared/utils/normalize.js';
+import { uploadBuffer, deleteAsset } from '../../shared/config/cloudinary.js';
 
 const parseArrayOfIds = (value, label) => {
   if (!Array.isArray(value)) return null;
@@ -37,6 +38,7 @@ export const createGeneralAnnouncement = async (req, res, next) => {
     const title = readNonEmpty(req.body?.title, 'title');
     const content = readNonEmpty(req.body?.content, 'content');
     const image_url = readOptionalString(req.body?.image_url);
+    const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
     const publish_at = readOptionalDate(req.body?.publish_at);
     const expires_at = readOptionalDate(req.body?.expires_at);
 
@@ -56,6 +58,7 @@ export const createGeneralAnnouncement = async (req, res, next) => {
       title,
       content,
       image_url,
+      cloudinary_public_id,
       status,
       publish_at,
       expires_at,
@@ -74,6 +77,7 @@ export const createClassAnnouncement = async (req, res, next) => {
     const title = readNonEmpty(req.body?.title, 'title');
     const content = readNonEmpty(req.body?.content, 'content');
     const image_url = readOptionalString(req.body?.image_url);
+    const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
     const publish_at = readOptionalDate(req.body?.publish_at);
     const expires_at = readOptionalDate(req.body?.expires_at);
 
@@ -104,6 +108,7 @@ export const createClassAnnouncement = async (req, res, next) => {
       title,
       content,
       image_url,
+      cloudinary_public_id,
       status,
       publish_at,
       expires_at,
@@ -235,6 +240,7 @@ export const updateAnnouncement = async (req, res, next) => {
     const title = readOptionalString(req.body?.title);
     const content = readOptionalString(req.body?.content);
     const image_url = readOptionalString(req.body?.image_url);
+    const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
     const status = req.body?.status === 'draft' || req.body?.status === 'scheduled' || req.body?.status === 'published' || req.body?.status === 'archived'
       ? req.body.status
       : undefined;
@@ -251,6 +257,7 @@ export const updateAnnouncement = async (req, res, next) => {
     if (title !== null) fields.title = title;
     if (content !== null) fields.content = content;
     if (image_url !== null) fields.image_url = image_url;
+    if (cloudinary_public_id !== null) fields.cloudinary_public_id = cloudinary_public_id;
     if (status !== undefined) fields.status = status;
     if (publish_at !== null) fields.publish_at = publish_at;
     if (expires_at !== null) fields.expires_at = expires_at;
@@ -316,8 +323,12 @@ export const uploadAnnouncementImage = async (req, res, next) => {
     if (!file) {
       return res.status(400).json({ status: 400, message: 'No image file provided.' });
     }
-    const imageUrl = `/uploads/announcements/${file.filename}`;
-    return res.status(201).json({ image_url: imageUrl });
+    const resourceType = file.mimetype.startsWith('video') ? 'video' : 'image';
+    const { secure_url, public_id } = await uploadBuffer(file.buffer, {
+      folder: 'novaschola/announcements',
+      resourceType,
+    });
+    return res.status(201).json({ image_url: secure_url, cloudinary_public_id: public_id });
   } catch (err) {
     return next(err);
   }
@@ -337,6 +348,14 @@ export const deleteAnnouncement = async (req, res, next) => {
 
     if (!canUserModifyAnnouncement(req.user, existing)) {
       return res.status(403).json({ status: 403, message: 'You do not have permission to delete this announcement.' });
+    }
+
+    if (existing.cloudinary_public_id) {
+      try {
+        await deleteAsset(existing.cloudinary_public_id, 'image');
+      } catch (e) {
+        console.error('Failed to delete Cloudinary asset', e.message || e);
+      }
     }
 
     await announcementRepo.deleteAnnouncement(id);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import GalleryGrid from "./GalleryGrid";
@@ -25,6 +26,8 @@ type Props = {
   initialCategory: string;
   initialYear: string;
   initialMediaType: string;
+  pendingCount?: number;
+  rejectedCount?: number;
 };
 
 const YEAR_OPTIONS = ["2024", "2025", "2026", "2027"];
@@ -37,10 +40,16 @@ export default function GalleryClient({
   initialCategory,
   initialYear,
   initialMediaType,
+  pendingCount = 0,
+  rejectedCount = 0,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState(initialQ);
+  const searchParamsRef = useRef(searchParams);
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+  }, [searchParams]);
 
   useEffect(() => {
     setQ(initialQ);
@@ -48,16 +57,20 @@ export default function GalleryClient({
 
   useEffect(() => {
     const handle = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParamsRef.current.toString());
       const trimmed = q.trim();
+      const urlQ = params.get("q") ?? "";
+      if (trimmed === urlQ) return;
       if (trimmed) params.set("q", trimmed);
       else params.delete("q");
       router.replace(`?${params.toString()}`);
     }, 400);
     return () => clearTimeout(handle);
-  }, [q, router, searchParams]);
+  }, [q, router]);
 
   function updateParam(key: string, value: string) {
+    const current = searchParams.get(key) ?? "";
+    if (current === value) return;
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set(key, value);
     else params.delete(key);
@@ -70,6 +83,22 @@ export default function GalleryClient({
 
   return (
     <div className="space-y-6">
+      {pendingCount > 0 && (
+        <div className="clay rounded-2xl bg-[#fff9f2] p-4 text-sm text-[#23344f]">
+          ⏳ {pendingCount} upload{pendingCount > 1 ? "s" : ""} awaiting review.{" "}
+          <Link href="/gallery/mine" className="font-bold text-[#315c86] underline">
+            View your uploads
+          </Link>
+        </div>
+      )}
+      {rejectedCount > 0 && (
+        <div className="clay rounded-2xl bg-[#ffe1d1] p-4 text-sm text-[#23344f]">
+          ⚠ {rejectedCount} upload{rejectedCount > 1 ? "s" : ""} rejected.{" "}
+          <Link href="/gallery/mine" className="font-bold text-[#315c86] underline">
+            View your uploads
+          </Link>
+        </div>
+      )}
       <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4">
         <div className="flex flex-col gap-3 md:flex-row">
           <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7]">

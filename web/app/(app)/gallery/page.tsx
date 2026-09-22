@@ -94,6 +94,17 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
     error = e instanceof Error ? e.message : "Failed to load gallery";
   }
 
+  let pendingCount = 0;
+  let rejectedCount = 0;
+  try {
+    const mineData = (await serverFetch("/api/gallery/mine")) as { media: Array<{ status: string }> };
+    const mine = mineData.media ?? [];
+    pendingCount = mine.filter((m) => m.status === "pending").length;
+    rejectedCount = mine.filter((m) => m.status === "rejected").length;
+  } catch {
+    // ignore mine fetch errors
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -116,6 +127,8 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
         initialCategory={category_id}
         initialYear={year}
         initialMediaType={media_type as never}
+        pendingCount={pendingCount}
+        rejectedCount={rejectedCount}
       />
     </div>
   );

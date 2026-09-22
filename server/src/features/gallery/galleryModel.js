@@ -1,19 +1,19 @@
 import { query } from '../../shared/config/db.js';
 
 const MEDIA_COLUMNS = `
-  id, uploader_id, category_id, media_type, file_url,
+  id, uploader_id, category_id, media_type, file_url, cloudinary_public_id,
   original_filename, caption, duration_seconds, status,
   reviewed_by, reviewed_at, rejection_reason, featured, created_at, updated_at
 `;
 
 const GM_COLUMNS = `
-  gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
+  gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url, gm.cloudinary_public_id,
   gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
   gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.featured, gm.created_at, gm.updated_at
 `;
 
 const GM_WITH_JOINS_COLUMNS = `
-  gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url,
+  gm.id, gm.uploader_id, gm.category_id, gm.media_type, gm.file_url, gm.cloudinary_public_id,
   gm.original_filename, gm.caption, gm.duration_seconds, gm.status,
   gm.reviewed_by, gm.reviewed_at, gm.rejection_reason, gm.featured, gm.created_at, gm.updated_at,
   c.name AS category_name, u.full_name AS uploader_name, u.email AS uploader_email
@@ -24,12 +24,12 @@ const MEDIA_JOINS = `
   LEFT JOIN users u ON u.id = gm.uploader_id
 `;
 
-export const insertMedia = async ({ uploader_id, category_id, media_type, file_url, original_filename, caption }) => {
+export const insertMedia = async ({ uploader_id, category_id, media_type, file_url, cloudinary_public_id, original_filename, caption }) => {
   const { rows } = await query(
-    `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
-     VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+    `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, cloudinary_public_id, original_filename, caption, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
      RETURNING ${MEDIA_COLUMNS}`,
-    [uploader_id, category_id, media_type, file_url, original_filename, caption]
+    [uploader_id, category_id, media_type, file_url, cloudinary_public_id ?? null, original_filename, caption]
   );
   return rows[0];
 };
@@ -222,6 +222,11 @@ export const updateCategory = async (id, categoryId) => {
   return rows[0] ?? null;
 };
 
+export const deleteMedia = async (id) => {
+  const { rows } = await query(`DELETE FROM gallery_media WHERE id = $1 RETURNING *`, [id]);
+  return rows[0] ?? null;
+};
+
 export default {
   insertMedia,
   findById,
@@ -234,4 +239,5 @@ export default {
   search,
   setFeatured,
   updateCategory,
+  deleteMedia,
 };

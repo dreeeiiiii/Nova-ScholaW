@@ -77,13 +77,14 @@ CREATE INDEX idx_users_course_id   ON users (course_id);
 -- 4. announcements — general (public) and class (targeted) announcements
 -- ============================================================================
 CREATE TABLE announcements (
-    id          BIGSERIAL PRIMARY KEY,
-    author_id   BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- admin/teacher
-    type        VARCHAR(10) NOT NULL CHECK (type IN ('general', 'class')),
-    title       VARCHAR(255) NOT NULL,
-    content     TEXT        NOT NULL,
-    image_url   VARCHAR(500),                                -- optional image attachment
-    status      VARCHAR(20) NOT NULL DEFAULT 'draft'
+    id                    BIGSERIAL PRIMARY KEY,
+    author_id             BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- admin/teacher
+    type                  VARCHAR(10) NOT NULL CHECK (type IN ('general', 'class')),
+    title                 VARCHAR(255) NOT NULL,
+    content               TEXT        NOT NULL,
+    image_url             VARCHAR(500),                                -- optional image attachment
+    cloudinary_public_id  TEXT,                                        -- Cloudinary public_id for new uploads
+    status                VARCHAR(20) NOT NULL DEFAULT 'draft'
                 CHECK (status IN ('draft', 'scheduled', 'published', 'archived')),
     publish_at  TIMESTAMPTZ,                                 -- set when scheduled
     expires_at  TIMESTAMPTZ,                                 -- auto-hide after this
@@ -148,12 +149,13 @@ CREATE TABLE categories (
 -- 7. gallery_media — photos & videos with admin approval workflow
 -- ============================================================================
 CREATE TABLE gallery_media (
-    id                 BIGSERIAL PRIMARY KEY,
-    uploader_id        BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    category_id        BIGINT      REFERENCES categories(id) ON DELETE SET NULL,
-    media_type         VARCHAR(10) NOT NULL CHECK (media_type IN ('image', 'video')),
-    file_url           VARCHAR(500) NOT NULL,
-    original_filename  VARCHAR(255) NOT NULL,
+    id                    BIGSERIAL PRIMARY KEY,
+    uploader_id           BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id           BIGINT      REFERENCES categories(id) ON DELETE SET NULL,
+    media_type            VARCHAR(10) NOT NULL CHECK (media_type IN ('image', 'video')),
+    file_url              VARCHAR(500) NOT NULL,
+    cloudinary_public_id  TEXT,                                        -- Cloudinary public_id for new uploads
+    original_filename     VARCHAR(255) NOT NULL,
     caption            TEXT,
     duration_seconds   INTEGER     CHECK (duration_seconds > 0),   -- videos only
     status             VARCHAR(10) NOT NULL DEFAULT 'pending'

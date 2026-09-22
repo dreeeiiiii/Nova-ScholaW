@@ -625,7 +625,10 @@ describe("announcement endpoints", () => {
     assert.equal(res.status, 201);
     const data = await res.json();
     assert.ok(data.image_url);
-    assert.ok(data.image_url.startsWith("/uploads/announcements/"));
+    assert.ok(
+      data.image_url.startsWith("/uploads/announcements/") ||
+        data.image_url.startsWith("https://res.cloudinary.com/")
+    );
     assert.ok(data.image_url.endsWith(".jpg"));
   });
 

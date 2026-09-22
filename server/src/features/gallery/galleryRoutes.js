@@ -12,6 +12,7 @@ import {
   searchGallery,
   featureMedia,
   reassignCategory,
+  deleteGalleryMedia,
 } from './galleryController.js';
 
 const router = Router();
@@ -27,6 +28,7 @@ router.patch('/:id/category', adminOnly, reassignCategory);
 router.get('/mine', authenticated, myUploads);
 router.get('/search', searchGallery);
 router.get('/', browseGallery);
+router.delete('/:id', authenticated, deleteGalleryMedia);
 router.get('/:id', getGalleryItem);
 
 export default router;

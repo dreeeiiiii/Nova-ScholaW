@@ -1,16 +1,10 @@
-import fs from 'node:fs';
 import { uploadMedia, handleGalleryUploadError } from './galleryUpload.js';
 import { validateUploadedFile } from '../../shared/utils/validateMedia.js';
 import { audit } from '../audit/auditService.js';
 import { parseId } from '../../shared/utils/parseId.js';
 import * as galleryModel from './galleryModel.js';
 import { findCategoryById } from '../categories/categoryModel.js';
-
-const getFileUrl = (file) => {
-  const isVideo = file.mimetype === 'video/mp4';
-  const subfolder = isVideo ? 'videos' : 'images';
-  return `/uploads/gallery/${subfolder}/${file.filename}`;
-};
+import { uploadBuffer, deleteAsset } from '../../shared/config/cloudinary.js';
 
 const determineMediaType = (file) => {
   if (file.mimetype === 'video/mp4') return 'video';
@@ -29,11 +23,9 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     const description = req.body.description || '';
 
     if (!categoryId) {
-      fs.unlink(file.path, () => {});
       return res.status(400).json({ status: 400, message: 'category_id is required.' });
     }
     if (!title || title.trim() === '') {
-      fs.unlink(file.path, () => {});
       return res.status(400).json({ status: 400, message: 'title is required.' });
     }
     const caption = description.trim() !== '' ? description.trim() : title.trim();
@@ -41,14 +33,19 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     const mediaType = determineMediaType(file);
     await validateUploadedFile(file, mediaType);
 
-    const fileUrl = getFileUrl(file);
+    const resourceType = file.mimetype.startsWith('video') ? 'video' : 'image';
+    const { secure_url, public_id } = await uploadBuffer(file.buffer, {
+      folder: 'novaschola/gallery',
+      resourceType,
+    });
 
     try {
       const media = await galleryModel.insertMedia({
         uploader_id: req.user.id,
         category_id: categoryId,
         media_type: mediaType,
-        file_url: fileUrl,
+        file_url: secure_url,
+        cloudinary_public_id: public_id,
         original_filename: file.originalname,
         caption,
       });
@@ -62,7 +59,6 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
       return res.status(201).json({ media });
     } catch (dbErr) {
       if (dbErr.code === '23503') {
-        fs.unlink(file.path, () => {});
         return res.status(400).json({ status: 400, message: 'category_id does not exist.' });
       }
       throw dbErr;
@@ -235,6 +231,39 @@ export const reassignCategory = async (req, res, next) => {
   }
 };
 
+export const deleteGalleryMedia = async (req, res, next) => {
+  try {
+    const id = parseId(req.params.id);
+    if (id === null) {
+      return res.status(400).json({ status: 400, message: 'Invalid media id.' });
+    }
+
+    const existing = await galleryModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ status: 404, message: 'Media not found.' });
+    }
+
+    if (req.user.role !== 'admin' && String(existing.uploader_id) !== String(req.user.id)) {
+      return res.status(403).json({ status: 403, message: 'You do not have permission to delete this media.' });
+    }
+
+    if (existing.cloudinary_public_id) {
+      try {
+        const resourceType = existing.media_type === 'video' ? 'video' : 'image';
+        await deleteAsset(existing.cloudinary_public_id, resourceType);
+      } catch (e) {
+        console.error('Failed to delete Cloudinary asset', e.message || e);
+      }
+    }
+
+    await galleryModel.deleteMedia(id);
+    await audit(req, 'gallery.delete', 'gallery_media', id, null);
+    return res.json({ message: 'Media deleted.' });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export const getGalleryItem = async (req, res, next) => {
   try {
     const id = parseId(req.params.id);
@@ -319,4 +348,5 @@ export default {
   searchGallery,
   featureMedia,
   reassignCategory,
+  deleteGalleryMedia,
 };

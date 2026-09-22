@@ -27,6 +27,10 @@ if (isProduction) {
   ['DATABASE_URL', 'JWT_SECRET', 'CLIENT_ORIGIN', 'UPLOAD_DIR', 'NST_EMAIL_DOMAIN'].forEach(requireEnv);
 }
 
+const cloudinaryCloudName = requireEnv('CLOUDINARY_CLOUD_NAME');
+const cloudinaryApiKey = requireEnv('CLOUDINARY_API_KEY');
+const cloudinaryApiSecret = requireEnv('CLOUDINARY_API_SECRET');
+
 const optional = (key, note) => {
   if (!process.env[key]) warn(key, note);
   return process.env[key];
@@ -52,6 +56,9 @@ const config = Object.freeze({
   maxImageSizeMb: Number(process.env.MAX_IMAGE_SIZE_MB || 10),
   maxVideoSizeMb: Number(process.env.MAX_VIDEO_SIZE_MB || 50),
   maxVideoDurationSeconds: Number(process.env.MAX_VIDEO_DURATION_SECONDS || 120),
+  cloudinaryCloudName,
+  cloudinaryApiKey,
+  cloudinaryApiSecret,
 });
 
 export default config;
