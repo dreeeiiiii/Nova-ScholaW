@@ -47,12 +47,23 @@ export default async function UsersPage({
   let sections: Section[] = [];
   let courses: Course[] = [];
 
-  try {
-    const data = (await serverFetch(`/api/users?${qs.toString()}`)) as {
-      users?: User[];
-      total?: number;
-    };
-    // Strip password_hash if backend leaks it
+  const [usersRes, sectionsRes, coursesRes] = await Promise.all([
+    serverFetch(`/api/users?${qs.toString()}`)
+      .then((data) => ({ data: data as { users?: User[]; total?: number } }))
+      .catch((e) => ({ error: e })),
+    serverFetch("/api/sections")
+      .then((data) => ({ data: data as { sections?: Section[] } }))
+      .catch(() => ({ data: { sections: [] } })),
+    serverFetch("/api/courses")
+      .then((data) => ({ data: data as { courses?: Course[] } }))
+      .catch(() => ({ data: { courses: [] } })),
+  ]);
+
+  if ("error" in usersRes) {
+    const e = (usersRes as { error: unknown }).error;
+    error = e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Failed to load users";
+  } else {
+    const data = (usersRes as { data: { users?: User[]; total?: number } }).data;
     const raw = data.users ?? [];
     users = raw.map((u) => {
       const copy = { ...u } as Record<string, unknown>;
@@ -60,23 +71,10 @@ export default async function UsersPage({
       return copy as unknown as User;
     });
     total = data.total ?? 0;
-  } catch (e) {
-    error = e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Failed to load users";
   }
 
-  try {
-    const sData = (await serverFetch("/api/sections")) as { sections?: Section[] };
-    sections = sData.sections ?? [];
-  } catch {
-    sections = [];
-  }
-
-  try {
-    const cData = (await serverFetch("/api/courses")) as { courses?: Course[] };
-    courses = cData.courses ?? [];
-  } catch {
-    courses = [];
-  }
+  sections = ((sectionsRes as { data: { sections?: Section[] } }).data.sections ?? []) as Section[];
+  courses = ((coursesRes as { data: { courses?: Course[] } }).data.courses ?? []) as Course[];
 
   if (error) {
     return (

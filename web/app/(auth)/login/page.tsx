@@ -69,7 +69,7 @@ function LoginForm() {
     <main className="flex min-h-screen items-center justify-center bg-base p-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-clay-sm bg-primary font-heading text-lg font-extrabold text-white shadow-clay">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-clay-sm bg-[#d9efff] font-heading text-lg font-extrabold text-[#315c86] shadow-clay">
             NSH
           </div>
           <h1 className="font-heading text-2xl font-extrabold text-text-main">Nova Schola Hub</h1>
@@ -83,7 +83,7 @@ function LoginForm() {
           {error && (
             <div
               role="alert"
-              className="mt-4 rounded-clay-sm bg-danger/15 px-4 py-3 text-sm font-medium text-danger"
+              className="mt-4 rounded-clay-sm bg-danger/20 px-4 py-3 text-sm font-medium text-[#8b3a2c]"
             >
               {error}
             </div>
@@ -124,13 +124,13 @@ function LoginForm() {
           <button
             type="submit"
             disabled={pending}
-            className="clay-btn mt-6 w-full rounded-clay-pill bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60"
+            className="clay-btn mt-6 w-full rounded-clay-pill bg-[#315c86] px-4 py-2.5 text-sm font-bold text-white shadow-clay focus:outline-none focus-visible:ring-2 focus-visible:ring-[#315c86] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? "Logging in…" : "Log in"}
           </button>
 
           <div className="mt-4 text-center text-sm">
-            <Link href="/" className="font-semibold text-primary hover:text-primary/80">
+            <Link href="/" className="font-semibold text-[#315c86] hover:text-[#23446c]">
               ← Back to home
             </Link>
           </div>

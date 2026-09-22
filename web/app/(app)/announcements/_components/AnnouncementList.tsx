@@ -39,7 +39,9 @@ export default function AnnouncementList({ announcements, total, initialType, in
 
   // Debounced update of URL ?q
   useEffect(() => {
+    let cancelled = false;
     const handle = setTimeout(() => {
+      if (cancelled) return;
       const params = new URLSearchParams(searchParams.toString());
       const trimmed = q.trim();
       if (trimmed) params.set("q", trimmed);
@@ -51,7 +53,10 @@ export default function AnnouncementList({ announcements, total, initialType, in
       router.replace(`?${params.toString()}`);
     }, 400);
 
-    return () => clearTimeout(handle);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
   }, [q, router, searchParams, initialType]);
 
   function onTypeClick(next: "all" | "general" | "class") {

@@ -56,7 +56,9 @@ export default function GalleryClient({
   }, [initialQ]);
 
   useEffect(() => {
+    let cancelled = false;
     const handle = setTimeout(() => {
+      if (cancelled) return;
       const params = new URLSearchParams(searchParamsRef.current.toString());
       const trimmed = q.trim();
       const urlQ = params.get("q") ?? "";
@@ -65,7 +67,10 @@ export default function GalleryClient({
       else params.delete("q");
       router.replace(`?${params.toString()}`);
     }, 400);
-    return () => clearTimeout(handle);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
   }, [q, router]);
 
   function updateParam(key: string, value: string) {

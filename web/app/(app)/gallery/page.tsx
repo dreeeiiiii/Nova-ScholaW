@@ -15,26 +15,33 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   const year = typeof sp?.year === "string" ? sp.year.trim() : "";
   const media_type = typeof sp?.media_type === "string" ? sp.media_type.trim() : "";
 
-  // Categories for dropdown (public)
-  let categories: Category[] = [];
-  try {
-    const catData = (await serverFetch("/api/categories")) as { categories: Category[] };
-    categories = catData.categories ?? [];
-  } catch {
-    // ignore, dropdown will be empty
-  }
+  // Parallel fetches: categories + gallery + mine (if authed)
+  const galleryQuery = new URLSearchParams();
+  if (q) galleryQuery.set("q", q);
+  if (category_id) galleryQuery.set("category_id", category_id);
+  if (year) galleryQuery.set("year", year);
+  if (media_type) galleryQuery.set("media_type", media_type);
+  galleryQuery.set("limit", user ? "20" : "6");
+  galleryQuery.set("offset", "0");
+
+  const galleryPath = q ? `/api/gallery/search?${galleryQuery.toString()}` : `/api/gallery?${galleryQuery.toString() ? `?${galleryQuery.toString()}` : ""}`;
+
+  const [categoriesRes, mediaRes, mineRes] = await Promise.all([
+    serverFetch("/api/categories").catch(() => ({ categories: [] })) as Promise<{ categories: Category[] }>,
+    user
+      ? (serverFetch(galleryPath).catch(() => ({ media: [], total: 0 })) as Promise<{ media: unknown[]; total: number }>)
+      : (serverFetch("/api/gallery?limit=6").catch(() => ({ media: [] })) as Promise<{ media: unknown[] }>),
+    user
+      ? (serverFetch("/api/gallery/mine").catch(() => ({ media: [] })) as Promise<{ media: Array<{ status: string }> }>)
+      : Promise.resolve({ media: [] } as { media: Array<{ status: string }> }),
+  ]);
+
+  const categories = (categoriesRes as { categories: Category[] }).categories ?? [];
 
   // Guest: capped grid 6 items, no filters
   // This is a UX funnel, not a security boundary.
   if (!user) {
-    let media: unknown[] = [];
-    try {
-      const data = (await serverFetch("/api/gallery?limit=6")) as { media: unknown[] };
-      media = data.media ?? [];
-    } catch {
-      media = [];
-    }
-
+    const guestMedia = (mediaRes as { media: unknown[] }).media ?? [];
     return (
       <div className="space-y-6">
         <div>
@@ -45,7 +52,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
           </p>
         </div>
 
-        <GalleryGuestGrid media={media as never[]} />
+        <GalleryGuestGrid media={guestMedia as never[]} />
 
         <div className="clay-card p-6 text-center">
           <p className="text-sm font-medium text-text-main">Sign in to browse all memories</p>
@@ -62,48 +69,17 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   }
 
   // Authenticated: full gallery with filters
-  let media: unknown[] = [];
-  let total = 0;
-  let error: string | null = null;
-
-  try {
-    const query = new URLSearchParams();
-    if (q) query.set("q", q);
-    if (category_id) query.set("category_id", category_id);
-    if (year) query.set("year", year);
-    if (media_type) query.set("media_type", media_type);
-
-    if (q) {
-      query.set("limit", "20");
-      query.set("offset", "0");
-      const data = (await serverFetch(`/api/gallery/search?${query.toString()}`)) as {
-        media: unknown[];
-        total: number;
-      };
-      media = data.media ?? [];
-      total = data.total ?? 0;
-    } else {
-      query.set("limit", "20");
-      query.set("offset", "0");
-      const qs = query.toString() ? `?${query.toString()}` : "";
-      const data = (await serverFetch(`/api/gallery${qs}`)) as { media: unknown[]; total: number };
-      media = data.media ?? [];
-      total = data.total ?? 0;
-    }
-  } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load gallery";
-  }
+  const mediaData = mediaRes as { media: unknown[]; total?: number };
+  const media: unknown[] = (mediaData.media ?? []) as unknown[];
+  const total: number = (mediaData.total ?? 0) as number;
+  const error: string | null = null;
 
   let pendingCount = 0;
   let rejectedCount = 0;
-  try {
-    const mineData = (await serverFetch("/api/gallery/mine")) as { media: Array<{ status: string }> };
-    const mine = mineData.media ?? [];
-    pendingCount = mine.filter((m) => m.status === "pending").length;
-    rejectedCount = mine.filter((m) => m.status === "rejected").length;
-  } catch {
-    // ignore mine fetch errors
-  }
+  const mineData = mineRes as { media: Array<{ status: string }> };
+  const mine = mineData.media ?? [];
+  pendingCount = mine.filter((m) => m.status === "pending").length;
+  rejectedCount = mine.filter((m) => m.status === "rejected").length;
 
   return (
     <div className="space-y-6">
