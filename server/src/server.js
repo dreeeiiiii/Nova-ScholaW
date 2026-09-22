@@ -2,6 +2,8 @@ import config from './shared/config/env.js';
 import { closePool } from './shared/config/db.js';
 import createApp from './app.js';
 
+
+
 const app = createApp();
 
 const server = app.listen(config.port, () => {

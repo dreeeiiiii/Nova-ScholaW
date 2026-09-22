@@ -164,7 +164,7 @@ export default function AudiencePicker({
                 <button
                   type="button"
                   onClick={() => addStudent(s)}
-                  className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white"
+                  className="rounded-full bg-[#315c86] px-3 py-1 text-xs font-bold text-white"
                 >
                   Add
                 </button>

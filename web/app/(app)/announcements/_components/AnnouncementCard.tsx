@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { resolveMediaUrl } from "@/lib/url";
 
 type Announcement = {
   id: number | string;
@@ -8,6 +9,7 @@ type Announcement = {
   content: string;
   type: string;
   author_id?: number | string;
+  image_url?: string | null;
 };
 
 type CurrentUser = {
@@ -33,6 +35,13 @@ export default function AnnouncementCard({
 
   return (
     <article className="clay rounded-3xl bg-[#fdfaf3] p-6">
+      {announcement.image_url && (
+        <img
+          src={resolveMediaUrl(announcement.image_url)}
+          alt={announcement.title}
+          className="mb-3 aspect-[4/3] w-full rounded-2xl object-cover"
+        />
+      )}
       <div className="flex items-center justify-between gap-3">
         <span className={`rounded-full px-3 py-1 text-xs font-bold ${isGeneral ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}>
           {isGeneral ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}

@@ -117,7 +117,7 @@ export default function DeleteAnnouncementModal({
             type="button"
             onClick={onDelete}
             disabled={pending}
-            className="rounded-full bg-danger px-5 py-2.5 text-sm font-bold text-white shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+            className="rounded-full bg-[#8b3a2c] px-5 py-2.5 text-sm font-bold text-white shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
           >
             {pending ? "Deleting..." : "Delete"}
           </button>

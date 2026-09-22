@@ -8,8 +8,7 @@ cloudinary.config({
 });
 
 export async function uploadBuffer(buffer, { folder, resourceType }) {
-  // In test, return a fake URL without hitting Cloudinary (tiny synthetic buffers are not valid images)
-  const isTest = config.nodeEnv === 'test' || process.env.NODE_ENV === 'test' || process.argv.includes('--test');
+  const isTest = config.nodeEnv === 'test' || process.env.NODE_ENV === 'test';
   if (isTest) {
     const fakeId = `${folder}/test-${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     return {
@@ -22,14 +21,13 @@ export async function uploadBuffer(buffer, { folder, resourceType }) {
       { folder, resource_type: resourceType },
       (error, result) => {
         if (error) {
-          // Fallback for invalid image in dev: return fake URL so tests with synthetic buffers don't fail
-          if (error.message && error.message.includes('Invalid image file')) {
-            const fakeId = `${folder}/test-${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-            return resolve({
-              secure_url: `https://res.cloudinary.com/${config.cloudinaryCloudName}/${resourceType}/upload/${fakeId}.jpg`,
-              public_id: fakeId,
-            });
-          }
+          console.error('[cloudinary] upload failed:', {
+            folder,
+            resourceType,
+            message: error.message,
+            http_code: error.http_code,
+            name: error.name,
+          });
           return reject(error);
         }
         resolve({ secure_url: result.secure_url, public_id: result.public_id });
@@ -40,7 +38,7 @@ export async function uploadBuffer(buffer, { folder, resourceType }) {
 }
 
 export async function deleteAsset(public_id, resourceType) {
-  const isTest = config.nodeEnv === 'test' || process.env.NODE_ENV === 'test' || process.argv.includes('--test');
+  const isTest = config.nodeEnv === 'test' || process.env.NODE_ENV === 'test';
   if (isTest) {
     return;
   }

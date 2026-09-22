@@ -39,6 +39,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
   );
 
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
+  const [cloudinaryPublicId, setCloudinaryPublicId] = useState((initial as { cloudinary_public_id?: string })?.cloudinary_public_id ?? "");
   const [previewUrl, setPreviewUrl] = useState(initial?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -122,6 +123,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         return;
       }
       setImageUrl(data.image_url || "");
+      setCloudinaryPublicId((data as { cloudinary_public_id?: string }).cloudinary_public_id || "");
       // keep preview as blob for UI, but store imageUrl for submit
     } catch {
       setUploadError("Upload failed");
@@ -137,6 +139,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
     }
     setPreviewUrl("");
     setImageUrl("");
+    setCloudinaryPublicId("");
     setUploadError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
@@ -164,6 +167,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         title: title.trim(),
         content: content.trim(),
         image_url: imageUrl || undefined,
+        cloudinary_public_id: cloudinaryPublicId || undefined,
         publish_at: publishAt ? new Date(publishAt).toISOString() : undefined,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       };
@@ -252,7 +256,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`rounded-clay-pill px-5 py-2.5 text-sm font-bold transition-colors min-h-[44px] ${type === t ? "bg-primary text-white shadow-clay-sm" : "bg-surface text-text-muted hover:text-primary"}`}
+                className={`rounded-clay-pill px-5 py-2.5 text-sm font-bold transition-colors min-h-[44px] ${type === t ? "bg-[#315c86] text-white shadow-clay-sm" : "bg-surface text-text-muted hover:text-[#315c86]"}`}
               >
                 {t === "general" ? "General" : "Class"}
               </button>
@@ -327,7 +331,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="clay-btn rounded-clay-pill bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60 min-h-[44px] w-full sm:w-auto"
+            className="clay-btn rounded-clay-pill bg-[#315c86] px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60 min-h-[44px] w-full sm:w-auto"
           >
             {saving ? "Saving…" : mode === "edit" ? "Save changes" : type === "class" ? "Publish class announcement" : "Publish"}
           </button>
