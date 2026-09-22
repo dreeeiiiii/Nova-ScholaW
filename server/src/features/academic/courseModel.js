@@ -9,6 +9,20 @@ export const listCourses = async () => {
   return rows;
 };
 
+export const listWithStudentCounts = async () => {
+  const { rows } = await query(`
+      SELECT c.id, c.name, COUNT(u.id)::int AS student_count
+        FROM courses c
+        LEFT JOIN users u
+          ON u.course_id = c.id
+         AND u.role = 'student'
+         AND u.is_active = TRUE
+       GROUP BY c.id, c.name
+       ORDER BY c.name
+    `);
+  return rows;
+};
+
 export const findCourseById = async (id) => {
   const { rows } = await query(
     `SELECT id, name, code, description, created_at, updated_at

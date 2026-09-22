@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { config } from "@/lib/config.server";
 import { getTokenFromCookie } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
   const token = await getTokenFromCookie();
   if (!token) return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
 
-  const res = await fetch(`${config.API_URL}/api/courses`, {
+  const search = new URL(req.url).search;
+
+  const res = await fetch(`${config.API_URL}/api/courses${search}`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });

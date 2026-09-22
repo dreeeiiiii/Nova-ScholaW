@@ -9,6 +9,20 @@ export const listSections = async () => {
   return rows;
 };
 
+export const listWithStudentCounts = async () => {
+  const { rows } = await query(`
+      SELECT s.id, s.name, COUNT(u.id)::int AS student_count
+        FROM sections s
+        LEFT JOIN users u
+          ON u.section_id = s.id
+         AND u.role = 'student'
+         AND u.is_active = TRUE
+       GROUP BY s.id, s.name
+       ORDER BY s.name
+    `);
+  return rows;
+};
+
 export const findSectionById = async (id) => {
   const { rows } = await query(
     `SELECT id, name, grade_level, created_at, updated_at

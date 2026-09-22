@@ -4,8 +4,12 @@ import { parseId } from '../../shared/utils/parseId.js';
 import { readNonEmpty } from '../../shared/utils/normalize.js';
 import { handleConflict } from '../../shared/errors/conflictError.js';
 
-export const listSections = async (_req, res, next) => {
+export const listSections = async (req, res, next) => {
   try {
+    if (req.query.with_students === "true") {
+      const sections = await sectionRepo.listWithStudentCounts();
+      return res.json({ sections });
+    }
     const sections = await sectionRepo.listSections();
     return res.json({ sections });
   } catch (err) {
@@ -84,8 +88,12 @@ export const deleteSection = async (req, res, next) => {
   }
 };
 
-export const listCourses = async (_req, res, next) => {
+export const listCourses = async (req, res, next) => {
   try {
+    if (req.query.with_students === "true") {
+      const courses = await courseRepo.listWithStudentCounts();
+      return res.json({ courses });
+    }
     const courses = await courseRepo.listCourses();
     return res.json({ courses });
   } catch (err) {

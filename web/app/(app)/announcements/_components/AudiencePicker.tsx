@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-type Section = { id: number | string; name: string };
-type Course = { id: number | string; name: string };
+type Section = { id: number | string; name: string; student_count?: number };
+type Course = { id: number | string; name: string; student_count?: number };
 type Student = { id: number | string; full_name: string; email: string };
 
 type Targets = { section_ids: (number | string)[]; course_ids: (number | string)[]; student_ids: (number | string)[] };
@@ -21,20 +21,25 @@ export default function AudiencePicker({
   const [studentResults, setStudentResults] = useState<Student[]>([]);
   const [studentLoading, setStudentLoading] = useState(false);
 
-  // Load sections/courses once
+  // Load sections/courses with student counts for picker
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        const [secRes, couRes] = await Promise.all([fetch("/api/sections"), fetch("/api/courses")]);
+        const [secRes, couRes] = await Promise.all([
+          fetch("/api/sections?with_students=true"),
+          fetch("/api/courses?with_students=true"),
+        ]);
         if (cancelled) return;
         if (secRes.ok) {
           const data = await secRes.json();
-          setSections(data.sections ?? []);
+          const list: Section[] = data.sections ?? [];
+          setSections(list.filter((s) => (s.student_count ?? 0) > 0));
         }
         if (couRes.ok) {
           const data = await couRes.json();
-          setCourses(data.courses ?? []);
+          const list: Course[] = data.courses ?? [];
+          setCourses(list.filter((c) => (c.student_count ?? 0) > 0));
         }
       } catch {
         // silent
@@ -119,10 +124,12 @@ export default function AudiencePicker({
                 onChange={() => toggleSection(s.id)}
                 className="rounded border-primary/30 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-text-main">{s.name}</span>
+              <span className="text-sm text-text-main">
+                {s.name} ({s.student_count} {s.student_count === 1 ? "student" : "students"})
+              </span>
             </label>
           ))}
-          {sections.length === 0 && <p className="px-2 py-1 text-sm text-text-muted">No sections</p>}
+          {sections.length === 0 && <p className="px-2 py-1 text-sm text-text-muted">No sections with enrolled students yet</p>}
         </div>
       </div>
 
@@ -137,10 +144,12 @@ export default function AudiencePicker({
                 onChange={() => toggleCourse(c.id)}
                 className="rounded border-primary/30 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-text-main">{c.name}</span>
+              <span className="text-sm text-text-main">
+                {c.name} ({c.student_count} {c.student_count === 1 ? "student" : "students"})
+              </span>
             </label>
           ))}
-          {courses.length === 0 && <p className="px-2 py-1 text-sm text-text-muted">No courses</p>}
+          {courses.length === 0 && <p className="px-2 py-1 text-sm text-text-muted">No courses with enrolled students yet</p>}
         </div>
       </div>
 
