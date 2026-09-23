@@ -59,6 +59,8 @@ CREATE TABLE users (
     role            VARCHAR(20)  NOT NULL CHECK (role IN ('admin', 'teacher', 'student')),
     section_id      BIGINT REFERENCES sections(id) ON DELETE SET NULL,   -- students only
     course_id       BIGINT REFERENCES courses(id)  ON DELETE SET NULL,   -- students only
+    student_level   VARCHAR(10) CHECK (student_level IN ('section', 'course')),  -- self-reported level (free-text era)
+    section_course  VARCHAR(100),                                                -- normalized free-text section/course
     is_active       BOOLEAN      NOT NULL DEFAULT TRUE,      -- admin deactivates accounts
     last_login_at   TIMESTAMPTZ,
     created_at      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
@@ -197,3 +199,6 @@ CREATE INDEX idx_audit_logs_user_id    ON audit_logs (user_id);
 CREATE INDEX idx_audit_logs_created    ON audit_logs (created_at DESC);
 CREATE INDEX idx_audit_logs_entity     ON audit_logs (entity_type, entity_id);
 CREATE INDEX idx_audit_logs_action     ON audit_logs (action);
+-- Step 10+: self-reported level fields (idempotent for existing databases).
+ALTER TABLE users ADD COLUMN IF NOT EXISTS student_level VARCHAR(10) CHECK (student_level IN ('section', 'course'));
+ALTER TABLE users ADD COLUMN IF NOT EXISTS section_course VARCHAR(100);

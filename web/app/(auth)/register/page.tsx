@@ -4,17 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AuthShell } from "../_components/AuthShell";
 
-type Option = { id: number | string; name: string };
-
 function RegisterForm() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [sectionId, setSectionId] = useState("");
-  const [courseId, setCourseId] = useState("");
-  const [sections, setSections] = useState<Option[]>([]);
-  const [courses, setCourses] = useState<Option[]>([]);
+  const [studentLevel, setStudentLevel] = useState<"section" | "course">("section");
+  const [availableOptions, setAvailableOptions] = useState<string[]>([]);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [customValue, setCustomValue] = useState("");
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [loadingOptions, setLoadingOptions] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [success, setSuccess] = useState("");
@@ -22,26 +22,32 @@ function RegisterForm() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      setLoadingOptions(true);
       try {
-        const [secRes, couRes] = await Promise.all([fetch("/api/sections"), fetch("/api/courses")]);
+        const res = await fetch(`/api/auth/sections?level=${studentLevel}`);
         if (cancelled) return;
-        if (secRes.ok) {
-          const data = await secRes.json();
-          setSections(data.sections ?? []);
-        }
-        if (couRes.ok) {
-          const data = await couRes.json();
-          setCourses(data.courses ?? []);
+        if (res.ok) {
+          const data = await res.json();
+          setAvailableOptions(Array.isArray(data.sections) ? data.sections : []);
         }
       } catch {
-        // leave dropdowns empty — section/course are optional
+        // leave dropdown to free-text fallback — options are optional
+      } finally {
+        if (!cancelled) setLoadingOptions(false);
       }
     }
     load();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [studentLevel]);
+
+  function handleLevelChange(level: "section" | "course") {
+    if (level === studentLevel) return;
+    setStudentLevel(level);
+    setIsAddingNew(false);
+    setSelectedOption("");
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,6 +73,13 @@ function RegisterForm() {
       setError("Passwords do not match.");
       return;
     }
+    const resolved = isAddingNew ? customValue : selectedOption;
+    const normalizedSection = resolved.trim().replace(/\s+/g, " ").toLowerCase();
+    const fieldName = studentLevel === "section" ? "Section" : "Course";
+    if (!normalizedSection) {
+      setError(`Please select or enter your ${fieldName}.`);
+      return;
+    }
 
     setPending(true);
     try {
@@ -77,8 +90,10 @@ function RegisterForm() {
           full_name: fullName.trim(),
           email: email.trim(),
           password,
-          section_id: sectionId ? Number(sectionId) : null,
-          course_id: courseId ? Number(courseId) : null,
+          section_id: null,
+          course_id: null,
+          studentLevel,
+          sectionCourse: normalizedSection,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -223,6 +238,140 @@ function RegisterForm() {
           </div>
 
           <div className="rise-in" style={{ animationDelay: "160ms" }}>
+            <span className="label-token">
+              Student Level
+            </span>
+            <div
+              className="inline-flex p-1"
+              role="group"
+              aria-label="Student level"
+              style={{
+                borderRadius: "var(--radius-small)",
+                backgroundColor: "var(--color-background-deep)",
+                border: "1px solid var(--color-line)",
+              }}
+            >
+              {(["section", "course"] as const).map((level) => {
+                const active = studentLevel === level;
+                return (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => handleLevelChange(level)}
+                    aria-pressed={active}
+                    className="px-4 py-2 text-sm font-medium transition-colors duration-200 motion-reduce:transition-none"
+                    style={{
+                      borderRadius: "var(--radius-small)",
+                      backgroundColor: active ? "var(--color-surface)" : "transparent",
+                      color: active ? "var(--color-text)" : "var(--color-muted)",
+                      boxShadow: active ? "var(--shadow-subtle)" : "none",
+                      minHeight: "44px",
+                    }}
+                  >
+                    {level === "section" ? "Section" : "Course"}
+                  </button>
+                );
+              })}
+            </div>
+
+            <label htmlFor="sectionCourseSelect" className="label-token" style={{ marginTop: "var(--space-3)" }}>
+              {studentLevel === "section" ? "Section" : "Course"}
+            </label>
+            <select
+              id="sectionCourseSelect"
+              value={isAddingNew ? "__add_new__" : selectedOption}
+              onChange={(e) => {
+                if (e.target.value === "__add_new__") {
+                  setIsAddingNew(true);
+                  setSelectedOption("");
+                } else {
+                  setSelectedOption(e.target.value);
+                  setIsAddingNew(false);
+                }
+              }}
+              className="input-token"
+              required
+              disabled={loadingOptions}
+            >
+              <option value="" disabled>
+                Select your {studentLevel === "section" ? "section" : "course"}…
+              </option>
+              {availableOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+              <option value="__add_new__">+ Add a new one</option>
+            </select>
+
+            {isAddingNew && (
+              <>
+                <input
+                  id="sectionCourseCustom"
+                  type="text"
+                  autoComplete="off"
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)}
+                  placeholder={
+                    studentLevel === "section"
+                      ? "e.g. humss 11-b, grade 10 - mabini"
+                      : "e.g. bsis 3-a, bsit 2-b"
+                  }
+                  className="input-token mt-2"
+                  required
+                />
+                <p className="mt-1.5 text-xs" style={{ color: "var(--color-muted)" }}>
+                  This will be saved and shown to future students in your level.
+                </p>
+              </>
+            )}
+
+            <div
+              style={{
+                marginTop: "var(--space-3)",
+                borderLeft: "2px solid var(--color-primary)",
+                paddingLeft: "var(--space-3)",
+              }}
+            >
+              <p
+                className="tokens-small"
+                style={{
+                  color: "var(--color-primary)",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2)",
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4" />
+                  <path d="M12 8h.01" />
+                </svg>
+                Important
+              </p>
+              <p className="tokens-small" style={{ color: "var(--color-muted)", marginTop: "var(--space-1)", lineHeight: 1.6 }}>
+                <strong style={{ color: "var(--color-text)" }}>This is how announcements find you.</strong>{" "}
+                {studentLevel === "section"
+                  ? "Senior High and below — enter your section exactly as your school uses it. We'll save it in lowercase (e.g. stem 12-a) so capitalization doesn't matter."
+                  : "College — enter your course exactly as your school uses it. We'll save it in lowercase (e.g. bsis 3-a) so capitalization doesn't matter."}
+              </p>
+              <p className="tokens-small" style={{ color: "var(--color-muted)", opacity: 0.7, marginTop: "var(--space-1)" }}>
+                Different spelling = different class. If you type it differently from your classmates, you won&apos;t receive their targeted announcements.
+              </p>
+            </div>
+
+            {(isAddingNew ? customValue : selectedOption).trim() !== "" && (
+              <p className="tokens-small" style={{ color: "var(--color-muted)", opacity: 0.6, marginTop: "var(--space-2)" }}>
+                Saved as:{" "}
+                <span className="font-mono">
+                  {(isAddingNew ? customValue : selectedOption).trim().replace(/\s+/g, " ").toLowerCase()}
+                </span>
+              </p>
+            )}
+          </div>
+
+          <div className="rise-in" style={{ animationDelay: "200ms" }}>
             <label htmlFor="reg-password" className="label-token">
               Password
             </label>
@@ -252,44 +401,6 @@ function RegisterForm() {
               className="input-token"
               required
             />
-          </div>
-
-          <div className="rise-in" style={{ animationDelay: "240ms" }}>
-            <label htmlFor="reg-section" className="label-token">
-              Section
-            </label>
-            <select
-              id="reg-section"
-              value={sectionId}
-              onChange={(e) => setSectionId(e.target.value)}
-              className="input-token"
-            >
-              <option value="">No section</option>
-              {sections.map((s) => (
-                <option key={String(s.id)} value={String(s.id)}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="rise-in" style={{ animationDelay: "280ms" }}>
-            <label htmlFor="reg-course" className="label-token">
-              Course
-            </label>
-            <select
-              id="reg-course"
-              value={courseId}
-              onChange={(e) => setCourseId(e.target.value)}
-              className="input-token"
-            >
-              <option value="">No course</option>
-              {courses.map((c) => (
-                <option key={String(c.id)} value={String(c.id)}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 

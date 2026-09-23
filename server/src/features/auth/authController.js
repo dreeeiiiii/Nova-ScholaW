@@ -2,7 +2,7 @@ import { signToken } from '../../shared/utils/jwt.js';
 import { comparePassword, hashPassword } from '../../shared/utils/password.js';
 import { normalizeEmail } from '../../shared/utils/nstEmail.js';
 import { audit } from '../audit/auditService.js';
-import { findByEmailWithHash, findByEmail, createUser as insertUser, updateLastLogin, findByIdWithJoins } from '../users/userModel.js';
+import { findByEmailWithHash, findByEmail, createUser as insertUser, updateLastLogin, findByIdWithJoins, listDistinctSectionCourse } from '../users/userModel.js';
 import { findSectionById } from '../academic/sectionModel.js';
 import { findCourseById } from '../academic/courseModel.js';
 
@@ -97,6 +97,10 @@ export const register = async (req, res, next) => {
     const section_id = toNullableId(body.section_id);
     const course_id = toNullableId(body.course_id);
 
+    const studentLevel = body.student_level === 'course' ? 'course' : body.student_level === 'section' ? 'section' : null;
+    const sectionCourse =
+      typeof body.sectionCourse === 'string' ? body.sectionCourse.trim().replace(/\s+/g, ' ').toLowerCase() : '';
+
     if (section_id !== null) {
       const section = await findSectionById(section_id);
       if (!section) {
@@ -118,11 +122,26 @@ export const register = async (req, res, next) => {
       role: 'student',
       section_id,
       course_id,
+      student_level: studentLevel,
+      section_course: sectionCourse === '' ? null : sectionCourse,
     });
 
     await audit(req, 'users.register', 'user', user.id, { email });
 
     return res.status(201).json({ message: 'Account created. You can now log in.' });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const listSections = async (req, res, next) => {
+  try {
+    const level = typeof req.query?.level === 'string' ? req.query.level.trim().toLowerCase() : '';
+    if (level !== 'section' && level !== 'course') {
+      return res.status(400).json({ status: 400, message: 'Query param "level" must be "section" or "course".' });
+    }
+    const sections = await listDistinctSectionCourse(level);
+    return res.json({ sections });
   } catch (err) {
     return next(err);
   }

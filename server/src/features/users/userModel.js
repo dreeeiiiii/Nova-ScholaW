@@ -12,6 +12,19 @@ const PUBLIC_COLUMNS = `
 
 const UPDATABLE_FIELDS = ['full_name', 'role', 'section_id', 'course_id'];
 
+export const listDistinctSectionCourse = async (level) => {
+  const { rows } = await query(
+    `SELECT DISTINCT section_course
+       FROM users
+      WHERE student_level = $1
+        AND section_course IS NOT NULL
+        AND section_course <> ''
+      ORDER BY section_course ASC`,
+    [level]
+  );
+  return rows.map((r) => r.section_course);
+};
+
 export const findById = async (id) => {
   const { rows } = await query(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE id = $1`, [id]);
   return rows[0] ?? null;
@@ -104,13 +117,15 @@ export const createUser = async ({
   role,
   section_id = null,
   course_id = null,
+  student_level = null,
+  section_course = null,
 }) => {
   const { rows } = await query(
-    `INSERT INTO users (email, password_hash, full_name, role, section_id, course_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING id, email, full_name, role, section_id, course_id,
+    `INSERT INTO users (email, password_hash, full_name, role, section_id, course_id, student_level, section_course)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING id, email, full_name, role, section_id, course_id, student_level, section_course,
                is_active, last_login_at, created_at, updated_at`,
-    [email, password_hash, full_name, role, section_id, course_id]
+    [email, password_hash, full_name, role, section_id, course_id, student_level, section_course]
   );
   return rows[0];
 };
