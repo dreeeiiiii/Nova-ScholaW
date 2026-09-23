@@ -1,0 +1,339 @@
+/**
+ * NovaSchola — Design Tokens (Step 1 of 10)
+ * -------------------------------------------------
+ * Filta Global is the DESIGN REFERENCE (clean corporate,
+ * warm off-white canvas, near-black ink, oversized display
+ * type, generous section rhythm, pill buttons) — not a clone.
+ *
+ * This file is the single source of truth for raw values.
+ * - All values are CSS variables. No hardcoded values here.
+ * - Components / pages must consume these vars (Step 2+).
+ * - tailwind.config.ts (old clay tokens) is now LEGACY.
+ *   Do not add new hardcoded hex / spacing there.
+ *
+ * Wiring (Step 2): `@import "./tokens.css";` at the top of
+ * `app/globals.css` (before component layers).
+ */
+
+:root {
+  /* ---------- Colors ---------- */
+  /* Primary — evolved violet (accessible successor to legacy #A78BFA) */
+  --color-primary: #5b3df5;
+  --color-primary-hover: #4a2fe0;
+  --color-primary-active: #3e27c4;
+  --color-primary-soft: #e9e3ff;
+  --color-primary-ink: #2e2a45;
+
+  /* Background — warm off-white (Filta-style cream canvas) */
+  --color-background: #faf6f0;
+  --color-background-deep: #f1ebe1;
+  --color-surface: #ffffff;
+  --color-surface-warm: #fdfaf3;
+
+  /* Dark — near-black with warm tint (brand panels, footer, dark buttons) */
+  --color-dark: #14121f;
+  --color-dark-soft: #2e2a45;
+  --color-dark-ink: #1a1828;
+
+  /* Accent — lime highlight for eyebrow marks, badges, CTAs */
+  --color-accent: #ccf655;
+  --color-accent-hover: #bdea3a;
+  --color-accent-ink: #1c2207;
+  --color-accent-soft: #f0fbd8;
+
+  /* Text */
+  --color-text: #1c1a26;
+  --color-text-strong: #14121f;
+  --color-muted: #6b6880;
+  --color-muted-soft: #8f8ba3;
+  --color-line: rgba(28, 26, 38, 0.12);
+  --color-line-strong: rgba(28, 26, 38, 0.22);
+
+  /* Status (retained from legacy clay system for dashboard parity) */
+  --color-success: #246044;
+  --color-success-bg: #dff5e8;
+  --color-warning: #8b5740;
+  --color-warning-bg: #fff5ed;
+  --color-danger: #8b3a2c;
+  --color-danger-bg: #fdecec;
+  --color-info: #315c86;
+  --color-info-bg: #d9efff;
+
+  /* ---------- Typography ---------- */
+  --font-heading: var(--font-raleway), "Raleway", sans-serif;
+  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
+
+  --text-display: clamp(3.5rem, 10vw, 9rem);
+  --text-h1: clamp(2.75rem, 6vw, 5.5rem);
+  --text-h2: clamp(2rem, 4.5vw, 3.75rem);
+  --text-h3: clamp(1.5rem, 3vw, 2.25rem);
+  --text-h4: 1.375rem;
+  --text-h5: 1.125rem;
+  --text-h6: 1rem;
+  --text-body-lg: 1.25rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-xs: 0.75rem;
+  --text-eyebrow: 0.75rem;
+
+  --leading-display: 0.95;
+  --leading-h1: 1;
+  --leading-h2: 1.05;
+  --leading-h3: 1.15;
+  --leading-body: 1.7;
+  --leading-small: 1.5;
+
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-eyebrow: 0.2em;
+
+  --weight-display: 800;
+  --weight-heading: 800;
+  --weight-body: 400;
+  --weight-strong: 700;
+
+  /* ---------- Spacing scale ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Section rhythm (Filta-style generous whitespace) */
+  --section-space: var(--space-24);
+  --section-space-sm: var(--space-16);
+  --section-space-lg: var(--space-32);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --section-space: 10rem;
+    --section-space-sm: 6rem;
+    --section-space-lg: 12rem;
+  }
+}
+
+/* ---------- Containers ---------- */
+:root {
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1400px;
+  --container-wide: 1600px;
+  --container-gutter: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --container-gutter: 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --container-gutter: 4rem;
+  }
+}
+
+/* ---------- Radius ---------- */
+:root {
+  --radius-small: 12px;
+  --radius-medium: 16px;
+  --radius-large: 28px;
+  --radius-pill: 9999px;
+  --radius-card: var(--radius-large);
+  --radius-input: var(--radius-small);
+  --radius-btn: var(--radius-pill);
+}
+
+/* ---------- Shadows ---------- */
+:root {
+  --shadow-subtle: 0 1px 2px rgba(20, 18, 31, 0.05), 0 4px 12px rgba(20, 18, 31, 0.06);
+  --shadow-medium: 0 2px 4px rgba(20, 18, 31, 0.06), 0 12px 28px rgba(20, 18, 31, 0.12);
+  --shadow-lift: 0 12px 24px rgba(46, 42, 69, 0.18);
+  --shadow-focus: 0 0 0 4px rgba(91, 61, 245, 0.15);
+}
+
+/* ---------- Transitions ---------- */
+:root {
+  --transition-fast: 200ms ease;
+  --transition-base: 300ms ease;
+  --transition-slow: 600ms ease;
+  --transition-lift: transform var(--transition-fast), box-shadow var(--transition-fast),
+    background-color var(--transition-fast), color var(--transition-fast);
+}
+
+/* ---------- Breakpoints (for JS / docs; CSS uses the media queries below) ---------- */
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ---------- Base type styles (token-driven, no hardcoded values) ---------- */
+.tokens-heading-display {
+  font-family: var(--font-heading);
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--weight-display);
+}
+
+.tokens-heading-1 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h1);
+  line-height: var(--leading-h1);
+  letter-spacing: var(--tracking-heading);
+  font-weight: var(--weight-heading);
+}
+
+.tokens-heading-2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h2);
+  line-height: var(--leading-h2);
+  letter-spacing: var(--tracking-heading);
+  font-weight: var(--weight-heading);
+}
+
+.tokens-heading-3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h3);
+  line-height: var(--leading-h3);
+  letter-spacing: var(--tracking-heading);
+  font-weight: var(--weight-heading);
+}
+
+.tokens-body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-weight: var(--weight-body);
+  color: var(--color-text);
+}
+
+.tokens-body-lg {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body);
+}
+
+.tokens-small {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.tokens-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--text-eyebrow);
+  line-height: 1.4;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ---------- Layout helpers ---------- */
+.tokens-container {
+  width: 100%;
+  max-width: var(--container-2xl);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+}
+
+.tokens-container-wide {
+  width: 100%;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+}
+
+.tokens-section {
+  padding-block: var(--section-space);
+}
+
+.tokens-section-sm {
+  padding-block: var(--section-space-sm);
+}
+
+/* ---------- Button variants (token-driven) ---------- */
+.tokens-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: var(--weight-strong);
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-btn);
+  border: 1px solid transparent;
+  transition: var(--transition-lift);
+  cursor: pointer;
+  min-height: 52px;
+}
+
+.tokens-btn-primary {
+  background-color: var(--color-dark);
+  color: var(--color-surface);
+}
+
+.tokens-btn-primary:hover {
+  background-color: var(--color-dark-ink);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.tokens-btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.tokens-btn-accent:hover {
+  background-color: var(--color-accent-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.tokens-btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-line-strong);
+}
+
+.tokens-btn-secondary:hover {
+  background-color: var(--color-dark);
+  color: var(--color-surface);
+  border-color: var(--color-dark);
+  transform: translateY(-2px);
+}
+
+.tokens-btn-brand {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.tokens-btn-brand:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.tokens-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tokens-btn {
+    transition: none;
+  }
+}

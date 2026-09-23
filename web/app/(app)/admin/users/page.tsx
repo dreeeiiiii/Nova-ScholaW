@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch, ApiError } from "@/lib/api";
 import UserManagement from "./_components/UserManagement";
+import { PageHeader } from "../../_components/PageHeader";
 
 type User = {
   id: number | string;
@@ -78,24 +79,27 @@ export default async function UsersPage({
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <span className="text-sm font-bold text-[#315c86]">ROLE-AWARE WORKSPACE</span>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Users</h1>
-          <p className="mt-2 text-sm text-[#66758d]">Manage accounts, roles, and access.</p>
+      <div>
+        <PageHeader eyebrow="Workspace" title="Users" description="Manage accounts, roles, and access." />
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            fontWeight: 600,
+          }}
+        >
+          {error}
         </div>
-        <div className="rounded-2xl bg-[#ffe1d1] px-4 py-3 text-sm font-medium text-[#6b3d27]">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-sm font-bold text-[#315c86]">ROLE-AWARE WORKSPACE</span>
-        <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Users</h1>
-        <p className="mt-2 text-sm text-[#66758d]">Manage accounts, roles, and access.</p>
-      </div>
+    <div>
+      <PageHeader eyebrow="Workspace" title="Users" description="Manage accounts, roles, and access." />
 
       <UserManagement
         initialUsers={users}

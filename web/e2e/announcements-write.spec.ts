@@ -80,7 +80,7 @@ test("teacher-cannot-see-edit-on-others-announcement", async ({ page }) => {
   await page.getByTestId("sidebar").waitFor({ state: "visible" });
   await expect(page.getByTestId("sidebar")).toBeVisible();
   await page.goto("/announcements");
-  const card = page.locator("article", { hasText: title });
+  const card = page.locator("li", { hasText: title });
   await expect(card).toBeVisible();
   await expect(card.getByRole("link", { name: "Edit" })).toBeHidden();
   await expect(card.getByRole("button", { name: "Delete" })).toBeHidden();

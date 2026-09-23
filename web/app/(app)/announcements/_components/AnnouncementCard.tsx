@@ -13,6 +13,7 @@ type Announcement = {
   author_name?: string | null;
   image_url?: string | null;
   show_on_tv?: boolean;
+  created_at?: string;
 };
 
 type CurrentUser = {
@@ -37,59 +38,98 @@ export default function AnnouncementCard({
     (currentUser.role === "admin" || String(announcement.author_id) === String(currentUser.id));
 
   return (
-    <article className="clay rounded-3xl bg-[#fdfaf3] p-6">
-      {announcement.image_url && (
-        <img
-          src={resolveMediaUrl(announcement.image_url)}
-          alt={announcement.title}
-          className="mb-3 aspect-[4/3] w-full rounded-2xl object-cover"
-        />
-      )}
-      <div className="flex items-center justify-between gap-3">
-        <span className={`rounded-full px-3 py-1 text-xs font-bold ${isGeneral ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}>
+    <li
+      className="flex min-h-[44px] flex-col gap-2"
+      style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+    >
+      <span className="flex flex-wrap items-center gap-3">
+        <span
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-pill)",
+            padding: "2px var(--space-3)",
+            fontWeight: 700,
+            fontSize: "0.6875rem",
+            letterSpacing: "0.08em",
+            backgroundColor: isGeneral ? "var(--color-info-bg)" : "var(--color-primary-soft)",
+            color: isGeneral ? "var(--color-info)" : "var(--color-primary-ink)",
+          }}
+        >
           {isGeneral ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
         </span>
         {isGeneral && (announcement.show_on_tv ?? true) && (
           <span
             title="Shows on TV display"
-            className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold text-[#315c86] ring-1 ring-[#d9efff]"
+            className="inline-flex items-center gap-1"
+            style={{
+              borderRadius: "var(--radius-pill)",
+              backgroundColor: "var(--color-surface)",
+              border: "1px solid var(--color-line)",
+              padding: "2px var(--space-2)",
+              fontSize: "0.625rem",
+              fontWeight: 700,
+              color: "var(--color-muted)",
+            }}
           >
             <Monitor size={12} aria-hidden="true" />
             TV
           </span>
         )}
-      </div>
-      <h3 className="mt-3 font-heading text-base font-bold text-[#23344f]">{announcement.title}</h3>
-      {announcement.author_name && (
-        <p className="mt-1 text-xs text-text-muted">By: {announcement.author_name}</p>
+        {announcement.author_name && (
+          <span className="tokens-small" style={{ color: "var(--color-muted)" }}>
+            By {announcement.author_name}
+          </span>
+        )}
+        {announcement.created_at && (
+          <span className="tokens-small" style={{ color: "var(--color-muted)" }}>
+            {new Date(announcement.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+          </span>
+        )}
+      </span>
+      {announcement.image_url && (
+        <img
+          src={resolveMediaUrl(announcement.image_url)}
+          alt={announcement.title}
+          loading="lazy"
+          className="aspect-[16/9] w-full object-cover sm:max-w-xs"
+          style={{ borderRadius: "var(--radius-small)" }}
+        />
       )}
-      <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-text-muted">{announcement.content}</p>
-      <div className="mt-3 flex items-center justify-between">
+      <span className="font-heading text-base font-bold" style={{ color: "var(--color-text)" }}>
+        {announcement.title}
+      </span>
+      <span className="tokens-small line-clamp-3" style={{ color: "var(--color-muted)" }}>
+        {announcement.content}
+      </span>
+      <span className="flex flex-wrap items-center gap-x-5 gap-y-1">
         <button
           type="button"
           onClick={() => onOpen(announcement.id)}
-          className="text-sm font-bold text-[#315c86] underline"
+          className="inline-flex min-h-[44px] items-center text-sm font-bold"
+          style={{ color: "var(--color-primary)" }}
         >
           Open details
         </button>
         {canModify && (
-          <div className="flex items-center gap-3">
+          <>
             <Link
               href={`/announcements/${encodeURIComponent(String(announcement.id))}/edit`}
-              className="text-sm font-semibold text-text-muted hover:text-[#315c86]"
+              className="inline-flex min-h-[44px] items-center text-sm font-semibold"
+              style={{ color: "var(--color-muted)" }}
             >
               Edit
             </Link>
             <button
               type="button"
               onClick={() => onDelete?.(announcement.id, announcement.title)}
-              className="text-sm font-semibold text-danger hover:text-danger/80"
+              className="inline-flex min-h-[44px] items-center text-sm font-semibold"
+              style={{ color: "var(--color-danger)" }}
             >
               Delete
             </button>
-          </div>
+          </>
         )}
-      </div>
-    </article>
+      </span>
+    </li>
   );
 }

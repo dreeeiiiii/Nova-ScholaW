@@ -13,7 +13,7 @@ export default async function HomePage() {
   if (user) redirect("/dashboard");
 
   return (
-    <div className="min-h-screen bg-base">
+    <div className="min-h-screen" style={{ backgroundColor: "var(--color-background)" }}>
       <HomeNav />
       <main>
         <Hero />

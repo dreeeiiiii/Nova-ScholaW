@@ -6,6 +6,8 @@ import { Search } from "lucide-react";
 import AnnouncementCard from "./AnnouncementCard";
 import AnnouncementDetailModal from "./AnnouncementDetailModal";
 import DeleteAnnouncementModal from "./DeleteAnnouncementModal";
+import { EmptyState } from "../../_components/EmptyState";
+import { Megaphone } from "lucide-react";
 
 type Announcement = {
   id: number | string;
@@ -25,6 +27,12 @@ type Props = {
   currentUser?: { id: number | string; role: string } | null;
 };
 
+const TABS = [
+  { key: "all", label: "All" },
+  { key: "general", label: "General" },
+  { key: "class", label: "Class" },
+] as const;
+
 export default function AnnouncementList({ announcements, total, initialType, initialQ, currentUser }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,11 +44,13 @@ export default function AnnouncementList({ announcements, total, initialType, in
 
   // Keep local q in sync when URL changes (e.g., back/forward)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setQ(initialQ);
   }, [initialQ]);
 
   // Clear the optimistic pill once the server confirms the new filter
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setOptimisticType(null);
   }, [initialType]);
 
@@ -88,36 +98,50 @@ export default function AnnouncementList({ announcements, total, initialType, in
 
   return (
     <div>
-      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:p-6 md:flex-row">
-        <label className="sr-only" htmlFor="announcement-search">
-          Search announcements
-        </label>
-        <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7] min-h-[44px]">
-          <Search size={16} className="text-text-muted" />
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="relative flex-1 md:max-w-md">
+          <label className="sr-only" htmlFor="announcement-search">
+            Search announcements
+          </label>
+          <Search
+            size={16}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
+            style={{ color: "var(--color-muted)" }}
+          />
           <input
             id="announcement-search"
             type="search"
             placeholder="Search announcements"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="w-full bg-transparent p-3 text-sm outline-none placeholder:text-text-muted min-h-[44px]"
+            className="input-token"
+            style={{ paddingLeft: "2.75rem" }}
           />
         </div>
-        <div className="flex gap-2">
-          {[
-            { key: "all", label: "All" },
-            { key: "general", label: "General" },
-            { key: "class", label: "Class" },
-          ].map((pill) => {
-            const isActive = activeType === pill.key;
+        <div
+          className="flex gap-6"
+          role="tablist"
+          aria-label="Filter by type"
+          style={{ borderBottom: "1px solid var(--color-line)" }}
+        >
+          {TABS.map((tab) => {
+            const isActive = activeType === tab.key;
             return (
               <button
-                key={pill.key}
+                key={tab.key}
                 type="button"
-                onClick={() => onTypeClick(pill.key as never)}
-                className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${isActive ? "bg-[#d9efff] text-[#23446c] ring-2 ring-[#315c86]" : "bg-[#e7defb] text-[#563d86]"}`}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => onTypeClick(tab.key)}
+                className="inline-flex min-h-[44px] items-center text-sm font-bold transition-colors duration-200 motion-reduce:transition-none"
+                style={{
+                  color: isActive ? "var(--color-text)" : "var(--color-muted)",
+                  boxShadow: isActive ? "inset 0 -2px 0 var(--color-primary)" : "none",
+                  paddingInline: "2px",
+                }}
               >
-                {pill.label}
+                {tab.label}
               </button>
             );
           })}
@@ -125,30 +149,43 @@ export default function AnnouncementList({ announcements, total, initialType, in
       </div>
 
       <div className="mt-4 flex items-center gap-3">
-        <p className="text-xs text-text-muted">{total} result{total === 1 ? "" : "s"}</p>
+        <p className="tokens-small" style={{ color: "var(--color-muted)" }}>
+          {total} result{total === 1 ? "" : "s"}
+        </p>
         {isPending && (
-          <span className="inline-flex items-center gap-2 text-xs text-text-muted" role="status" aria-live="polite">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[#315c86]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2 text-xs" style={{ color: "var(--color-muted)" }} role="status" aria-live="polite">
+            <span
+              className="inline-block h-2 w-2 animate-pulse"
+              aria-hidden="true"
+              style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-primary)" }}
+            />
             Updating…
           </span>
         )}
       </div>
 
-      <div className={`mt-4 grid gap-5 transition-opacity md:grid-cols-2 ${isPending ? "opacity-60" : ""}`} aria-busy={isPending}>
+      <div
+        className="transition-opacity duration-200 motion-reduce:transition-none"
+        style={{ marginTop: "var(--space-4)", opacity: isPending ? 0.6 : 1 }}
+        aria-busy={isPending}
+      >
         {announcements.length === 0 ? (
-          <div className="clay rounded-3xl bg-[#fdfaf3] p-6 md:col-span-2">
-            <p className="text-sm text-text-muted">No announcements found.</p>
-          </div>
+          <EmptyState
+            icon={<Megaphone size={20} strokeWidth={1.5} aria-hidden="true" />}
+            message="No announcements found."
+          />
         ) : (
-          announcements.map((a) => (
-            <AnnouncementCard
-              key={String(a.id)}
-              announcement={a}
-              onOpen={setSelectedId}
-              currentUser={currentUser ?? undefined}
-              onDelete={(id, title) => setDeleteTarget({ id, title })}
-            />
-          ))
+          <ul style={{ borderTop: "1px solid var(--color-line)" }}>
+            {announcements.map((a) => (
+              <AnnouncementCard
+                key={String(a.id)}
+                announcement={a}
+                onOpen={setSelectedId}
+                currentUser={currentUser ?? undefined}
+                onDelete={(id, title) => setDeleteTarget({ id, title })}
+              />
+            ))}
+          </ul>
         )}
       </div>
 

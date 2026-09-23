@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { FileUp, X as LucideX } from "lucide-react";
 import ReviewModal from "./ReviewModal";
 
 type Category = { id: number | string; name: string };
 
 export default function UploadForm({ categories }: { categories: Category[] }) {
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -217,16 +215,16 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
 
   return (
     <>
-      <form onSubmit={onSubmit} className="clay-card rounded-[2rem] p-6 sm:p-8" noValidate>
+      <form onSubmit={onSubmit} noValidate>
         {error && (
-          <div role="alert" className="mb-4 rounded-2xl bg-danger/15 px-4 py-3 text-sm font-medium text-danger">
+          <div role="alert" className="mb-4 tokens-small" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-3) var(--space-4)", fontWeight: 600 }}>
             {error}
           </div>
         )}
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label htmlFor="gallery-title" className="block text-sm font-semibold text-text-main">
+            <label htmlFor="gallery-title" className="label-token">
               Event name *
             </label>
             <input
@@ -236,12 +234,12 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Foundation Day 2026"
-              className="clay-input mt-1.5 block w-full px-4 py-2.5 text-sm"
+              className="input-token"
             />
           </div>
 
           <div>
-            <label htmlFor="gallery-category" className="block text-sm font-semibold text-text-main">
+            <label htmlFor="gallery-category" className="label-token">
               Category *
             </label>
             <select
@@ -249,7 +247,7 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
               required
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="clay-input mt-1.5 block w-full px-4 py-2.5 text-sm"
+              className="input-token"
             >
               <option value="">Select category</option>
               {categories.map((c) => (
@@ -262,8 +260,8 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
         </div>
 
         <div className="mt-4">
-          <label htmlFor="gallery-description" className="block text-sm font-semibold text-text-main">
-            Short description <span className="font-normal text-text-muted">(optional)</span>
+          <label htmlFor="gallery-description" className="label-token">
+            Short description <span style={{ textTransform: "none", letterSpacing: "normal" }}>(optional)</span>
           </label>
           <input
             id="gallery-description"
@@ -271,24 +269,38 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Add a caption shown in the gallery…"
-            className="clay-input mt-1.5 block w-full px-4 py-2.5 text-sm"
+            className="input-token"
           />
         </div>
 
         <div className="mt-4">
-          <p className="block text-sm font-semibold text-text-main">File *</p>
+          <p className="label-token">File *</p>
           <div
             onDrop={onDrop}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
-            className={`mt-1.5 flex flex-col items-center justify-center rounded-[1.5rem] border-2 border-dashed p-8 text-center transition-colors ${dragOver ? "border-primary bg-primary/10" : "border-[#d9d7e2] bg-[#fdfaf3]"}`}
+            className="flex flex-col items-center justify-center p-8 text-center transition-colors duration-200 motion-reduce:transition-none"
+            style={{
+              borderRadius: "var(--radius-large)",
+              border: "1px dashed var(--color-line-strong)",
+              backgroundColor: dragOver ? "var(--color-primary-soft)" : "transparent",
+              borderColor: dragOver ? "var(--color-primary)" : undefined,
+            }}
           >
-            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${dragOver ? "bg-primary text-white" : "bg-white text-[#66758d]"}`}>
-              <FileUp size={24} />
+            <div
+              className="flex h-12 w-12 items-center justify-center"
+              style={{
+                borderRadius: "var(--radius-medium)",
+                backgroundColor: dragOver ? "var(--color-primary)" : "var(--color-surface)",
+                color: dragOver ? "var(--color-surface)" : "var(--color-muted)",
+                border: dragOver ? "none" : "1px solid var(--color-line)",
+              }}
+            >
+              <FileUp size={24} strokeWidth={1.5} />
             </div>
-            <p className="mt-3 text-sm font-semibold text-text-main">Drop a file here or choose a sample file</p>
-            <p className="mt-1 text-xs text-text-muted">JPEG, PNG, WebP, MP4 · Images max 10 MB · Videos max 50 MB and 2 minutes</p>
-            <label className="mt-4 cursor-pointer rounded-full bg-[#315c86] px-5 py-2 text-sm font-bold text-white">
+            <p className="mt-3 text-sm font-semibold" style={{ color: "var(--color-text)" }}>Drop a file here or choose a sample file</p>
+            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>JPEG, PNG, WebP, MP4 · Images max 10 MB · Videos max 50 MB and 2 minutes</p>
+            <label className="tokens-btn tokens-btn-primary mt-4 !min-h-[44px] !px-5 !py-2 text-sm" style={{ cursor: "pointer" }}>
               Choose file
               <input
                 ref={fileInputRef}
@@ -298,20 +310,21 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
                 className="hidden"
               />
             </label>
-            {file && <p className="mt-3 text-xs font-medium text-text-main">{file.name} · {(file.size / 1024 / 1024).toFixed(2)} MB</p>}
+            {file && <p className="tokens-small mt-3 font-medium" style={{ color: "var(--color-text)" }}>{file.name} · {(file.size / 1024 / 1024).toFixed(2)} MB</p>}
           </div>
 
           {previewUrl && (
-            <div className="relative mt-4">
+            <div className="relative mt-4 inline-block">
               {isVideo ? (
-                <video src={previewUrl} controls className="max-h-64 w-full rounded-2xl bg-black" />
+                <video src={previewUrl} controls className="max-h-64 w-full rounded-xl bg-black" />
               ) : (
-                <img src={previewUrl} alt="Preview" className="max-h-64 w-full rounded-2xl object-contain bg-white" />
+                <img src={previewUrl} alt="Preview" className="max-h-64 w-full rounded-xl object-contain" style={{ backgroundColor: "var(--color-background-deep)" }} />
               )}
               <button
                 type="button"
                 onClick={clearFile}
-                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-danger text-white"
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center"
+                style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
                 aria-label="Remove file"
               >
                 <LucideX size={14} />
@@ -323,11 +336,11 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
         <button
           type="submit"
           disabled={pending}
-          className="mt-6 w-full rounded-full bg-[#315c86] px-6 py-3 text-sm font-bold text-white shadow disabled:opacity-60"
+          className="tokens-btn tokens-btn-primary mt-6 w-full text-sm disabled:opacity-60"
         >
           {pending ? "Uploading…" : "Submit for review"}
         </button>
-        <p className="mt-2 text-center text-xs text-text-muted">Uploads are published immediately. Content that violates school guidelines will be removed.</p>
+        <p className="tokens-small mt-2 text-center" style={{ color: "var(--color-muted)" }}>Uploads are published immediately. Content that violates school guidelines will be removed.</p>
       </form>
 
       {showReview && (

@@ -110,70 +110,72 @@ export default function AudiencePicker({
   const totalSelected = value.section_ids.length + value.course_ids.length + value.student_ids.length;
 
   return (
-    <div className="space-y-4 rounded-2xl bg-primary/5 p-4">
-      <h4 className="font-heading text-sm font-bold text-text-main">Target Audience</h4>
+    <div style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
+      <h4 className="font-heading text-sm font-bold" style={{ color: "var(--color-text)" }}>Target Audience</h4>
 
-      <div>
-        <p className="mb-2 text-sm font-semibold text-text-main">Sections</p>
-        <div className="max-h-40 space-y-1 overflow-y-auto rounded-2xl bg-white p-2">
+      <div style={{ marginTop: "var(--space-4)" }}>
+        <p className="label-token">Sections</p>
+        <div className="max-h-40 space-y-1 overflow-y-auto p-2" style={{ border: "1px solid var(--color-line)", borderRadius: "var(--radius-small)", backgroundColor: "var(--color-surface)" }}>
           {sections.map((s) => (
-            <label key={String(s.id)} className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 hover:bg-primary/5">
+            <label key={String(s.id)} className="flex min-h-[44px] cursor-pointer items-center gap-3 px-2 py-1" style={{ borderBottom: "1px solid var(--color-line)" }}>
               <input
                 type="checkbox"
                 checked={value.section_ids.map(String).includes(String(s.id))}
                 onChange={() => toggleSection(s.id)}
-                className="rounded border-primary/30 text-primary focus:ring-primary"
+                className="h-4 w-4"
+                style={{ accentColor: "var(--color-primary)" }}
               />
-              <span className="text-sm text-text-main">
+              <span className="text-sm" style={{ color: "var(--color-text)" }}>
                 {s.name} ({s.student_count} {s.student_count === 1 ? "student" : "students"})
               </span>
             </label>
           ))}
-          {sections.length === 0 && <p className="px-2 py-1 text-sm text-text-muted">No sections with enrolled students yet</p>}
+          {sections.length === 0 && <p className="px-2 py-1 text-sm" style={{ color: "var(--color-muted)" }}>No sections with enrolled students yet</p>}
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 text-sm font-semibold text-text-main">Courses</p>
-        <div className="max-h-40 space-y-1 overflow-y-auto rounded-2xl bg-white p-2">
+      <div style={{ marginTop: "var(--space-4)" }}>
+        <p className="label-token">Courses</p>
+        <div className="max-h-40 space-y-1 overflow-y-auto p-2" style={{ border: "1px solid var(--color-line)", borderRadius: "var(--radius-small)", backgroundColor: "var(--color-surface)" }}>
           {courses.map((c) => (
-            <label key={String(c.id)} className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-1 hover:bg-primary/5">
+            <label key={String(c.id)} className="flex min-h-[44px] cursor-pointer items-center gap-3 px-2 py-1" style={{ borderBottom: "1px solid var(--color-line)" }}>
               <input
                 type="checkbox"
                 checked={value.course_ids.map(String).includes(String(c.id))}
                 onChange={() => toggleCourse(c.id)}
-                className="rounded border-primary/30 text-primary focus:ring-primary"
+                className="h-4 w-4"
+                style={{ accentColor: "var(--color-primary)" }}
               />
-              <span className="text-sm text-text-main">
+              <span className="text-sm" style={{ color: "var(--color-text)" }}>
                 {c.name} ({c.student_count} {c.student_count === 1 ? "student" : "students"})
               </span>
             </label>
           ))}
-          {courses.length === 0 && <p className="px-2 py-1 text-sm text-text-muted">No courses with enrolled students yet</p>}
+          {courses.length === 0 && <p className="px-2 py-1 text-sm" style={{ color: "var(--color-muted)" }}>No courses with enrolled students yet</p>}
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 text-sm font-semibold text-text-main">Students</p>
+      <div style={{ marginTop: "var(--space-4)" }}>
+        <p className="label-token">Students</p>
         <input
           type="search"
           value={studentQuery}
           onChange={(e) => setStudentQuery(e.target.value)}
           placeholder="Search students by name or email…"
-          className="clay-input w-full px-4 py-2.5 text-sm"
+          className="input-token"
         />
-        {studentLoading && <p className="mt-2 text-xs text-text-muted">Searching…</p>}
+        {studentLoading && <p className="tokens-small mt-2" style={{ color: "var(--color-muted)" }}>Searching…</p>}
         {studentResults.length > 0 && (
-          <div className="mt-2 max-h-40 space-y-1 overflow-y-auto rounded-2xl bg-white p-2">
+          <div className="mt-2 max-h-40 space-y-1 overflow-y-auto p-2" style={{ border: "1px solid var(--color-line)", borderRadius: "var(--radius-small)", backgroundColor: "var(--color-surface)" }}>
             {studentResults.map((s) => (
-              <div key={String(s.id)} className="flex items-center justify-between gap-2 px-2 py-1 hover:bg-primary/5">
-                <span className="text-sm text-text-main">
+              <div key={String(s.id)} className="flex min-h-[44px] items-center justify-between gap-2 px-2 py-1" style={{ borderBottom: "1px solid var(--color-line)" }}>
+                <span className="text-sm" style={{ color: "var(--color-text)" }}>
                   {s.full_name} ({s.email})
                 </span>
                 <button
                   type="button"
                   onClick={() => addStudent(s)}
-                  className="rounded-full bg-[#315c86] px-3 py-1 text-xs font-bold text-white"
+                  className="tokens-btn tokens-btn-primary !min-h-[36px] !px-4 !py-1 text-xs"
                 >
                   Add
                 </button>
@@ -183,9 +185,9 @@ export default function AudiencePicker({
         )}
         <div className="mt-2 flex flex-wrap gap-1">
           {value.student_ids.map((id) => (
-            <span key={String(id)} className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
+            <span key={String(id)} className="inline-flex items-center gap-1 text-xs font-semibold" style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-success-bg)", color: "var(--color-success)", padding: "var(--space-1) var(--space-3)" }}>
               Student {String(id)}
-              <button type="button" onClick={() => removeStudent(id)} className="ml-1 hover:text-danger">
+              <button type="button" onClick={() => removeStudent(id)} aria-label={`Remove student ${String(id)}`} className="ml-1 flex min-h-[44px] min-w-[44px] -my-3 items-center justify-center" style={{ color: "var(--color-danger)" }}>
                 ×
               </button>
             </span>
@@ -193,9 +195,9 @@ export default function AudiencePicker({
         </div>
       </div>
 
-      <div className="rounded-xl bg-white px-4 py-3 text-sm">
-        <span className="text-text-muted">Selected: {totalSelected} target{totalSelected === 1 ? "" : "s"}</span>
-        {totalSelected === 0 && <span className="ml-2 font-bold text-danger">Warning: No targets selected</span>}
+      <div className="tokens-small" style={{ marginTop: "var(--space-4)", borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-3)", color: "var(--color-muted)" }}>
+        <span>Selected: {totalSelected} target{totalSelected === 1 ? "" : "s"}</span>
+        {totalSelected === 0 && <span className="ml-2 font-bold" style={{ color: "var(--color-danger)" }}>Warning: No targets selected</span>}
       </div>
     </div>
   );

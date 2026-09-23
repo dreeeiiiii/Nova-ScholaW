@@ -2,9 +2,32 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
 import AnnouncementList from "./_components/AnnouncementList";
+import { PageHeader } from "../_components/PageHeader";
+import { EmptyState } from "../_components/EmptyState";
+import { Megaphone, Plus } from "lucide-react";
 
 type SearchParams = { type?: string; q?: string };
 type Announcement = { id: number | string; title: string; content: string; type: string };
+
+function TypeBadge({ type }: { type: string }) {
+  const isGeneral = type === "general";
+  return (
+    <span
+      className="tokens-small"
+      style={{
+        borderRadius: "var(--radius-pill)",
+        padding: "2px var(--space-3)",
+        fontWeight: 700,
+        fontSize: "0.6875rem",
+        letterSpacing: "0.08em",
+        backgroundColor: isGeneral ? "var(--color-info-bg)" : "var(--color-primary-soft)",
+        color: isGeneral ? "var(--color-info)" : "var(--color-primary-ink)",
+      }}
+    >
+      {isGeneral ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
+    </span>
+  );
+}
 
 export default async function AnnouncementsPage({
   searchParams,
@@ -25,42 +48,63 @@ export default async function AnnouncementsPage({
     }
 
     return (
-      <div className="space-y-6">
-        <div>
-          <p className="text-sm font-bold tracking-wide text-[#315c86]">OFFICIAL UPDATES</p>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Announcements</h1>
-        </div>
+      <div>
+        <PageHeader eyebrow="Official updates" title="Announcements" />
 
         {error && (
-          <div className="rounded-2xl bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{error}</div>
+          <div
+            className="tokens-small"
+            style={{
+              borderRadius: "var(--radius-small)",
+              backgroundColor: "var(--color-danger-bg)",
+              color: "var(--color-danger)",
+              padding: "var(--space-3) var(--space-4)",
+              fontWeight: 600,
+              marginBottom: "var(--space-6)",
+            }}
+          >
+            {error}
+          </div>
         )}
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {announcements.length === 0 ? (
-            <div className="clay rounded-3xl bg-[#fdfaf3] p-6 md:col-span-2">
-              <p className="text-sm text-text-muted">No announcements yet.</p>
-            </div>
-          ) : (
-            announcements.map((a) => (
-              <article key={String(a.id)} className="clay rounded-3xl bg-[#fdfaf3] p-6">
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${a.type === "general" ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}
-                >
-                  {a.type === "general" ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
+        {announcements.length === 0 ? (
+          <EmptyState
+            icon={<Megaphone size={20} strokeWidth={1.5} aria-hidden="true" />}
+            message="No announcements yet."
+          />
+        ) : (
+          <ul style={{ borderTop: "1px solid var(--color-line)" }}>
+            {announcements.map((a) => (
+              <li
+                key={String(a.id)}
+                className="flex min-h-[44px] flex-col gap-1"
+                style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+              >
+                <TypeBadge type={a.type} />
+                <span className="font-heading text-base font-bold" style={{ color: "var(--color-text)" }}>
+                  {a.title}
                 </span>
-                <h3 className="mt-3 font-heading text-base font-bold text-[#23344f]">{a.title}</h3>
-                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-text-muted">{a.content}</p>
-              </article>
-            ))
-          )}
-        </div>
+                <span className="tokens-small line-clamp-3" style={{ color: "var(--color-muted)" }}>
+                  {a.content}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
 
-        <div className="clay-card p-6 text-center">
-          <p className="text-sm font-medium text-text-main">Sign in to see all announcements</p>
-          <Link
-            href="/login?from=%2Fannouncements"
-            className="mt-3 inline-block rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white"
-          >
+        <div
+          className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+          style={{
+            marginTop: "var(--space-8)",
+            paddingBlock: "var(--space-8)",
+            borderTop: "1px solid var(--color-line)",
+            borderBottom: "1px solid var(--color-line)",
+          }}
+        >
+          <p className="tokens-body" style={{ color: "var(--color-text)", fontWeight: 600 }}>
+            Sign in to see all announcements
+          </p>
+          <Link href="/login?from=%2Fannouncements" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-6 !py-2 text-sm">
             Sign in
           </Link>
         </div>
@@ -98,25 +142,38 @@ export default async function AnnouncementsPage({
     error = msg;
   }
 
+  const canPublish = user.role === "admin" || user.role === "teacher";
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm font-bold tracking-wide text-[#315c86]">OFFICIAL UPDATES</p>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f] sm:text-3xl">Announcements</h1>
-        </div>
-        {(user.role === "admin" || user.role === "teacher") && (
-          <Link
-            href="/announcements/create"
-            className="w-full rounded-full bg-[#315c86] px-5 py-3 text-sm font-bold text-white shadow min-h-[44px] flex items-center justify-center sm:w-auto"
-          >
-            Create announcement
-          </Link>
-        )}
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Official updates"
+        title="Announcements"
+        description="School-wide and class-targeted updates, newest first."
+        actions={
+          canPublish ? (
+            <Link href="/announcements/create" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
+              <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
+              Create announcement
+            </Link>
+          ) : undefined
+        }
+      />
 
       {error && (
-        <div className="rounded-2xl bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{error}</div>
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            fontWeight: 600,
+            marginBottom: "var(--space-6)",
+          }}
+        >
+          {error}
+        </div>
       )}
 
       <AnnouncementList

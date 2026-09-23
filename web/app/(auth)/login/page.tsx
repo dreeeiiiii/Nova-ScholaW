@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { AuthShell } from "../_components/AuthShell";
 
 function isSafeFrom(value: string | null): string | null {
   if (!value) return null;
@@ -65,136 +66,125 @@ function LoginForm() {
   }
 
   return (
-    <main className="relative min-h-screen flex bg-[#F0EEFB]">
-      {/* Dark Left Panel — brand anchor */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 lg:p-16 bg-[#2E2A45] relative overflow-hidden">
-        {/* Top: brand mark */}
-        <Link
-          href="/"
-          className="inline-flex items-baseline gap-3 relative z-10"
-          aria-label="Nova Schola Hub home"
-        >
-          <span className="font-heading text-xl font-extrabold text-white tracking-tight leading-none">
-            Nova Schola
-          </span>
-          <span className="text-[10px] font-semibold text-white/50 tracking-[0.25em] uppercase">
-            Hub
-          </span>
-        </Link>
-
-        {/* Middle: editorial headline */}
-        <div className="relative z-10 max-w-lg">
-          <span className="text-eyebrow text-violet-300">WELCOME BACK</span>
-          <h1 className="font-heading text-5xl xl:text-6xl font-extrabold text-white mt-6 leading-[0.95] tracking-tight text-balance">
-            Log in to
-            <br />
-            your hub.
+    <AuthShell
+      eyebrow="Welcome back"
+      statement="Log in to your hub."
+      support="Sign in to continue to your dashboard."
+      indexLabel="01"
+      mobileTitle="Welcome back"
+    >
+      <form onSubmit={onSubmit} noValidate>
+        <div className="rise-in" style={{ animationDelay: "0ms" }}>
+          <h1 className="tokens-heading-2 text-balance" style={{ color: "var(--color-text)" }}>
+            Welcome back
           </h1>
-        </div>
-
-        {/* Bottom: colophon */}
-        <div className="relative z-10 border-t border-white/10 pt-6">
-          <p className="text-xs text-white/40 tracking-wide">
+          <p className="tokens-body" style={{ color: "var(--color-muted)", marginTop: "var(--space-2)" }}>
+            Sign in to continue to your dashboard.
           </p>
         </div>
-      </div>
 
-      {/* Light Right Panel — form */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center p-6 md:p-10 lg:p-16">
-        <div className="w-full max-w-md">
-          {/* Mobile header */}
-          <div className="lg:hidden mb-10">
-            <span className="text-eyebrow text-violet-600">WELCOME BACK</span>
-            <h1 className="text-3xl md:text-4xl font-heading font-extrabold text-[#2E2A45] mt-4 leading-[1.05] tracking-tight">
-              Log in to your hub.
-            </h1>
+        {error && (
+          <div
+            role="alert"
+            className="rise-in tokens-small"
+            style={{
+              borderRadius: "var(--radius-small)",
+              backgroundColor: "var(--color-danger-bg)",
+              border: "1px solid color-mix(in srgb, var(--color-danger) 35%, transparent)",
+              color: "var(--color-danger)",
+              padding: "var(--space-3) var(--space-4)",
+              fontWeight: 600,
+              marginTop: "var(--space-6)",
+              animationDelay: "40ms",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <div style={{ marginTop: "var(--space-6)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+          <div className="rise-in" style={{ animationDelay: "80ms" }}>
+            <label htmlFor="email" className="label-token">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@my.nst.edu.ph"
+              className="input-token"
+              required
+            />
           </div>
 
-          <form onSubmit={onSubmit} className="space-y-0" noValidate>
-            <div className="mb-10">
-              <h2 className="font-heading text-2xl md:text-3xl font-bold text-[#2E2A45] tracking-tight">
-                Log in
-              </h2>
-            </div>
-
-            {error && (
-              <div
-                role="alert"
-                className="mb-6 px-4 py-3 rounded-xl bg-[#8b3a2c]/8 border border-[#8b3a2c]/20 text-sm font-medium text-[#8b3a2c]"
-              >
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-5">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-semibold text-[#5b5670] tracking-wider uppercase mb-2"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@my.nst.edu.ph"
-                  className="w-full px-4 py-4 text-base text-[#2E2A45] placeholder-[#5b5670]/50 bg-white border border-[#2E2A45]/15 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 min-h-[52px]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-xs font-semibold text-[#5b5670] tracking-wider uppercase mb-2"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-4 text-base text-[#2E2A45] placeholder-[#5b5670]/50 bg-white border border-[#2E2A45]/15 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all duration-200 min-h-[52px]"
-                  required
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={pending}
-              className="btn-editorial btn-editorial-primary w-full mt-8 py-4 text-base disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {pending ? "Logging in…" : "Log in"}
-            </button>
-
-            <div className="mt-8 pt-8 border-t border-[#2E2A45]/10 flex flex-col gap-4 text-sm text-[#5b5670]">
-              <Link
-                href="/"
-                className="font-medium text-[#2E2A45] hover:text-violet-600 transition-colors min-h-[44px] inline-flex items-center"
-              >
-                ← Back to home
-              </Link>
-              <p>
-                New student?{" "}
-                <Link
-                  href="/register"
-                  className="font-semibold text-violet-600 hover:text-violet-700 transition-colors"
-                >
-                  Create an account
-                </Link>
-              </p>
-            </div>
-          </form>
+          <div className="rise-in" style={{ animationDelay: "120ms" }}>
+            <label htmlFor="password" className="label-token">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="input-token"
+              required
+            />
+          </div>
         </div>
-      </div>
-    </main>
+
+        <div className="rise-in" style={{ marginTop: "var(--space-8)", animationDelay: "160ms" }}>
+          <button
+            type="submit"
+            disabled={pending}
+            className="tokens-btn tokens-btn-primary group w-full text-sm disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pending ? "Logging in…" : (
+              <>
+                Sign in
+                <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none">
+                  &rarr;
+                </span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div
+          className="rise-in"
+          style={{
+            marginTop: "var(--space-8)",
+            borderTop: "1px solid var(--color-line)",
+            paddingTop: "var(--space-6)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-3)",
+            animationDelay: "200ms",
+          }}
+        >
+          <Link
+            href="/"
+            className="inline-flex min-h-[44px] items-center text-sm font-medium transition-colors duration-200 motion-reduce:transition-none"
+            style={{ color: "var(--color-muted)" }}
+          >
+            &larr; Back to home
+          </Link>
+          <p className="text-sm" style={{ color: "var(--color-muted)" }}>
+            New student?{" "}
+            <Link
+              href="/register"
+              className="font-semibold transition-colors duration-200 motion-reduce:transition-none"
+              style={{ color: "var(--color-primary)" }}
+            >
+              Register &rarr;
+            </Link>
+          </p>
+        </div>
+      </form>
+    </AuthShell>
   );
 }
 
@@ -202,8 +192,11 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#F0EEFB]">
-          <div className="text-[#5b5670]">Loading…</div>
+        <div
+          className="flex min-h-screen items-center justify-center"
+          style={{ backgroundColor: "var(--color-background)", color: "var(--color-muted)" }}
+        >
+          <div className="tokens-body">Loading…</div>
         </div>
       }
     >

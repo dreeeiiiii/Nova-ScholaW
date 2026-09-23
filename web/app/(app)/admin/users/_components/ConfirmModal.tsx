@@ -38,7 +38,8 @@ export default function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -48,15 +49,16 @@ export default function ConfirmModal({
         role="dialog"
         aria-modal="true"
         aria-label="Deactivate user"
-        className="clay w-full max-w-md rounded-3xl bg-[#fdfaf3] p-6"
+        className="w-full max-w-md p-6"
+        style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}
       >
-        <h2 className="text-lg font-extrabold text-[#23344f]">Deactivate user?</h2>
-        <p className="mt-2 text-sm text-[#66758d]">They will not be able to log in until reactivated.</p>
-        <div className="mt-6 flex justify-end gap-3">
+        <h2 className="font-heading text-lg font-extrabold" style={{ color: "var(--color-text)" }}>Deactivate user?</h2>
+        <p className="tokens-small mt-2" style={{ color: "var(--color-muted)" }}>They will not be able to log in until reactivated.</p>
+        <div className="mt-6 flex justify-end gap-3" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full bg-[#f0e6d8] px-5 py-2 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm"
           >
             Cancel
           </button>
@@ -64,7 +66,8 @@ export default function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className="rounded-full bg-[#ffe1d1] px-5 py-2 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+            className="tokens-btn !min-h-[44px] !px-5 !py-2 text-sm font-bold disabled:opacity-60"
+            style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
           >
             {loading ? "Deactivating…" : "Confirm"}
           </button>

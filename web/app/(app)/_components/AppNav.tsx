@@ -14,7 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>> = {
   Dashboard: LayoutDashboard,
   Announcements: Megaphone,
   "Event Gallery": Images,
@@ -31,26 +31,52 @@ type NavItem = {
   label: string;
 };
 
+function isActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
+/**
+ * Desktop sidebar nav — editorial minimal.
+ * Active = primary left bar + soft tint. Icons monochrome thin-stroke.
+ * Token-only: no hardcoded hex, no legacy neumorphic classes.
+ */
 export default function AppNav({ navItems }: { navItems: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav data-testid="sidebar-nav" className="space-y-2" aria-label="School hub sections">
+    <nav data-testid="sidebar-nav" className="flex flex-col gap-1" aria-label="School hub sections">
       {navItems.map((item) => {
         const Icon = iconMap[item.label] ?? LayoutDashboard;
-        const active = pathname === item.href || pathname.startsWith(item.href + "/");
+        const active = isActive(pathname, item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
             data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-            className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold ${
-              active
-                ? "bg-[#d9efff] text-[#23446c] shadow-[inset_3px_3px_7px_#c5d9e8,inset_-3px_-3px_7px_#effaff]"
-                : "text-[#23344f] hover:translate-y-[-1px] hover:shadow-[5px_5px_11px_#d7d3ca,-4px_-4px_10px_#fff]"
-            }`}
+            aria-current={active ? "page" : undefined}
+            className="relative flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold transition-colors duration-300 motion-reduce:transition-none"
+            style={{
+              borderRadius: "var(--radius-medium)",
+              color: active ? "var(--color-text-strong)" : "var(--color-muted)",
+              backgroundColor: active ? "var(--color-primary-soft)" : "transparent",
+            }}
+            onMouseEnter={(e) => {
+              if (!active) e.currentTarget.style.backgroundColor = "var(--color-surface)";
+            }}
+            onMouseLeave={(e) => {
+              if (!active) e.currentTarget.style.backgroundColor = "transparent";
+            }}
           >
-            <Icon size={18} aria-hidden="true" />
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 transition-opacity duration-300 motion-reduce:transition-none"
+              style={{
+                borderRadius: "var(--radius-pill)",
+                backgroundColor: "var(--color-primary)",
+                opacity: active ? 1 : 0,
+              }}
+            />
+            <Icon size={18} strokeWidth={1.5} aria-hidden="true" />
             {item.label}
           </Link>
         );

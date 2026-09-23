@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Images, Plus } from "lucide-react";
 import { resolveMediaUrl } from "@/lib/url";
 import Lightbox from "./Lightbox";
+import { PageHeader } from "../../_components/PageHeader";
+import { EmptyState } from "../../_components/EmptyState";
 
 type Media = {
   id: number | string;
@@ -27,35 +30,74 @@ function formatDate(iso: string) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const cls =
+  const palette =
     status === "pending"
-      ? "bg-[#fef3c7] text-[#92400e]"
+      ? { bg: "var(--color-warning-bg)", fg: "var(--color-warning)" }
       : status === "approved"
-        ? "bg-success/15 text-success"
+        ? { bg: "var(--color-success-bg)", fg: "var(--color-success)" }
         : status === "rejected"
-          ? "bg-danger/15 text-danger"
-          : "bg-white text-text-muted";
-  return <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${cls}`}>{status}</span>;
+          ? { bg: "var(--color-danger-bg)", fg: "var(--color-danger)" }
+          : { bg: "var(--color-surface)", fg: "var(--color-muted)" };
+  return (
+    <span
+      className="tokens-small shrink-0"
+      style={{
+        borderRadius: "var(--radius-pill)",
+        padding: "2px var(--space-3)",
+        fontWeight: 700,
+        fontSize: "0.6875rem",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        backgroundColor: palette.bg,
+        color: palette.fg,
+      }}
+    >
+      {status}
+    </span>
+  );
 }
 
 export default function MyUploadsClient({ media, error }: { media: Media[]; error: string | null }) {
   const [selected, setSelected] = useState<Media | null>(null);
 
   if (error) {
-    return <div className="rounded-2xl bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{error}</div>;
+    return (
+      <div>
+        <PageHeader eyebrow="Contributions" title="My uploads" />
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            fontWeight: 600,
+          }}
+        >
+          {error}
+        </div>
+      </div>
+    );
   }
 
   if (media.length === 0) {
     return (
-      <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-        <p className="text-sm font-medium text-text-main">No uploads yet. Share a memory.</p>
-        <p className="mt-1 text-xs text-text-muted">Your submissions will appear here after upload.</p>
-        <Link
-          href="/gallery/upload"
-          className="mt-4 inline-block rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white"
-        >
-          Upload media
-        </Link>
+      <div>
+        <PageHeader
+          eyebrow="Contributions"
+          title="My uploads"
+          description="Track the status of your submissions."
+        />
+        <EmptyState
+          icon={<Images size={20} strokeWidth={1.5} aria-hidden="true" />}
+          message="No uploads yet. Share a memory."
+          action={
+            <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
+              <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
+              Upload media
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -77,60 +119,81 @@ export default function MyUploadsClient({ media, error }: { media: Media[]; erro
   const allGroups = hasKnown ? groups : fallbackGroup;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-heading text-2xl font-extrabold text-[#23344f]">My uploads</h1>
-        <p className="mt-1 text-sm text-text-muted">Track the status of your submissions.</p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Contributions"
+        title="My uploads"
+        description="Track the status of your submissions."
+        actions={
+          <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
+            <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
+            Upload media
+          </Link>
+        }
+      />
 
       {allGroups.map((group) => (
-        <section key={group.label} aria-label={group.label}>
-          <h2 className="mb-3 font-heading text-sm font-bold uppercase tracking-wide text-text-muted">
+        <section key={group.label} aria-label={group.label} style={{ marginBottom: "var(--space-12)" }}>
+          <h2 className="tokens-eyebrow" style={{ color: "var(--color-muted)", marginBottom: "var(--space-4)" }}>
             {group.label}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <ul style={{ borderTop: "1px solid var(--color-line)" }}>
             {group.items.map((m) => {
               const title = m.caption?.trim() ? m.caption : m.original_filename || "Untitled upload";
               const src = resolveMediaUrl(m.file_url);
               const categoryLabel = m.category_name || (m.category_id ? `Category #${m.category_id}` : "Uncategorized");
               return (
-                <div key={String(m.id)} className="clay overflow-hidden rounded-3xl bg-[#fdfaf3]">
+                <li
+                  key={String(m.id)}
+                  className="flex min-h-[44px] gap-4"
+                  style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+                >
                   <button
                     type="button"
                     onClick={() => setSelected(m)}
-                    className="block w-full text-left focus:outline-none"
+                    aria-label={`Open ${title}`}
+                    className="block h-20 w-20 shrink-0 overflow-hidden"
+                    style={{ backgroundColor: "var(--color-background-deep)" }}
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-[#fbf7ef]">
-                      {m.media_type === "video" ? (
-                        <div className="relative h-full w-full">
-                          <video src={src} preload="metadata" className="h-full w-full object-cover" />
-                          <span className="absolute inset-0 flex items-center justify-center bg-black/20">
-                            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90">▶</span>
-                          </span>
-                        </div>
-                      ) : (
-                        <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
-                      )}
-                    </div>
+                    {m.media_type === "video" ? (
+                      <video src={src} preload="metadata" className="h-full w-full object-cover" />
+                    ) : (
+                      <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    )}
                   </button>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="truncate text-sm font-bold text-[#23344f]">{title}</p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <button
+                        type="button"
+                        onClick={() => setSelected(m)}
+                        className="truncate text-left text-sm font-bold"
+                        style={{ color: "var(--color-text)", maxWidth: "100%" }}
+                      >
+                        {title}
+                      </button>
                       <StatusBadge status={m.status} />
                     </div>
-                    <p className="mt-1 text-xs text-text-muted">
+                    <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>
                       {categoryLabel} · {formatDate(m.created_at)}
                     </p>
                     {m.status === "rejected" && m.rejection_reason && (
-                      <div className="mt-2 rounded-xl bg-danger/10 px-3 py-2 text-xs leading-relaxed text-danger">
+                      <p
+                        className="tokens-small mt-2"
+                        style={{
+                          borderRadius: "var(--radius-small)",
+                          backgroundColor: "var(--color-danger-bg)",
+                          color: "var(--color-danger)",
+                          padding: "var(--space-2) var(--space-3)",
+                        }}
+                      >
                         <span className="font-bold">Reason:</span> {m.rejection_reason}
-                      </div>
+                      </p>
                     )}
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </section>
       ))}
 

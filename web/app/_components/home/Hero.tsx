@@ -1,118 +1,154 @@
 import Link from "next/link";
 
+const TRUST_ITEMS = ["Official announcements", "Moderated gallery", "Role-based access"];
+
+/**
+ * Asymmetric editorial hero (60/40 grid, oversized headline, tall visual).
+ * Token-only. Staggered rise-in on load, disabled under reduced motion.
+ */
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center pt-16 md:pt-20 pb-20 md:pb-32 overflow-hidden bg-base">
-      <div className="absolute inset-0" aria-hidden="true">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[900px] organic-shape bg-primary/5 blur-[200px]" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-      </div>
+    <section
+      className="relative overflow-hidden"
+      style={{ backgroundColor: "var(--color-background)" }}
+      aria-labelledby="hero-heading"
+    >
+      <style>{`
+        .rise-in {
+          opacity: 0;
+          animation: rise-in 500ms ease-out forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .rise-in { opacity: 1; animation: none; transform: none; }
+        }
+      `}</style>
 
-      <div className="container-editorial relative z-10">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          <div className="lg:col-span-7 lg:col-start-1 flex flex-col justify-center min-h-[65vh] md:min-h-[75vh]">
-            <div className="fade-up stagger-2 mt-5 md:mt-8">
-              <h1 className="text-hero font-heading text-text-main text-balance leading-[0.9] tracking-tight">
-                A better way for<br />
-                schools to<br />
+      {/* Oversized faint editorial numeral */}
+      <span
+        aria-hidden="true"
+        className="font-heading pointer-events-none absolute -top-6 right-0 hidden select-none font-extrabold lg:block"
+        style={{ fontSize: "clamp(10rem, 22vw, 20rem)", lineHeight: 1, color: "var(--color-text)", opacity: 0.05 }}
+      >
+        01
+      </span>
+
+      <div className="tokens-container relative">
+        <div className="grid items-center gap-12 pb-16 pt-28 md:pb-24 md:pt-36 lg:grid-cols-12 lg:gap-8 lg:pb-32 lg:pt-44">
+          {/* Left — copy (~7 cols) */}
+          <div className="lg:col-span-7">
+            <p
+              className="tokens-eyebrow rise-in"
+              style={{ color: "var(--color-muted)", display: "inline-flex", alignItems: "center", gap: "var(--space-2)", animationDelay: "0ms" }}
+            >
+              <span
+                aria-hidden="true"
+                style={{ width: "8px", height: "8px", borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-accent)", flexShrink: 0 }}
+              />
+              Nova Schola Tanauan
+            </p>
+
+            <h1
+              id="hero-heading"
+              className="tokens-heading-1 rise-in text-balance"
+              style={{ color: "var(--color-text)", marginTop: "var(--space-6)", animationDelay: "100ms" }}
+            >
+              A better way for schools to{" "}
+              <span className="relative inline-block" style={{ color: "var(--color-primary)" }}>
                 communicate.
-              </h1>
-            </div>
-            <div className="fade-up stagger-3 mt-7 md:mt-10 max-w-xl">
-              <p className="text-body-lg text-text-muted leading-relaxed">
-                Official announcements, targeted class updates, and a moderated event gallery —
-                built for how a school actually communicates.
-              </p>
-            </div>
-            <div className="fade-up stagger-4 mt-9 md:mt-12 flex flex-wrap items-center gap-4">
-              <Link href="/register" className="btn-editorial btn-editorial-primary">
-                Get started
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 220 12"
+                  preserveAspectRatio="none"
+                  className="absolute -bottom-1 left-0 w-full"
+                  style={{ height: "0.14em", color: "var(--color-primary)" }}
+                >
+                  <path d="M3 9 C 60 3, 160 3, 217 8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.45" />
                 </svg>
-              </Link>
-              <Link href="/gallery" className="btn-editorial btn-editorial-secondary">
-                Browse gallery
-              </Link>
-            </div>
-            <div className="fade-up stagger-5 mt-10 flex flex-wrap items-center gap-6 text-sm text-text-muted">
+              </span>
+            </h1>
 
+            <p
+              className="tokens-body-lg rise-in"
+              style={{ color: "var(--color-muted)", marginTop: "var(--space-6)", maxWidth: "52ch", textWrap: "pretty", animationDelay: "200ms" }}
+            >
+              Official announcements, targeted class updates, and a moderated event gallery — built for
+              how a school actually communicates.
+            </p>
+
+            <div className="rise-in" style={{ marginTop: "var(--space-8)", display: "flex", gap: "var(--space-4)", flexWrap: "wrap", animationDelay: "300ms" }}>
+              <Link href="/register" className="tokens-btn tokens-btn-primary group">
+                Explore the Platform
+                <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none">
+                  &rarr;
+                </span>
+              </Link>
+              <Link href="#how-to-use" className="tokens-btn tokens-btn-secondary">
+                See How It Works
+              </Link>
             </div>
+
+            <ul
+              className="rise-in"
+              aria-label="Platform highlights"
+              style={{ marginTop: "var(--space-8)", display: "flex", gap: "var(--space-6)", flexWrap: "wrap", animationDelay: "350ms" }}
+            >
+              {TRUST_ITEMS.map((item) => (
+                <li
+                  key={item}
+                  className="tokens-small"
+                  style={{ color: "var(--color-muted)", display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{ width: "6px", height: "6px", borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-primary)", flexShrink: 0 }}
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <div className="lg:col-span-5 lg:col-start-8 relative scale-in">
-            <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0">
-              <div className="absolute inset-0 organic-shape bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/10 blur-[100px] opacity-60" aria-hidden="true" />
-              <div className="absolute inset-0 organic-shape-2 bg-gradient-to-tr from-primary/10 to-transparent blur-[80px] opacity-40" aria-hidden="true" />
-
-              <div className="relative z-10 absolute inset-0 organic-shape bg-base border border-primary/10 flex items-center justify-center overflow-hidden">
-                <div className="relative w-full h-full flex items-center justify-center p-6 md:p-10">
-                  <svg
-                    width="100%"
-                    height="100%"
-                    viewBox="0 0 380 500"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    className="text-primary/25"
-                  >
-                    <defs>
-                      <pattern id="gridHero" width="38" height="38" patternUnits="userSpaceOnUse">
-                        <path d="M 38 0 L 0 0 0 38" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.25" />
-                      </pattern>
-                    </defs>
-                    <rect width="380" height="500" fill="url(#gridHero)" rx="28" />
-
-                    <g transform="translate(50, 60)" opacity="0.7">
-                      <rect x="0" y="0" width="280" height="170" rx="14" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.3" />
-                      <rect x="20" y="20" width="240" height="5" rx="2.5" fill="currentColor" fillOpacity="0.35" />
-                      <rect x="20" y="33" width="190" height="3.5" rx="1.75" fill="currentColor" fillOpacity="0.2" />
-                      <rect x="20" y="44" width="140" height="3.5" rx="1.75" fill="currentColor" fillOpacity="0.15" />
-                      <rect x="20" y="65" width="100" height="40" rx="10" fill="currentColor" fillOpacity="0.2" />
-                    </g>
-
-                    <g transform="translate(50, 260)" opacity="0.55">
-                      <circle cx="55" cy="55" r="48" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.08" />
-                      <path d="M35 55h40M55 35v40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </g>
-
-                    <g transform="translate(260, 360)" opacity="0.45">
-                      <rect x="0" y="0" width="80" height="80" rx="18" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
-                      <path d="M22 40h36M40 22v36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </g>
-
-                    <g transform="translate(40, 430)" opacity="0.35">
-                      <path d="M0 35 Q30 0 60 35 Q90 70 120 35" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.08" />
-                    </g>
-                  </svg>
-                </div>
-
-                <div className="absolute -bottom-5 -right-5 md:-bottom-8 md:-right-8 fade-up stagger-6">
-                  <div className="organic-shape bg-primary p-4 md:p-5 shadow-[0_24px_48px_rgba(167,139,250,0.35)]">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" aria-hidden="true">
-                      <path d="M21 15.5c0 2.5-2 4.5-4.5 4.5S12 18 12 15.5" />
-                      <path d="M16 9h.01M16 14.5h.01" />
-                      <circle cx="9" cy="9.5" r="5.5" />
-                      <path d="M17 20h.01" />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="absolute -top-5 -left-5 md:-top-8 md:-left-8 fade-up stagger-5">
-                  <div className="organic-shape-3 bg-base border border-primary/20 p-3 md:p-4 shadow-[0_12px_32px_rgba(46,42,69,0.15)]">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary" aria-hidden="true">
-                      <rect x="3" y="3" width="18" height="18" rx="3" />
-                      <path d="M9 9h6M9 12h4M9 15h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                </div>
+          {/* Right — visual (~5 cols, tall, overlaps text column) */}
+          <div className="lg:col-span-5">
+            <figure
+              className="rise-in relative"
+              style={{ animationDelay: "400ms" }}
+            >
+              <div
+                className="relative overflow-hidden"
+                style={{
+                  borderRadius: "var(--radius-large)",
+                  boxShadow: "var(--shadow-medium)",
+                  aspectRatio: "4 / 5",
+                }}
+              >
+                <img
+                  src="https://images.pexels.com/photos/18587790/pexels-photo-18587790.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                  alt="Students gathered at a Nova Schola school event"
+                  className="h-full w-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                />
               </div>
-            </div>
+              <figcaption
+                className="tokens-small absolute bottom-4 left-4"
+                style={{
+                  backgroundColor: "var(--color-surface)",
+                  color: "var(--color-text)",
+                  borderRadius: "var(--radius-pill)",
+                  padding: "var(--space-2) var(--space-4)",
+                  boxShadow: "var(--shadow-subtle)",
+                }}
+              >
+                Field Day 2026 · Tanauan Campus
+              </figcaption>
+            </figure>
           </div>
         </div>
-      </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-32 md:h-48 bg-gradient-to-t from-base to-transparent pointer-events-none" aria-hidden="true" />
+        {/* Thin editorial rule */}
+        <div aria-hidden="true" className="h-px w-full" style={{ backgroundColor: "var(--color-line)" }} />
+      </div>
     </section>
   );
 }

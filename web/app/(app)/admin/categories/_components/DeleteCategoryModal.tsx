@@ -68,7 +68,8 @@ export default function DeleteCategoryModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -78,20 +79,21 @@ export default function DeleteCategoryModal({
         role="dialog"
         aria-modal="true"
         aria-label="Delete category"
-        className="clay max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-[#fdfaf3] p-4 sm:p-6"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto p-4 sm:p-6"
+        style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}
       >
-        <h2 className="text-lg font-extrabold text-[#23344f]">Delete &ldquo;{category.name}&rdquo;?</h2>
-        <p className="mt-2 text-sm text-[#66758d]">
+        <h2 className="font-heading text-lg font-extrabold" style={{ color: "var(--color-text)", borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>Delete &ldquo;{category.name}&rdquo;?</h2>
+        <p className="tokens-small mt-4" style={{ color: "var(--color-muted)" }}>
           Media in this category will have its category cleared. The media itself is not deleted.
         </p>
 
-        {error && <p className="mt-3 rounded-xl bg-[#ffe1d1] px-3 py-2 text-sm font-medium text-[#6b3d27]">{error}</p>}
+        {error && <p className="tokens-small mt-3 font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-2) var(--space-3)" }}>{error}</p>}
 
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-full bg-[#f0e6d8] px-5 py-2.5 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] sm:w-auto"
+            className="tokens-btn tokens-btn-secondary w-full !min-h-[44px] text-sm sm:w-auto"
           >
             Cancel
           </button>
@@ -99,7 +101,8 @@ export default function DeleteCategoryModal({
             type="button"
             onClick={handleDelete}
             disabled={submitting}
-            className="w-full rounded-full bg-[#ffe1d1] px-5 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60 min-h-[44px] sm:w-auto"
+            className="tokens-btn w-full !min-h-[44px] text-sm font-bold disabled:opacity-60 sm:w-auto"
+            style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
           >
             {submitting ? "Deleting…" : "Delete"}
           </button>

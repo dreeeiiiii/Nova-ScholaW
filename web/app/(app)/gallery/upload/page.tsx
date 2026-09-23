@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
 import UploadForm from "../_components/UploadForm";
+import { PageHeader } from "../../_components/PageHeader";
 
 export default async function UploadPage() {
   const user = await getCurrentUser();
@@ -17,14 +19,17 @@ export default async function UploadPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <p className="text-sm font-bold tracking-wide text-[#315c86]">CONTRIBUTE RESPONSIBLY</p>
-        <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Upload event media</h1>
-        <p className="mt-2 text-sm leading-relaxed text-text-muted">
-          Share a school-event memory for admin review and category approval.
-        </p>
-      </div>
+    <div className="mx-auto max-w-3xl">
+      <PageHeader
+        eyebrow="Contribute responsibly"
+        title="Upload event media"
+        description="Share a school-event memory for admin review and category approval."
+        actions={
+          <Link href="/gallery" className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm">
+            &larr; Back to gallery
+          </Link>
+        }
+      />
 
       <UploadForm categories={categories} />
     </div>

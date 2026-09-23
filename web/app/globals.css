@@ -1,3 +1,4 @@
+@import "./tokens.css";
 @import "tailwindcss";
 
 @layer base {
@@ -6,8 +7,8 @@
   }
 
   body {
-    background-color: #F0EEFB;
-    color: #2E2A45;
+    background-color: var(--color-background);
+    color: var(--color-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -30,59 +31,67 @@
 }
 
 @layer components {
-  .clay-card {
-    background-color: #FBFAFF;
-    box-shadow:
-      6px 6px 14px rgba(167, 139, 250, 0.2),
-      -4px -4px 10px rgba(255, 255, 255, 0.8) inset;
-    border-radius: 28px;
+  /* Token form primitives (Steps 8a/8b internal recipe) + admin table spec. */
+  .input-token {
+    display: block;
+    width: 100%;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-small);
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text);
+    min-height: 44px;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
   }
-
-  .clay-btn {
-    box-shadow:
-      4px 4px 10px rgba(167, 139, 250, 0.2),
-      -3px -3px 8px rgba(255, 255, 255, 0.8) inset;
-    border-radius: 16px;
+  .input-token::placeholder {
+    color: var(--color-muted);
+    opacity: 0.7;
   }
-
-  .clay-btn-sm {
-    box-shadow:
-      3px 3px 7px rgba(167, 139, 250, 0.14),
-      -2px -2px 5px rgba(255, 255, 255, 0.7) inset;
-    border-radius: 12px;
-  }
-
-  .clay-input {
-    background-color: #F0EEFB;
-    box-shadow:
-      inset 4px 4px 8px rgba(167, 139, 250, 0.15),
-      inset -3px -3px 6px rgba(255, 255, 255, 0.7);
-    border-radius: 16px;
-  }
-
-  .clay-input:focus {
+  .input-token:focus {
     outline: none;
-    box-shadow:
-      inset 4px 4px 8px rgba(167, 139, 250, 0.15),
-      inset -3px -3px 6px rgba(255, 255, 255, 0.7),
-      0 0 0 2px #a78bfa;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-focus);
+  }
+  .label-token {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 0.375rem;
   }
 
-  .clay-pill {
-    background-color: #FBFAFF;
-    box-shadow:
-      3px 3px 7px rgba(167, 139, 250, 0.14),
-      -2px -2px 5px rgba(255, 255, 255, 0.7) inset;
-    border-radius: 9999px;
+  /* Admin table spec (Step 8b Phase 3 — single source of truth).
+     No outer card/border; header = uppercase muted + line-strong rule;
+     rows = 1px line dividers (incl. last row, matching list language);
+     hover tint aids row scanning. */
+  .table-token {
+    width: 100%;
+    text-align: left;
+    font-size: 0.875rem;
+    border-collapse: collapse;
   }
-
-  .clay-badge {
-    background-color: #FBFAFF;
-    box-shadow:
-      2px 2px 5px rgba(167, 139, 250, 0.12),
-      -1px -1px 3px rgba(255, 255, 255, 0.7) inset;
-    border-radius: 9999px;
-    font-weight: 500;
+  .table-token th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-line-strong);
+    white-space: nowrap;
+  }
+  .table-token td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--color-line);
+    vertical-align: middle;
+    color: var(--color-text);
+  }
+  .table-token tbody tr:hover {
+    background-color: var(--color-surface);
   }
 }
 
@@ -91,177 +100,20 @@
     text-wrap: balance;
   }
 
-  .container-editorial {
-    max-width: 1400px;
-    margin-inline: auto;
-    padding-inline: 1.5rem;
+  /* Shared mount-reveal (Hero + auth; merged Step 10 — was hero-rise/auth-rise). */
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  @media (min-width: 640px) {
-    .container-editorial {
-      padding-inline: 2.5rem;
-    }
-  }
-  @media (min-width: 1280px) {
-    .container-editorial {
-      max-width: 1600px;
-      padding-inline: 4rem;
-    }
-  }
-
-  .text-eyebrow {
-    font-size: 0.75rem;
-    line-height: 1.4;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  @media (min-width: 768px) {
-    .text-eyebrow {
-      font-size: 0.875rem;
-    }
-  }
-
-  .text-hero {
-    font-size: clamp(3.5rem, 10vw, 9rem);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
-    font-weight: 800;
-  }
-
-  .text-section {
-    font-size: clamp(2.5rem, 6vw, 6rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    font-weight: 800;
-  }
-
-  .text-body-lg {
-    font-size: 1.125rem;
-    line-height: 1.7;
-  }
-  @media (min-width: 768px) {
-    .text-body-lg {
-      font-size: 1.25rem;
-    }
-  }
-
-  .section-space {
-    padding-block: 8rem;
-  }
-  @media (min-width: 768px) {
-    .section-space {
-      padding-block: 10rem;
-    }
-  }
-  @media (min-width: 1280px) {
-    .section-space {
-      padding-block: 12rem;
-    }
-  }
-
-  .section-space-sm {
-    padding-block: 5rem;
-  }
-  @media (min-width: 768px) {
-    .section-space-sm {
-      padding-block: 6rem;
-    }
-  }
-  @media (min-width: 1280px) {
-    .section-space-sm {
-      padding-block: 7rem;
-    }
-  }
-
-  .btn-editorial {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem 2rem;
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    border-radius: 9999px;
-    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .btn-editorial-primary {
-    background-color: #2E2A45;
-    color: #FBFAFF;
-  }
-  .btn-editorial-primary:hover {
-    background-color: #1a1828;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(46, 42, 69, 0.3);
-  }
-  .btn-editorial-secondary {
-    background-color: transparent;
-    color: #2E2A45;
-    border: 1px solid #2E2A45;
-  }
-  .btn-editorial-secondary:hover {
-    background-color: #2E2A45;
-    color: #FBFAFF;
-    transform: translateY(-2px);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .btn-editorial {
-      transition: none;
-    }
-  }
-
-  .fade-up {
+  .rise-in {
     opacity: 0;
-    transform: translateY(24px);
-    animation: fadeUp 0.8s ease-out forwards;
-  }
-  @keyframes fadeUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    animation: rise-in 500ms ease-out forwards;
   }
   @media (prefers-reduced-motion: reduce) {
-    .fade-up {
-      animation: none;
+    .rise-in {
       opacity: 1;
+      animation: none;
       transform: none;
     }
-  }
-
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
-  .stagger-5 { animation-delay: 0.5s; }
-  .stagger-6 { animation-delay: 0.6s; }
-
-  .scale-in {
-    opacity: 0;
-    transform: scale(0.96);
-    animation: scaleIn 0.8s ease-out forwards;
-  }
-  @keyframes scaleIn {
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .scale-in {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  .organic-shape {
-    border-radius: 40% 60% 65% 35% / 45% 40% 60% 55%;
-  }
-  .organic-shape-2 {
-    border-radius: 55% 45% 60% 40% / 50% 55% 45% 50%;
-  }
-  .organic-shape-3 {
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
   }
 }

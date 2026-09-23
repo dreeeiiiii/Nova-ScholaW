@@ -1,7 +1,9 @@
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
 import AnnouncementForm from "../../_components/AnnouncementForm";
+import { PageHeader } from "../../../_components/PageHeader";
 
 export default async function EditAnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
@@ -73,6 +75,15 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
 
   return (
     <div className="mx-auto max-w-3xl">
+      <PageHeader
+        eyebrow="Official updates"
+        title="Edit announcement"
+        actions={
+          <Link href="/announcements" className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm">
+            &larr; Back to announcements
+          </Link>
+        }
+      />
       <AnnouncementForm mode="edit" initial={initial} />
     </div>
   );

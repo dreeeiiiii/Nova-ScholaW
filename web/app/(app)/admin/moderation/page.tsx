@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
 import ModerationTabs from "./_components/ModerationTabs";
+import { PageHeader } from "../../_components/PageHeader";
+import { ShieldCheck } from "lucide-react";
 
 type PendingMedia = {
   id: number | string;
@@ -34,25 +36,38 @@ export default async function ModerationPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <span className="text-sm font-bold text-[#315c86]">ROLE-AWARE WORKSPACE</span>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Admin Moderation</h1>
-        </div>
-        <span className="rounded-full bg-[#e7defb] px-3 py-2 text-xs font-bold text-[#563d86]">
-          Admin view &middot; Prototype
-        </span>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Workspace"
+        title="Admin Moderation"
+        description="Review pending uploads before they go public."
+        actions={
+          <span
+            className="tokens-small inline-flex min-h-[44px] items-center"
+            style={{
+              borderRadius: "var(--radius-pill)",
+              border: "1px solid var(--color-line)",
+              color: "var(--color-muted)",
+              padding: "var(--space-2) var(--space-4)",
+              fontWeight: 700,
+            }}
+          >
+            Admin view · Prototype
+          </span>
+        }
+      />
 
-      <div className="clay flex gap-3 rounded-3xl bg-[#ffe1d1] p-5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          className="shrink-0 text-[#6b3d27]">
-          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
-          <path d="m9 12 2 2 4-4"/>
-        </svg>
-        <p className="text-sm font-semibold text-[#6b3d27]">
+      <div
+        className="flex gap-3"
+        style={{
+          borderRadius: "var(--radius-small)",
+          backgroundColor: "var(--color-warning-bg)",
+          padding: "var(--space-4)",
+          marginBottom: "var(--space-8)",
+        }}
+      >
+        <ShieldCheck size={20} strokeWidth={1.5} aria-hidden="true" className="shrink-0" style={{ color: "var(--color-warning)" }} />
+        <p className="text-sm font-semibold" style={{ color: "var(--color-warning)" }}>
           All announcements, uploads, approvals, and rejections are logged in this capstone prototype.
         </p>
       </div>

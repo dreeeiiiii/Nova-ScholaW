@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { History } from "lucide-react";
+import { EmptyState } from "../../../_components/EmptyState";
 
 type AuditLog = {
   id: number | string;
@@ -66,6 +68,53 @@ function formatDetails(details: unknown): string | null {
   return String(details);
 }
 
+function FilterBar({
+  action,
+  entityType,
+  onActionChange,
+  onEntityChange,
+}: {
+  action?: string;
+  entityType?: string;
+  onActionChange: (value: string) => void;
+  onEntityChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-4 sm:flex-row">
+      <label className="w-full flex-1">
+        <span className="label-token">Action</span>
+        <select
+          value={action ?? ""}
+          onChange={(e) => onActionChange(e.target.value)}
+          className="input-token"
+        >
+          <option value="">All actions</option>
+          {ACTION_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="w-full flex-1">
+        <span className="label-token">Entity type</span>
+        <select
+          value={entityType ?? ""}
+          onChange={(e) => onEntityChange(e.target.value)}
+          className="input-token"
+        >
+          <option value="">All entities</option>
+          {ENTITY_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 export default function AuditLogTable({
   initialLogs,
   initialTotal,
@@ -85,10 +134,12 @@ export default function AuditLogTable({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setLogs(initialLogs);
   }, [initialLogs]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setTotal(initialTotal);
   }, [initialTotal]);
 
@@ -146,192 +197,106 @@ export default function AuditLogTable({
 
   if (logs.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:flex-row">
-          <label className="flex w-full flex-1 flex-col gap-1 text-sm">
-            <span className="text-xs font-bold text-[#23344f]">Action</span>
-            <select
-              value={action ?? ""}
-              onChange={(e) => handleActionChange(e.target.value)}
-              className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
-            >
-              <option value="">All actions</option>
-              {ACTION_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex w-full flex-1 flex-col gap-1 text-sm">
-            <span className="text-xs font-bold text-[#23344f]">Entity type</span>
-            <select
-              value={entityType ?? ""}
-              onChange={(e) => handleEntityChange(e.target.value)}
-              className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
-            >
-              <option value="">All entities</option>
-              {ENTITY_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-          <p className="text-sm font-medium text-[#23344f]">No audit logs</p>
+      <div>
+        <FilterBar action={action} entityType={entityType} onActionChange={handleActionChange} onEntityChange={handleEntityChange} />
+        <div style={{ marginTop: "var(--space-6)" }}>
+          <EmptyState
+            icon={<History size={20} strokeWidth={1.5} aria-hidden="true" />}
+            message="No audit logs."
+          />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {/* Filter bar */}
-      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:flex-row">
-        <label className="flex w-full flex-1 flex-col gap-1 text-sm">
-          <span className="text-xs font-bold text-[#23344f]">Action</span>
-          <select
-            value={action ?? ""}
-            onChange={(e) => handleActionChange(e.target.value)}
-            className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
-          >
-            <option value="">All actions</option>
-            {ACTION_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex w-full flex-1 flex-col gap-1 text-sm">
-          <span className="text-xs font-bold text-[#23344f]">Entity type</span>
-          <select
-            value={entityType ?? ""}
-            onChange={(e) => handleEntityChange(e.target.value)}
-            className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
-          >
-            <option value="">All entities</option>
-            {ENTITY_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <FilterBar action={action} entityType={entityType} onActionChange={handleActionChange} onEntityChange={handleEntityChange} />
 
-      {/* Desktop table */}
-      <div className="hidden md:block">
-        <div className="clay overflow-hidden rounded-3xl bg-[#fdfaf3]">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#fbf7ef] text-xs font-bold text-[#66758d]">
-                <tr>
-                  <th className="px-4 py-3">Time</th>
-                  <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3">Action</th>
-                  <th className="px-4 py-3">Entity</th>
-                  <th className="px-4 py-3">Details</th>
-                  <th className="px-4 py-3">IP</th>
+      <p className="tokens-small" style={{ color: "var(--color-muted)", marginTop: "var(--space-4)" }}>
+        {total} entr{total === 1 ? "y" : "ies"}
+      </p>
+
+      {/* Table (horizontal scroll on small screens) */}
+      <div className="overflow-x-auto" style={{ marginTop: "var(--space-4)" }}>
+        <table className="table-token min-w-[760px]">
+          <thead>
+            <tr>
+              <th scope="col">Time</th>
+              <th scope="col">User</th>
+              <th scope="col">Action</th>
+              <th scope="col">Entity</th>
+              <th scope="col">Details</th>
+              <th scope="col" style={{ textAlign: "right" }}>IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map((log) => {
+              const detailsRaw = formatDetails(log.details);
+              const isExpanded = expanded.has(String(log.id));
+              const displayDetails = detailsRaw ?? "—";
+              const truncated = !isExpanded && displayDetails.length > 120 ? displayDetails.slice(0, 120) + "…" : displayDetails;
+              const needsTruncate = displayDetails.length > 120;
+              return (
+                <tr key={String(log.id)}>
+                  <td className="whitespace-nowrap tabular-nums tokens-small" style={{ color: "var(--color-text)" }}>{formatTime(log.created_at)}</td>
+                  <td>
+                    <span className="block text-sm font-semibold">{log.user_name ?? "—"}</span>
+                    <span className="tokens-small block" style={{ color: "var(--color-muted)" }}>{log.user_email ?? ""}</span>
+                  </td>
+                  <td>
+                    <span
+                      className="tokens-small"
+                      style={{
+                        borderRadius: "var(--radius-pill)",
+                        padding: "2px var(--space-3)",
+                        fontWeight: 700,
+                        fontSize: "0.6875rem",
+                        backgroundColor: "var(--color-primary-soft)",
+                        color: "var(--color-primary-ink)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {log.action}
+                    </span>
+                  </td>
+                  <td className="tokens-small whitespace-nowrap" style={{ color: "var(--color-muted)" }}>
+                    {log.entity_type ?? "—"}
+                    {log.entity_id != null ? ` #${String(log.entity_id)}` : ""}
+                  </td>
+                  <td className="max-w-[260px]">
+                    {detailsRaw === null ? (
+                      <span className="tokens-small" style={{ color: "var(--color-muted)" }}>—</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => needsTruncate && toggleExpand(log.id)}
+                        className={`block text-left font-mono text-xs ${needsTruncate ? "cursor-pointer hover:underline" : ""} min-h-[44px] py-2`}
+                        style={{ color: "var(--color-text)" }}
+                        title={needsTruncate && !isExpanded ? "Click to expand" : undefined}
+                      >
+                        {truncated}
+                      </button>
+                    )}
+                  </td>
+                  <td className="tokens-small whitespace-nowrap" style={{ color: "var(--color-muted)", textAlign: "right" }}>{log.ip_address ?? "—"}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => {
-                  const detailsRaw = formatDetails(log.details);
-                  const isExpanded = expanded.has(String(log.id));
-                  const displayDetails = detailsRaw ?? "—";
-                  const truncated = !isExpanded && displayDetails.length > 120 ? displayDetails.slice(0, 120) + "…" : displayDetails;
-                  const needsTruncate = displayDetails.length > 120;
-                  return (
-                    <tr key={String(log.id)} className="border-t border-[#f0e6d8]">
-                      <td className="whitespace-nowrap px-4 py-3 text-xs text-[#23344f]">{formatTime(log.created_at)}</td>
-                      <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-[#23344f]">{log.user_name ?? "—"}</div>
-                        <div className="text-xs text-[#66758d]">{log.user_email ?? ""}</div>
-                      </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-[#23344f]">{log.action}</td>
-                      <td className="px-4 py-3 text-xs text-[#66758d]">
-                        {log.entity_type ?? "—"}
-                        {log.entity_id != null ? ` #${String(log.entity_id)}` : ""}
-                      </td>
-                      <td className="max-w-[260px] px-4 py-3">
-                        {detailsRaw === null ? (
-                          <span className="text-xs text-[#66758d]">—</span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => needsTruncate && toggleExpand(log.id)}
-                            className={`text-left font-mono text-xs ${needsTruncate ? "cursor-pointer hover:underline" : ""} text-[#23344f] min-h-[44px] py-2`}
-                            title={needsTruncate && !isExpanded ? "Click to expand" : undefined}
-                          >
-                            {truncated}
-                          </button>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-[#66758d]">{log.ip_address ?? "—"}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
-      {/* Mobile cards */}
-      <div className="grid gap-4 md:hidden">
-        {logs.map((log) => {
-          const detailsRaw = formatDetails(log.details);
-          const isExpanded = expanded.has(String(log.id));
-          const displayDetails = detailsRaw ?? "—";
-          const truncated = !isExpanded && displayDetails.length > 120 ? displayDetails.slice(0, 120) + "…" : displayDetails;
-          const needsTruncate = displayDetails.length > 120;
-          return (
-            <div key={String(log.id)} className="clay rounded-3xl bg-[#fdfaf3] p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="rounded-full bg-[#e7defb] px-3 py-1 text-xs font-bold text-[#563d86]">{log.action}</span>
-                <span className="text-xs text-[#66758d]">{formatTime(log.created_at)}</span>
-              </div>
-              <div className="mt-3 space-y-1 text-sm">
-                <p className="font-medium text-[#23344f]">
-                  {log.user_name ?? "—"} <span className="font-normal text-[#66758d]">{log.user_email ?? ""}</span>
-                </p>
-                <p className="text-xs text-[#66758d]">
-                  Entity: {log.entity_type ?? "—"}
-                  {log.entity_id != null ? ` #${String(log.entity_id)}` : ""}
-                </p>
-                <p className="text-xs text-[#66758d]">IP: {log.ip_address ?? "—"}</p>
-              </div>
-              <div className="mt-3">
-                {detailsRaw === null ? (
-                  <p className="text-xs text-[#66758d]">—</p>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => needsTruncate && toggleExpand(log.id)}
-                    className={`text-left font-mono text-xs ${needsTruncate ? "cursor-pointer hover:underline" : ""} text-[#23344f]`}
-                  >
-                    {truncated}
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {loadError && <p className="text-sm font-medium text-[#6b3d27]">{loadError}</p>}
+      {loadError && <p className="tokens-small mt-4 font-medium" style={{ color: "var(--color-danger)" }}>{loadError}</p>}
 
       {logs.length < total && (
-        <div className="flex justify-center">
+        <div className="flex justify-center" style={{ marginTop: "var(--space-6)" }}>
           <button
             type="button"
             onClick={handleLoadMore}
             disabled={loading}
-            className="w-full rounded-full bg-[#d9efff] px-6 py-2.5 text-sm font-bold text-[#315c86] hover:brightness-95 disabled:opacity-60 min-h-[44px] sm:w-auto"
+            className="tokens-btn tokens-btn-secondary w-full !min-h-[44px] text-sm disabled:opacity-60 sm:w-auto"
           >
             {loading ? "Loading…" : "Load more"}
           </button>

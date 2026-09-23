@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch, ApiError } from "@/lib/api";
 import AuditLogTable from "./_components/AuditLogTable";
+import { PageHeader } from "../../_components/PageHeader";
 
 type AuditLog = {
   id: number | string;
@@ -55,24 +56,35 @@ export default async function AuditLogsPage({
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <span className="text-sm font-bold text-[#315c86]">ROLE-AWARE WORKSPACE</span>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Audit Logs</h1>
-          <p className="mt-2 text-sm text-[#66758d]">Every write action across the app, newest first.</p>
+      <div>
+        <PageHeader
+          eyebrow="Workspace"
+          title="Audit Logs"
+          description="Every write action across the app, newest first."
+        />
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            fontWeight: 600,
+          }}
+        >
+          {error}
         </div>
-        <div className="rounded-2xl bg-[#ffe1d1] px-4 py-3 text-sm font-medium text-[#6b3d27]">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-sm font-bold text-[#315c86]">ROLE-AWARE WORKSPACE</span>
-        <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Audit Logs</h1>
-        <p className="mt-2 text-sm text-[#66758d]">Every write action across the app, newest first.</p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Workspace"
+        title="Audit Logs"
+        description="Every write action across the app, newest first."
+      />
 
       <AuditLogTable initialLogs={logs} initialTotal={total} action={action} entityType={entityType} />
     </div>

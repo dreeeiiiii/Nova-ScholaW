@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
 import GalleryClient from "./_components/GalleryClient";
 import GalleryGuestGrid from "./_components/GalleryGuestGrid";
+import { PageHeader } from "../_components/PageHeader";
+import { Plus, Folder } from "lucide-react";
 
 type SearchParams = { q?: string; category_id?: string; year?: string; media_type?: string };
 type Category = { id: number | string; name: string };
@@ -43,24 +45,33 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   if (!user) {
     const guestMedia = (mediaRes as { media: unknown[] }).media ?? [];
     return (
-      <div className="space-y-6">
-        <div>
-          <p className="text-sm font-bold tracking-wide text-[#315c86]">SEARCHABLE MEMORIES</p>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Event Gallery</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-muted">
-            A curated preview of school-event memories. Sign in to search and filter the full archive.
-          </p>
-        </div>
+      <div>
+        <PageHeader
+          eyebrow="Searchable memories"
+          title="Event Gallery"
+          description="A curated preview of school-event memories. Sign in to search and filter the full archive."
+        />
 
         <GalleryGuestGrid media={guestMedia as never[]} />
 
-        <div className="clay-card p-6 text-center">
-          <p className="text-sm font-medium text-text-main">Sign in to browse all memories</p>
-          <p className="mt-1 text-xs text-text-muted">Search by category, year, and media type</p>
-          <Link
-            href="/login?from=%2Fgallery"
-            className="mt-4 inline-block rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white"
-          >
+        <div
+          className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
+          style={{
+            marginTop: "var(--space-8)",
+            paddingBlock: "var(--space-8)",
+            borderTop: "1px solid var(--color-line)",
+            borderBottom: "1px solid var(--color-line)",
+          }}
+        >
+          <div>
+            <p className="tokens-body" style={{ color: "var(--color-text)", fontWeight: 600 }}>
+              Sign in to browse all memories
+            </p>
+            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>
+              Search by category, year, and media type
+            </p>
+          </div>
+          <Link href="/login?from=%2Fgallery" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-6 !py-2 text-sm">
             Sign in
           </Link>
         </div>
@@ -82,17 +93,39 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   rejectedCount = mine.filter((m) => m.status === "rejected").length;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-sm font-bold tracking-wide text-[#315c86]">SEARCHABLE MEMORIES</p>
-        <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Event Gallery</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-muted">
-          Browse approved photos and videos from school events. Use search and filters to find memories.
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Searchable memories"
+        title="Event Gallery"
+        description="Browse approved photos and videos from school events. Use search and filters to find memories."
+        actions={
+          <>
+            <Link href="/gallery/mine" className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm">
+              <Folder size={16} strokeWidth={1.5} aria-hidden="true" />
+              My uploads
+            </Link>
+            <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
+              <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
+              Upload media
+            </Link>
+          </>
+        }
+      />
 
       {error && (
-        <div className="rounded-2xl bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{error}</div>
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            fontWeight: 600,
+            marginBottom: "var(--space-6)",
+          }}
+        >
+          {error}
+        </div>
       )}
 
       <GalleryClient

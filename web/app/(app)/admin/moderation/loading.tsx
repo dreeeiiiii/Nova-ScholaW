@@ -1,14 +1,29 @@
+import { Skeleton } from "../../_components/Skeleton";
+
 export default function Loading() {
   return (
-    <div className="space-y-6">
-      <div className="h-6 w-40 rounded bg-[#f0e6d8]" />
-      <div className="grid gap-5 xl:grid-cols-2">
+    <div>
+      <div style={{ marginBottom: "var(--space-8)" }}>
+        <Skeleton width="140px" height="14px" rounded />
+        <div style={{ marginTop: "var(--space-3)" }}>
+          <Skeleton width="min(240px, 60%)" height="34px" />
+        </div>
+        <div className="h-px w-full" style={{ backgroundColor: "var(--color-line)", marginTop: "var(--space-6)" }} />
+      </div>
+      <Skeleton width="220px" height="44px" />
+      <div style={{ marginTop: "var(--space-6)", borderTop: "1px solid var(--color-line)" }}>
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="clay overflow-hidden rounded-3xl bg-[#fdfaf3] p-6">
-            <div className="h-4 w-24 rounded-full bg-[#ffe1d1]" />
-            <div className="mt-4 aspect-[4/3] rounded-2xl bg-[#fbf7ef]" />
-            <div className="mt-4 h-5 w-3/4 rounded bg-[#f0e6d8]" />
-            <div className="mt-2 h-3 w-1/2 rounded bg-[#f0e6d8]" />
+          <div key={i} className="flex flex-col gap-4 lg:flex-row" style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}>
+            <Skeleton width="100%" height="180px" />
+            <div className="flex-1">
+              <Skeleton width="60%" height="18px" />
+              <div style={{ marginTop: "var(--space-2)" }}>
+                <Skeleton width="90%" height="14px" />
+              </div>
+              <div style={{ marginTop: "var(--space-4)" }}>
+                <Skeleton width="200px" height="44px" rounded />
+              </div>
+            </div>
           </div>
         ))}
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 
 type User = {
   id: number | string;
@@ -151,7 +152,8 @@ export default function UserFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -161,72 +163,79 @@ export default function UserFormModal({
         role="dialog"
         aria-modal="true"
         aria-label={mode === "create" ? "Create user" : "Edit user"}
-        className="clay max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-[#fdfaf3] p-4 sm:p-6"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto p-4 sm:p-6"
+        style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-[#23344f]">{mode === "create" ? "Add user" : "Edit user"}</h2>
-          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0e6d8] text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] min-w-[44px]">
-            Close
+        <div className="flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>
+          <h2 className="font-heading text-lg font-extrabold" style={{ color: "var(--color-text)" }}>{mode === "create" ? "Add user" : "Edit user"}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center"
+            style={{ borderRadius: "var(--radius-small)", border: "1px solid var(--color-line)", color: "var(--color-text)" }}
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <label className="block text-sm">
-            <span className="text-xs font-bold text-[#23344f]">Full name *</span>
+            <span className="label-token">Full name *</span>
             <input
               ref={firstInputRef}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="mt-1 w-full rounded-xl bg-white p-2 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+              className="input-token"
               required
             />
           </label>
 
           <label className="block text-sm">
-            <span className="text-xs font-bold text-[#23344f]">Email *</span>
+            <span className="label-token">Email *</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={mode === "edit"}
               placeholder="user@my.nst.edu.ph"
-              className="mt-1 w-full rounded-xl bg-white p-2 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] disabled:opacity-60"
+              className="input-token disabled:opacity-60"
               required
             />
           </label>
 
           {mode === "create" ? (
             <label className="block text-sm">
-              <span className="text-xs font-bold text-[#23344f]">Password *</span>
+              <span className="label-token">Password *</span>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-xl bg-white p-2 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+                className="input-token"
                 required
                 minLength={8}
               />
-              <span className="mt-1 block text-xs text-[#66758d]">Min 8 characters</span>
+              <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>Min 8 characters</span>
             </label>
           ) : (
             <label className="block text-sm">
-              <span className="text-xs font-bold text-[#23344f]">Password (leave blank to keep)</span>
+              <span className="label-token">Password (leave blank to keep)</span>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-xl bg-white p-2 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+                className="input-token"
                 placeholder="New password"
               />
             </label>
           )}
 
           <label className="block text-sm">
-            <span className="text-xs font-bold text-[#23344f]">Role *</span>
+            <span className="label-token">Role *</span>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as User["role"])}
-              className="mt-1 w-full rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+              className="input-token"
             >
               <option value="admin">admin</option>
               <option value="teacher">teacher</option>
@@ -237,11 +246,11 @@ export default function UserFormModal({
           {role === "student" && (
             <>
               <label className="block text-sm">
-                <span className="text-xs font-bold text-[#23344f]">Section</span>
+                <span className="label-token">Section</span>
                 <select
                   value={sectionId}
                   onChange={(e) => setSectionId(e.target.value)}
-                  className="mt-1 w-full rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+                  className="input-token"
                 >
                   <option value="">No section</option>
                   {sections.map((s) => (
@@ -253,11 +262,11 @@ export default function UserFormModal({
               </label>
 
               <label className="block text-sm">
-                <span className="text-xs font-bold text-[#23344f]">Course</span>
+                <span className="label-token">Course</span>
                 <select
                   value={courseId}
                   onChange={(e) => setCourseId(e.target.value)}
-                  className="mt-1 w-full rounded-xl bg-[#d9efff] p-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+                  className="input-token"
                 >
                   <option value="">No course</option>
                   {courses.map((c) => (
@@ -270,25 +279,25 @@ export default function UserFormModal({
             </>
           )}
 
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2" />
-            <span className="text-xs font-bold text-[#23344f]">Active</span>
+          <label className="flex min-h-[44px] items-center gap-3 text-sm">
+            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="h-4 w-4" style={{ accentColor: "var(--color-primary)" }} />
+            <span className="label-token" style={{ marginBottom: 0 }}>Active</span>
           </label>
 
-          {error && <p className="rounded-xl bg-[#ffe1d1] px-3 py-2 text-sm font-medium text-[#6b3d27]">{error}</p>}
+          {error && <p className="tokens-small font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-2) var(--space-3)" }}>{error}</p>}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full bg-[#f0e6d8] px-5 py-2 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+              className="tokens-btn tokens-btn-secondary w-full !min-h-[44px] text-sm sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-full bg-[#dff5e8] px-5 py-2 text-sm font-bold text-[#246044] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+              className="tokens-btn tokens-btn-primary w-full !min-h-[44px] text-sm disabled:opacity-60 sm:w-auto"
             >
               {submitting ? "Saving…" : mode === "create" ? "Create" : "Save"}
             </button>

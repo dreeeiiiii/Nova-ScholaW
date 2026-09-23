@@ -1,67 +1,84 @@
-const techStack = [
-  { category: "Frontend", items: ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4"] },
-  { category: "Backend", items: ["Express 4", "Node.js", "PostgreSQL", "Prisma ORM"] },
-  { category: "Auth & Security", items: ["JWT + HttpOnly Cookies", "Role-based Access", "Rate Limiting", "Audit Logging"] },
-  { category: "Infrastructure", items: ["Vercel", "Docker", "GitHub Actions", "PostgreSQL (Managed)"] },
+import { RevealOnScroll } from "../ui/RevealOnScroll";
+
+const facts = [
+  { label: "Frontend", value: "Next.js 16 · React 19 · TypeScript · Tailwind CSS 4" },
+  { label: "Backend", value: "Express 4 · Node.js · PostgreSQL · Prisma ORM" },
+  { label: "Auth & Security", value: "JWT + HttpOnly Cookies · Role-based Access · Rate Limiting · Audit Logging" },
+  { label: "Infrastructure", value: "Vercel · Docker · GitHub Actions · Managed PostgreSQL" },
 ];
 
 export default function AboutProject() {
   return (
-    <section id="about" className="section-space-sm relative overflow-hidden bg-base">
-      <div className="container-editorial">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          <div className="lg:col-span-7 lg:col-start-1 fade-up">
-            <span className="text-eyebrow text-primary">ABOUT THIS PROJECT</span>
-            <h2 className="text-section font-heading text-text-main mt-4 text-balance leading-[1.02]">
-              A capstone project for<br />Nova Schola Tanauan
+    <section
+      id="about"
+      className="relative overflow-hidden"
+      style={{ backgroundColor: "var(--color-background)" }}
+    >
+      <div className="tokens-container tokens-section">
+        {/* 1 — Editorial statement */}
+        <RevealOnScroll direction="up">
+          <div style={{ maxWidth: "960px" }}>
+            <p
+              className="tokens-eyebrow"
+              style={{ color: "var(--color-muted)", display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}
+            >
+              <span
+                aria-hidden="true"
+                style={{ width: "8px", height: "8px", borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-accent)", flexShrink: 0 }}
+              />
+              About
+            </p>
+            <h2
+              className="tokens-heading-1 text-balance"
+              style={{ color: "var(--color-text)", marginTop: "var(--space-6)" }}
+            >
+              School communication,{" "}
+              <span className="relative inline-block">
+                in one place.
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 220 12"
+                  preserveAspectRatio="none"
+                  className="absolute -bottom-1 left-0 w-full"
+                  style={{ height: "0.14em", color: "var(--color-primary)" }}
+                >
+                  <path d="M3 9 C 60 3, 160 3, 217 8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.45" />
+                </svg>
+              </span>
             </h2>
-            <p className="text-body-lg text-text-muted mt-6 max-w-xl">
-              Nova Schola Hub centralizes school announcements and event memories into a single moderated platform. It was
-              built as a capstone project for the Bachelor of Science in Information Systems program, demonstrating a
-              full-stack application with role-based access control, content moderation, and a modern web stack.
+            <p
+              className="tokens-body-lg"
+              style={{ color: "var(--color-muted)", marginTop: "var(--space-6)", maxWidth: "60ch", textWrap: "pretty" }}
+            >
+              Nova Schola Hub centralizes school announcements and event memories into a single
+              moderated platform — built as a capstone project for the Bachelor of Science in
+              Information Systems program, with role-based access, content moderation, and a
+              modern web stack.
             </p>
           </div>
+        </RevealOnScroll>
 
-          <div className="lg:col-span-5 lg:col-start-8 fade-up stagger-2">
-            <div className="relative aspect-square organic-shape bg-gradient-to-br from-primary/20 via-primary/10 to-secondary/15 rounded-[40px] flex items-center justify-center">
-              <div className="relative z-10 text-center p-8">
-                <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 text-primary mb-4">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                </div>
-                <p className="font-heading text-3xl md:text-4xl font-extrabold text-text-main">Capstone</p>
-                <p className="text-body-lg text-text-muted mt-2">Class of 2026</p>
-              </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 md:w-40 md:h-40 organic-shape-3 border-2 border-primary/20" aria-hidden="true" />
-              <div className="absolute -top-4 -left-4 w-24 h-24 md:w-28 md:h-28 organic-shape border-2 border-secondary/30" aria-hidden="true" />
-            </div>
-          </div>
-        </div>
+        {/* Thin editorial rule */}
+        <div aria-hidden="true" className="h-px w-full" style={{ backgroundColor: "var(--color-line)", marginTop: "var(--space-16)" }} />
 
-        <div className="mt-20 md:mt-28 fade-up stagger-3">
-          <div className="grid lg:grid-cols-4 gap-8 lg:gap-12">
-            {techStack.map((category, catIndex) => (
-              <div key={category.category} className={`stagger-${(catIndex % 6) + 1}`}>
-                <p className="text-xs font-semibold text-text-muted tracking-wider uppercase mb-4">
-                  {category.category}
-                </p>
-                <ul className="space-y-3" role="list">
-                  {category.items.map((item, itemIndex) => (
-                    <li
-                      key={item}
-                      className={`relative pl-6 text-base leading-relaxed text-text-muted transition-colors duration-200 hover:text-text-main group/card ${itemIndex < category.items.length - 1 ? "pb-3 border-b border-primary/10" : ""}`}
-                    >
-                      <span className="absolute left-0 top-0.5 w-1.5 h-1.5 rounded-full bg-primary/30 group-hover/card:bg-primary transition-colors" aria-hidden="true" />
-                      <span className="font-medium text-text-main">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+        {/* 3 — Supporting facts (tech stack, flat mini-grid) */}
+        <RevealOnScroll direction="up" delay={80}>
+          <dl
+            className="grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4"
+            style={{ marginTop: "var(--space-12)" }}
+          >
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt className="tokens-eyebrow" style={{ color: "var(--color-muted)" }}>
+                  {fact.label}
+                </dt>
+                <dd className="tokens-small" style={{ color: "var(--color-text)", marginTop: "var(--space-3)", lineHeight: 1.7 }}>
+                  {fact.value}
+                </dd>
               </div>
             ))}
-          </div>
-        </div>
+          </dl>
+        </RevealOnScroll>
       </div>
     </section>
   );

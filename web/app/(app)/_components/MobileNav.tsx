@@ -17,8 +17,9 @@ import {
   Tags,
   ShieldCheck,
 } from "lucide-react";
+import { NavDrawer } from "../../_components/nav/NavDrawer";
 
-const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>> = {
   Dashboard: LayoutDashboard,
   Announcements: Megaphone,
   "Event Gallery": Images,
@@ -41,43 +42,58 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
 
   return (
     <>
-      <header className="flex items-center justify-between p-4 lg:hidden">
+      <header
+        className="flex items-center justify-between p-4 lg:hidden"
+        style={{ backgroundColor: "var(--color-background)" }}
+      >
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9efff] clay">
-            <GraduationCap size={20} />
+          <div
+            className="flex h-10 w-10 items-center justify-center"
+            style={{
+              borderRadius: "var(--radius-medium)",
+              backgroundColor: "var(--color-primary-soft)",
+              color: "var(--color-primary-ink)",
+            }}
+          >
+            <GraduationCap size={20} strokeWidth={1.5} />
           </div>
-          <span className="font-heading text-base font-extrabold text-[#23344f]">Nova Schola Hub</span>
+          <span className="font-heading text-base font-extrabold" style={{ color: "var(--color-text)" }}>
+            Nova Schola Hub
+          </span>
         </div>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
-          className="clay rounded-2xl bg-[#fdfaf3] p-3 min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors duration-300 motion-reduce:transition-none"
+          style={{
+            borderRadius: "var(--radius-medium)",
+            backgroundColor: "var(--color-surface)",
+            color: "var(--color-text)",
+            boxShadow: "var(--shadow-subtle)",
+          }}
         >
-          {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          {open ? <X size={20} strokeWidth={1.5} aria-hidden="true" /> : <Menu size={20} strokeWidth={1.5} aria-hidden="true" />}
         </button>
       </header>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm lg:hidden"
-          onClick={() => setOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      <div
-        className={`fixed inset-y-0 left-0 z-40 w-72 bg-[#fbf7ef] p-5 shadow-2xl transition-transform duration-300 lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
-        aria-label="Mobile navigation"
-      >
+      <NavDrawer open={open} onClose={() => setOpen(false)} label="Mobile navigation" variant="panel">
         <div className="mb-7 flex items-center justify-between">
-          <span className="font-heading text-base font-bold text-[#23344f]">Nova Schola Hub</span>
-          <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="rounded-xl p-2 min-h-[44px] min-w-[44px] flex items-center justify-center">
-            <X size={20} aria-hidden="true" />
+          <span className="font-heading text-base font-bold" style={{ color: "var(--color-text)" }}>
+            Nova Schola Hub
+          </span>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center"
+            style={{ borderRadius: "var(--radius-small)", color: "var(--color-text)" }}
+          >
+            <X size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
-        <nav className="space-y-2">
-          {navItems.map((item) => {
+        <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
+          {navItems.map((item, i) => {
             const Icon = iconMap[item.label] ?? LayoutDashboard;
             const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
             return (
@@ -85,15 +101,33 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold min-h-[44px] ${active ? "bg-[#d9efff] text-[#23446c] shadow-[inset_3px_3px_7px_#c5d9e8,inset_-3px_-3px_7px_#effaff]" : "text-text-main hover:bg-white"}`}
+                aria-current={active ? "page" : undefined}
+                className="relative flex min-h-[44px] w-full items-center gap-3 px-3 py-3 text-left text-sm font-semibold transition-all duration-200 motion-reduce:transition-none"
+                style={{
+                  borderRadius: "var(--radius-medium)",
+                  color: active ? "var(--color-text-strong)" : "var(--color-muted)",
+                  backgroundColor: active ? "var(--color-primary-soft)" : "transparent",
+                  transitionDelay: open ? `${Math.min(i * 40, 320)}ms` : "0ms",
+                  opacity: open ? 1 : 0,
+                  transform: open ? "translateX(0)" : "translateX(-8px)",
+                }}
               >
-                <Icon size={18} aria-hidden="true" />
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2"
+                  style={{
+                    borderRadius: "var(--radius-pill)",
+                    backgroundColor: "var(--color-primary)",
+                    opacity: active ? 1 : 0,
+                  }}
+                />
+                <Icon size={18} strokeWidth={1.5} aria-hidden="true" />
                 {item.label}
               </Link>
             );
           })}
         </nav>
-      </div>
+      </NavDrawer>
     </>
   );
 }

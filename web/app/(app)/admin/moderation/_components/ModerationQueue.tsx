@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { resolveMediaUrl } from "@/lib/url";
-import { Image, Video } from "lucide-react";
+import { Image as ImageIcon, Video as VideoIcon, ShieldCheck } from "lucide-react";
+import { EmptyState } from "../../../_components/EmptyState";
 import RejectModal from "./RejectModal";
 
 type Category = { id: number | string; name: string };
@@ -176,16 +177,27 @@ export default function ModerationQueue({
 
   if (error) {
     return (
-      <div className="rounded-2xl bg-[#ffe1d1] px-4 py-3 text-sm font-medium text-[#6b3d27]">{error}</div>
+      <div
+        className="tokens-small"
+        style={{
+          borderRadius: "var(--radius-small)",
+          backgroundColor: "var(--color-danger-bg)",
+          color: "var(--color-danger)",
+          padding: "var(--space-3) var(--space-4)",
+          fontWeight: 600,
+        }}
+      >
+        {error}
+      </div>
     );
   }
 
   if (media.length === 0) {
     return (
-      <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-        <p className="text-sm font-medium text-[#23344f]">No pending uploads</p>
-        <p className="mt-1 text-xs text-[#66758d]">All caught up — nothing waiting for review.</p>
-      </div>
+      <EmptyState
+        icon={<ShieldCheck size={20} strokeWidth={1.5} aria-hidden="true" />}
+        message="Nothing to review right now. All caught up."
+      />
     );
   }
 
@@ -193,11 +205,14 @@ export default function ModerationQueue({
     <>
       {toast && (
         <div
-          className={`flex items-center gap-2 self-start rounded-full px-4 py-2 text-sm font-semibold shadow-sm ${
-            toast.kind === "success"
-              ? "bg-[#dff5e8] text-[#246044]"
-              : "bg-[#ffe1d1] text-[#6b3d27]"
-          }`}
+          className="tokens-small inline-flex items-center gap-2 font-semibold"
+          style={{
+            borderRadius: "var(--radius-small)",
+            padding: "var(--space-2) var(--space-4)",
+            backgroundColor: toast.kind === "success" ? "var(--color-success-bg)" : "var(--color-danger-bg)",
+            color: toast.kind === "success" ? "var(--color-success)" : "var(--color-danger)",
+            marginBottom: "var(--space-4)",
+          }}
           role="status"
           aria-live="polite"
         >
@@ -205,7 +220,7 @@ export default function ModerationQueue({
         </div>
       )}
 
-      <div className="grid gap-5 grid-cols-1 xl:grid-cols-2">
+      <ul style={{ borderTop: "1px solid var(--color-line)" }}>
         {media.map((m) => {
           const src = resolveMediaUrl(m.file_url);
           const title = m.caption?.trim() || m.original_filename || "Untitled upload";
@@ -219,80 +234,101 @@ export default function ModerationQueue({
             !categories.some((c) => String(c.id) === String(m.category_id));
 
           return (
-            <article key={String(m.id)} className="clay overflow-hidden rounded-3xl bg-[#fdfaf3] p-6">
-              <div className="flex items-start justify-between gap-3">
-                <span className="rounded-full bg-[#ffe1d1] px-3 py-1 text-xs font-bold text-[#6b3d27]">
-                  Pending review
-                </span>
-                {m.media_type === "video" ? (
-                  <Video size={18} className="shrink-0 text-[#66758d]" aria-hidden="true" />
-                ) : (
-                  <Image size={18} className="shrink-0 text-[#66758d]" aria-hidden="true" />
-                )}
-              </div>
-
-              <div className="mt-4 aspect-[4/3] overflow-hidden rounded-2xl bg-[#fbf7ef]">
+            <li
+              key={String(m.id)}
+              className="flex min-h-[44px] flex-col gap-4 lg:flex-row"
+              style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+            >
+              <span className="block aspect-[4/3] w-full shrink-0 overflow-hidden sm:max-w-xs lg:w-64" style={{ backgroundColor: "var(--color-background-deep)" }}>
                 {m.media_type === "video" ? (
                   <video src={src} preload="metadata" className="h-full w-full object-cover" />
                 ) : (
-                  <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
+                  <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
                 )}
-              </div>
+              </span>
 
-              <h3 className="mt-4 font-bold text-[#23344f]">{title}</h3>
-              <p className="mt-2 text-sm text-[#66758d]">Uploaded by: {uploader}</p>
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-3">
+                  <span
+                    className="tokens-small"
+                    style={{
+                      borderRadius: "var(--radius-pill)",
+                      padding: "2px var(--space-3)",
+                      fontWeight: 700,
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      backgroundColor: "var(--color-warning-bg)",
+                      color: "var(--color-warning)",
+                    }}
+                  >
+                    Pending review
+                  </span>
+                  {m.media_type === "video" ? (
+                    <VideoIcon size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: "var(--color-muted)" }} />
+                  ) : (
+                    <ImageIcon size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: "var(--color-muted)" }} />
+                  )}
+                </span>
+                <span className="mt-2 block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>{title}</span>
+                <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>
+                  Uploaded by {uploader} · {formatDate(m.created_at)}
+                </span>
 
-              <label className="mt-4 block text-sm font-bold text-[#23344f]">
-                Assign category
-                {isSaving && <span className="ml-2 text-xs font-normal text-[#66758d]">Saving…</span>}
-              </label>
-              <select
-                value={currentCatValue}
-                disabled={isSaving}
-                onChange={(e) => handleCategoryChange(m, e.target.value)}
-                onFocus={handleFocus}
-                className="mt-2 w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] disabled:opacity-60 min-h-[44px]"
-              >
-                <option value="">Uncategorized</option>
-                {categories.map((c) => (
-                  <option key={String(c.id)} value={String(c.id)}>
-                    {c.name}
-                  </option>
-                ))}
-                {catFallback && (
-                  <option value={String(m.category_id)}>
-                    {m.category_name || ("Category #" + String(m.category_id))}
-                  </option>
-                )}
-                {categories.length === 0 && (
-                  <option value={String(m.category_id)}>
-                    {m.category_name || ("Category #" + String(m.category_id))}
-                  </option>
-                )}
-              </select>
+                <span className="mt-3 block max-w-xs">
+                  <label className="label-token" htmlFor={`mod-cat-${String(m.id)}`}>
+                    Assign category{isSaving ? " · Saving…" : ""}
+                  </label>
+                  <select
+                    id={`mod-cat-${String(m.id)}`}
+                    value={currentCatValue}
+                    disabled={isSaving}
+                    onChange={(e) => handleCategoryChange(m, e.target.value)}
+                    onFocus={handleFocus}
+                    className="input-token disabled:opacity-60"
+                  >
+                    <option value="">Uncategorized</option>
+                    {categories.map((c) => (
+                      <option key={String(c.id)} value={String(c.id)}>
+                        {c.name}
+                      </option>
+                    ))}
+                    {catFallback && (
+                      <option value={String(m.category_id)}>
+                        {m.category_name || ("Category #" + String(m.category_id))}
+                      </option>
+                    )}
+                    {categories.length === 0 && (
+                      <option value={String(m.category_id)}>
+                        {m.category_name || ("Category #" + String(m.category_id))}
+                      </option>
+                    )}
+                  </select>
+                </span>
 
-              <div className="mt-5 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleApprove(m)}
-                  disabled={actionLoading === String(m.id) || isSaving}
-                  className="rounded-full bg-[#dff5e8] px-4 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 disabled:opacity-60 min-h-[44px]"
-                >
-                  {actionLoading === String(m.id) ? "Approving…" : "Approve"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleReject(m)}
-                  disabled={actionLoading === String(m.id) || isSaving}
-                  className="rounded-full bg-[#ffe1d1] px-4 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 disabled:opacity-60 min-h-[44px]"
-                >
-                  Reject
-                </button>
-              </div>
-            </article>
+                <span className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleApprove(m)}
+                    disabled={actionLoading === String(m.id) || isSaving}
+                    className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm disabled:opacity-60"
+                  >
+                    {actionLoading === String(m.id) ? "Approving…" : "Approve"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleReject(m)}
+                    disabled={actionLoading === String(m.id) || isSaving}
+                    className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm disabled:opacity-60"
+                  >
+                    Reject
+                  </button>
+                </span>
+              </span>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
       {rejecting && (
         <RejectModal

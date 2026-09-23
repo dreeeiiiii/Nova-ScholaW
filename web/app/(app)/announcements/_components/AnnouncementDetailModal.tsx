@@ -43,6 +43,7 @@ export default function AnnouncementDetailModal({
 
   useEffect(() => {
     if (openId === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
       setData(null);
       setError("");
       return;
@@ -104,25 +105,36 @@ export default function AnnouncementDetailModal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       role="dialog"
       aria-modal="true"
       aria-label="Announcement details"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
     >
-      <div className="clay max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] bg-[#fdfaf3] p-6">
-        <div className="flex items-start justify-between gap-4">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto p-6" style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}>
+        <div className="flex items-start justify-between gap-4" style={{ borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>
           <div>
             {data && (
               <span
-                className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${data.announcement.type === "general" ? "bg-[#d9efff] text-[#23446c]" : "bg-[#e7defb] text-[#563d86]"}`}
+                className="tokens-small"
+                style={{
+                  display: "inline-block",
+                  borderRadius: "var(--radius-pill)",
+                  padding: "2px var(--space-3)",
+                  fontWeight: 700,
+                  fontSize: "0.6875rem",
+                  letterSpacing: "0.08em",
+                  backgroundColor: data.announcement.type === "general" ? "var(--color-info-bg)" : "var(--color-primary-soft)",
+                  color: data.announcement.type === "general" ? "var(--color-info)" : "var(--color-primary-ink)",
+                }}
               >
                 {data.announcement.type === "general" ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
               </span>
             )}
-            <h2 className="mt-3 font-heading text-xl font-bold text-[#23344f]">
+            <h2 className="tokens-heading-3 mt-3" style={{ color: "var(--color-text)" }}>
               {loading ? "Loading…" : data?.announcement.title ?? ""}
             </h2>
           </div>
@@ -131,22 +143,23 @@ export default function AnnouncementDetailModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="min-h-[44px] min-w-[44px] p-2"
+            style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-surface)", border: "1px solid var(--color-line)", color: "var(--color-text)" }}
           >
             <X size={18} aria-hidden="true" />
           </button>
         </div>
 
-        {loading && <p className="mt-4 text-sm text-text-muted">Loading announcement…</p>}
-        {error && <p className="mt-4 text-sm font-medium text-danger">{error}</p>}
+        {loading && <p className="tokens-small mt-4" style={{ color: "var(--color-muted)" }}>Loading announcement…</p>}
+        {error && <p className="tokens-small mt-4 font-medium" style={{ color: "var(--color-danger)" }}>{error}</p>}
 
         {data && !loading && !error && (
           <>
-            <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-[#23344f]">{data.announcement.content}</p>
+            <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed" style={{ color: "var(--color-text)" }}>{data.announcement.content}</p>
 
             {data.targets.length > 0 && (
               <div className="mt-5">
-                <h3 className="text-xs font-bold uppercase tracking-wide text-text-muted">Audience</h3>
+                <h3 className="tokens-eyebrow" style={{ color: "var(--color-muted)" }}>Audience</h3>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {data.targets.map((t) => {
                     const label =
@@ -154,8 +167,8 @@ export default function AnnouncementDetailModal({
                     const sub =
                       t.target_type === "student" && t.student_email ? t.student_email : t.target_type;
                     return (
-                      <span key={String(t.id)} className="rounded-full bg-[#e7defb] px-3 py-1 text-xs font-semibold text-[#563d86]">
-                        {label} <span className="ml-1 text-[10px] uppercase text-[#66758d]">{sub}</span>
+                      <span key={String(t.id)} className="text-xs font-semibold" style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-primary-soft)", color: "var(--color-primary-ink)", padding: "var(--space-1) var(--space-3)" }}>
+                        {label} <span className="ml-1 text-[10px] uppercase" style={{ color: "var(--color-muted)" }}>{sub}</span>
                       </span>
                     );
                   })}
@@ -164,10 +177,10 @@ export default function AnnouncementDetailModal({
             )}
 
             {data.targets.length === 0 && data.announcement.type === "class" && (
-              <p className="mt-5 text-xs text-text-muted">No audience targets.</p>
+              <p className="tokens-small mt-5" style={{ color: "var(--color-muted)" }}>No audience targets.</p>
             )}
 
-            <div className="mt-5 border-t border-[#e7defb] pt-3 text-xs text-text-muted">
+            <div className="tokens-small mt-5" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-3)", color: "var(--color-muted)" }}>
               {data.announcement.status && <span>Status: {data.announcement.status} · </span>}
               {data.announcement.publish_at && (
                 <span>Publish: {new Date(data.announcement.publish_at).toLocaleString()} · </span>

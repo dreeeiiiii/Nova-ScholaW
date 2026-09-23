@@ -35,7 +35,7 @@ test("admin approves a pending gallery item", async ({ page, context, browser })
   await page.goto("/admin/moderation");
   await expect(page.getByText("Admin Moderation")).toBeVisible();
   // Find card by title
-  const card = page.locator("article", { hasText: title });
+  const card = page.locator("li", { hasText: title });
   await expect(card).toBeVisible({ timeout: 15000 });
   await expect(card.getByText("Pending review")).toBeVisible();
   await card.getByRole("button", { name: "Approve" }).click();

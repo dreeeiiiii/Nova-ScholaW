@@ -93,7 +93,8 @@ export default function RejectModal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -101,32 +102,33 @@ export default function RejectModal({
       aria-modal="true"
       aria-label={`Reject ${mediaTitle}`}
     >
-      <div className="clay w-full max-w-md rounded-[2rem] bg-[#fdfaf3] p-6">
-        <div className="flex items-start justify-between gap-4">
+      <div className="w-full max-w-md p-6" style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}>
+        <div className="flex items-start justify-between gap-4" style={{ borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>
           <div>
-            <h2 className="font-heading text-lg font-bold text-[#23344f]">Reject upload</h2>
-            <p className="mt-1 text-sm text-[#66758d]">{mediaTitle}</p>
+            <h2 className="font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Reject upload</h2>
+            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>{mediaTitle}</p>
           </div>
           <button
             ref={closeBtnRef}
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center"
+            style={{ borderRadius: "var(--radius-small)", border: "1px solid var(--color-line)", color: "var(--color-text)" }}
           >
             <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-2xl bg-[#ffe1d1] px-4 py-3 text-sm font-medium text-[#6b3d27]">
+          <div className="mt-4 tokens-small font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-3) var(--space-4)" }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label htmlFor="reject-reason" className="block text-sm font-bold text-[#23344f]">
+            <label htmlFor="reject-reason" className="label-token">
               Rejection reason *
             </label>
             <textarea
@@ -136,23 +138,24 @@ export default function RejectModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Explain why this upload is being rejected…"
-              className="mt-1.5 block w-full rounded-2xl border border-[#d9d7e2] bg-white px-4 py-2.5 text-sm text-[#23344f] placeholder-[#66758d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9]"
+              className="input-token"
             />
-            <p className="mt-1 text-xs text-[#66758d]">Minimum {MIN_REASON_LENGTH} characters.</p>
+            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>Minimum {MIN_REASON_LENGTH} characters.</p>
           </div>
 
-          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#23344f] shadow hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+              className="tokens-btn tokens-btn-secondary w-full !min-h-[44px] text-sm sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-[#ffe1d1] px-5 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+              className="tokens-btn w-full !min-h-[44px] text-sm font-bold disabled:opacity-60 sm:w-auto"
+              style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
             >
               {loading ? "Rejecting…" : "Reject"}
             </button>

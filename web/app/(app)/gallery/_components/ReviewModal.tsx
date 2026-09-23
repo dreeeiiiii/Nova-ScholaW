@@ -63,36 +63,43 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
       onClick={handleBackdrop}
       role="dialog"
       aria-modal="true"
       aria-label="Upload successful"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
     >
-      <div className="clay w-full max-w-md rounded-[2rem] bg-[#fdfaf3] p-6 text-center">
+      <div className="relative w-full max-w-md p-6 text-center" style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}>
         <button
           type="button"
           onClick={() => (onClose ? onClose() : handleDone())}
           aria-label="Close"
-          className="absolute right-4 top-4 rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+          className="absolute right-4 top-4 flex min-h-[44px] min-w-[44px] items-center justify-center"
+          style={{ borderRadius: "var(--radius-small)", border: "1px solid var(--color-line)", color: "var(--color-text)" }}
         >
           <X size={18} aria-hidden="true" />
         </button>
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
-          <CircleCheckBig size={28} className="text-success" aria-hidden="true" />
+        <div
+          className="mx-auto flex h-12 w-12 items-center justify-center"
+          style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-success-bg)" }}
+        >
+          <CircleCheckBig size={28} style={{ color: "var(--color-success)" }} aria-hidden="true" />
         </div>
-        <h2 className="mt-4 font-heading text-lg font-bold text-[#23344f]">Upload successful</h2>
-        <p className="mt-2 text-sm leading-relaxed text-text-muted">
+        <h2 className="mt-4 font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Upload successful</h2>
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
           Your upload is now live in the gallery. Admins may remove it later if it violates our guidelines.
         </p>
-        <button
-          ref={closeBtnRef}
-          type="button"
-          onClick={handleDone}
-          className="mt-6 w-full rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
-        >
-          Done
-        </button>
+        <div style={{ borderTop: "1px solid var(--color-line)", marginTop: "var(--space-6)", paddingTop: "var(--space-4)" }}>
+          <button
+            ref={closeBtnRef}
+            type="button"
+            onClick={handleDone}
+            className="tokens-btn tokens-btn-primary w-full text-sm"
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );

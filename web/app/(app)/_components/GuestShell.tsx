@@ -3,21 +3,31 @@ import { GraduationCap } from "lucide-react";
 
 export default function GuestShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen w-full bg-[#fbf7ef]">
+    <div className="min-h-screen w-full" style={{ backgroundColor: "var(--color-background)" }}>
       <header
         data-testid="guest-header"
-        className="flex items-center justify-between bg-white/80 px-6 py-4 backdrop-blur-sm"
+        className="flex h-16 items-center justify-between px-6 md:h-[72px]"
+        style={{
+          backgroundColor: "var(--color-surface)",
+          borderBottom: "1px solid var(--color-line)",
+        }}
       >
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#d9efff] clay text-[#315c86]">
-            <GraduationCap size={20} />
+        <Link href="/" className="flex min-h-[44px] items-center gap-2">
+          <div
+            className="flex h-9 w-9 items-center justify-center"
+            style={{
+              borderRadius: "var(--radius-medium)",
+              backgroundColor: "var(--color-primary-soft)",
+              color: "var(--color-primary-ink)",
+            }}
+          >
+            <GraduationCap size={20} strokeWidth={1.5} />
           </div>
-          <span className="font-heading text-base font-extrabold text-[#23344f]">Nova Schola Hub</span>
+          <span className="font-heading text-base font-extrabold" style={{ color: "var(--color-text)" }}>
+            Nova Schola Hub
+          </span>
         </Link>
-        <Link
-          href="/login"
-          className="clay-btn rounded-full bg-[#315c86] px-5 py-2 text-sm font-bold text-white"
-        >
+        <Link href="/login" className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm">
           Log in
         </Link>
       </header>

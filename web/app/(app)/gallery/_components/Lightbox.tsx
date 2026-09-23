@@ -61,19 +61,20 @@ export default function Lightbox({ media, onClose }: { media: Media | null; onCl
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       role="dialog"
       aria-modal="true"
       aria-label={title}
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 90%, transparent)" }}
     >
-      <div className="clay max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-[#fdfaf3] p-6">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-heading text-lg font-bold text-[#23344f]">{title}</h2>
-            <p className="mt-1 text-xs text-text-muted">
+            <h2 className="font-heading text-lg font-bold" style={{ color: "var(--color-surface)" }}>{title}</h2>
+            <p className="tokens-small mt-1" style={{ color: "rgba(255, 255, 255, 0.65)" }}>
               {media.category_name || "Uncategorized"}
               {media.created_at ? ` · ${new Date(media.created_at).toLocaleString()}` : ""}
             </p>
@@ -83,19 +84,20 @@ export default function Lightbox({ media, onClose }: { media: Media | null; onCl
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors duration-200 motion-reduce:transition-none"
+            style={{ borderRadius: "var(--radius-pill)", border: "1px solid rgba(255,255,255,0.25)", color: "var(--color-surface)" }}
           >
-            <X size={18} aria-hidden="true" />
+            <X size={18} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
 
         {media.media_type === "video" ? (
-          <video src={src} controls className="max-h-[70vh] w-full rounded-2xl bg-black" />
+          <video src={src} controls className="max-h-[70vh] w-full bg-black" />
         ) : (
-          <img src={src} alt={title} className="max-h-[70vh] w-full rounded-2xl object-contain bg-white" />
+          <img src={src} alt={title} className="max-h-[70vh] w-full object-contain" />
         )}
 
-        {media.caption && <p className="mt-4 text-sm leading-relaxed text-text-main">{media.caption}</p>}
+        {media.caption && <p className="mt-4 text-sm leading-relaxed" style={{ color: "rgba(255, 255, 255, 0.8)" }}>{media.caption}</p>}
       </div>
     </div>
   );

@@ -43,34 +43,69 @@ export default function AppShell({ user, children }: { user: User; children: Rea
   const navItems = allNavItems.filter((item) => item.roles.includes(user.role));
 
   return (
-    <div className="min-h-screen w-full bg-[#fbf7ef] lg:flex">
+    <div className="min-h-screen w-full lg:flex" style={{ backgroundColor: "var(--color-background)" }}>
       <aside
         data-testid="sidebar"
         className="desktop-sidebar hidden w-72 shrink-0 p-6 lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto"
         aria-label="Main navigation"
       >
-        <div className="clay flex h-full flex-col rounded-[2rem] bg-[#fdfaf3] p-5">
+        <div
+          className="flex h-full flex-col p-5"
+          style={{
+            borderRadius: "var(--radius-large)",
+            backgroundColor: "var(--color-surface)",
+            boxShadow: "var(--shadow-subtle)",
+            border: "1px solid var(--color-line)",
+          }}
+        >
           <div className="mb-9 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d9efff] clay text-[#315c86]">
-              <GraduationCap size={22} />
+            <div
+              className="flex h-11 w-11 items-center justify-center"
+              style={{
+                borderRadius: "var(--radius-medium)",
+                backgroundColor: "var(--color-primary-soft)",
+                color: "var(--color-primary-ink)",
+              }}
+            >
+              <GraduationCap size={22} strokeWidth={1.5} />
             </div>
             <div>
-              <h1 className="font-heading text-xl font-extrabold leading-tight text-[#23344f]">Nova Schola Hub</h1>
-              <p className="mt-0.5 text-xs text-[#66758d]">Official school connection</p>
+              <h1 className="font-heading text-xl font-extrabold leading-tight" style={{ color: "var(--color-text)" }}>
+                Nova Schola Hub
+              </h1>
+              <p className="mt-0.5 text-xs" style={{ color: "var(--color-muted)" }}>
+                Official school connection
+              </p>
             </div>
           </div>
 
           <AppNav navItems={navItems.map(({ href, label }) => ({ href, label }))} />
 
-          <div className="mt-auto">
-            <div className="flex items-center gap-3 rounded-2xl bg-[#e7defb] p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#faf5ff]">
-                <UserRound size={20} />
+          <div className="mt-auto pt-6">
+            <div
+              className="flex items-center gap-3 p-4"
+              style={{ borderRadius: "var(--radius-medium)", backgroundColor: "var(--color-surface-warm)" }}
+            >
+              <div
+                className="flex h-10 w-10 items-center justify-center"
+                style={{
+                  borderRadius: "var(--radius-pill)",
+                  backgroundColor: "var(--color-surface)",
+                  color: "var(--color-muted)",
+                }}
+              >
+                <UserRound size={20} strokeWidth={1.5} />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold text-[#23344f]">{user.full_name}</span>
-                <span className="block text-xs capitalize text-[#66758d]">{user.role}</span>
-                <span className="block text-xs text-[#66758d]">Nova Schola Tanauan</span>
+                <span className="block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>
+                  {user.full_name}
+                </span>
+                <span className="block text-xs capitalize" style={{ color: "var(--color-muted)" }}>
+                  {user.role}
+                </span>
+                <span className="block text-xs" style={{ color: "var(--color-muted)" }}>
+                  Nova Schola Tanauan
+                </span>
               </div>
             </div>
             <div className="mt-3 flex justify-end">

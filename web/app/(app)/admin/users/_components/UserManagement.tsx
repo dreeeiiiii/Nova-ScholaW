@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Users } from "lucide-react";
 import UserFormModal from "./UserFormModal";
 import ConfirmModal from "./ConfirmModal";
+import { EmptyState } from "../../../_components/EmptyState";
 
 type User = {
   id: number | string;
@@ -29,10 +31,50 @@ function stripPasswordHash<T extends Record<string, unknown>>(obj: T): T {
   return obj;
 }
 
-function roleBadge(role: User["role"]) {
-  if (role === "admin") return "bg-[#e7defb] text-[#563d86]";
-  if (role === "teacher") return "bg-[#dff5e8] text-[#246044]";
-  return "bg-[#d9efff] text-[#23446c]";
+function RoleBadge({ role }: { role: User["role"] }) {
+  const palette =
+    role === "admin"
+      ? { bg: "var(--color-primary-soft)", fg: "var(--color-primary-ink)" }
+      : role === "teacher"
+        ? { bg: "var(--color-success-bg)", fg: "var(--color-success)" }
+        : { bg: "var(--color-info-bg)", fg: "var(--color-info)" };
+  return (
+    <span
+      className="tokens-small"
+      style={{
+        borderRadius: "var(--radius-pill)",
+        padding: "2px var(--space-3)",
+        fontWeight: 700,
+        fontSize: "0.6875rem",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        backgroundColor: palette.bg,
+        color: palette.fg,
+      }}
+    >
+      {role}
+    </span>
+  );
+}
+
+function StatusBadge({ active }: { active: boolean }) {
+  return (
+    <span
+      className="tokens-small"
+      style={{
+        borderRadius: "var(--radius-pill)",
+        padding: "2px var(--space-3)",
+        fontWeight: 700,
+        fontSize: "0.6875rem",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        backgroundColor: active ? "var(--color-success-bg)" : "var(--color-warning-bg)",
+        color: active ? "var(--color-success)" : "var(--color-warning)",
+      }}
+    >
+      {active ? "Active" : "Inactive"}
+    </span>
+  );
 }
 
 export default function UserManagement({
@@ -62,14 +104,17 @@ export default function UserManagement({
   const [confirmUser, setConfirmUser] = useState<User | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setUsers(initialUsers.map((u) => stripPasswordHash(u as unknown as Record<string, unknown>) as unknown as User));
   }, [initialUsers]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setTotal(initialTotal);
   }, [initialTotal]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setSearchInput(search ?? "");
   }, [search]);
 
@@ -92,7 +137,6 @@ export default function UserManagement({
   function handleRoleChange(value: string) {
     const params = new URLSearchParams();
     if (value) params.set("role", value);
-    const trimmed = searchInput.trim() || (search ?? "").trim();
     // Use current searchInput if user has typed, otherwise fallback to prop
     const effectiveSearch = searchInput.trim() ? searchInput.trim() : search ?? "";
     const finalSearch = effectiveSearch.trim();
@@ -172,15 +216,15 @@ export default function UserManagement({
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {/* Filter bar */}
-      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:flex-row sm:flex-wrap">
-        <label className="flex w-full flex-col gap-1 text-sm sm:w-auto sm:min-w-[180px]">
-          <span className="text-xs font-bold text-[#23344f]">Role</span>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <label className="w-full sm:w-auto sm:min-w-[180px]">
+          <span className="label-token">Role</span>
           <select
             value={role ?? ""}
             onChange={(e) => handleRoleChange(e.target.value)}
-            className="w-full rounded-xl bg-[#d9efff] p-2.5 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px] sm:w-auto"
+            className="input-token"
           >
             <option value="">All roles</option>
             <option value="admin">admin</option>
@@ -188,156 +232,107 @@ export default function UserManagement({
             <option value="student">student</option>
           </select>
         </label>
-        <label className="flex w-full flex-1 flex-col gap-1 text-sm">
-          <span className="text-xs font-bold text-[#23344f]">Search</span>
+        <label className="w-full flex-1">
+          <span className="label-token">Search</span>
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search name or email"
-            className="w-full rounded-xl bg-white p-2.5 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
+            className="input-token"
           />
         </label>
-        <div className="flex w-full items-end sm:w-auto">
+        <div className="w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setFormState({ mode: "create" })}
-            className="w-full rounded-full bg-[#dff5e8] px-5 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 min-h-[44px] sm:w-auto"
+            className="tokens-btn tokens-btn-primary w-full !min-h-[44px] !px-5 !py-2 text-sm sm:w-auto"
           >
             Add user
           </button>
         </div>
       </div>
 
+      <p className="tokens-small" style={{ color: "var(--color-muted)", marginTop: "var(--space-4)" }}>
+        {total} user{total === 1 ? "" : "s"}
+      </p>
+
       {users.length === 0 ? (
-        <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-          <p className="text-sm font-medium text-[#23344f]">No users found</p>
+        <div style={{ marginTop: "var(--space-4)" }}>
+          <EmptyState
+            icon={<Users size={20} strokeWidth={1.5} aria-hidden="true" />}
+            message="No users found."
+          />
         </div>
       ) : (
-        <>
-          {/* Desktop table */}
-          <div className="hidden md:block">
-            <div className="clay overflow-hidden rounded-3xl bg-[#fdfaf3]">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#fbf7ef] text-xs font-bold text-[#66758d]">
-                    <tr>
-                      <th className="px-4 py-3">Name</th>
-                      <th className="px-4 py-3">Email</th>
-                      <th className="px-4 py-3">Role</th>
-                      <th className="px-4 py-3">Section / Course</th>
-                      <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u) => (
-                      <tr key={String(u.id)} className="border-t border-[#f0e6d8]">
-                        <td className="px-4 py-3 font-medium text-[#23344f]">{u.full_name}</td>
-                        <td className="px-4 py-3 text-xs text-[#66758d]">{u.email}</td>
-                        <td className="px-4 py-3">
-                          <span className={`rounded-full px-3 py-1 text-xs font-bold ${roleBadge(u.role)}`}>{u.role}</span>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-[#66758d]">
-                          {u.role === "student" ? (
-                            <>
-                              <div>{u.section_name ?? (u.section_id != null ? `Section #${u.section_id}` : "—")}</div>
-                              <div>{u.course_name ?? (u.course_id != null ? `Course #${u.course_id}` : "—")}</div>
-                            </>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-bold ${u.is_active ? "bg-[#dff5e8] text-[#246044]" : "bg-[#ffe1d1] text-[#6b3d27]"}`}
-                          >
-                            {u.is_active ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setFormState({ mode: "edit", user: u })}
-                              className="rounded-full bg-[#d9efff] px-4 py-2.5 text-xs font-bold text-[#23446c] hover:brightness-95 min-h-[44px]"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleToggleActive(u)}
-                              disabled={actionLoading === String(u.id)}
-                              className={`rounded-full px-4 py-2.5 text-xs font-bold hover:brightness-95 disabled:opacity-60 min-h-[44px] ${u.is_active ? "bg-[#ffe1d1] text-[#6b3d27]" : "bg-[#dff5e8] text-[#246044]"}`}
-                            >
-                              {actionLoading === String(u.id) ? "..." : u.is_active ? "Deactivate" : "Activate"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="grid gap-4 md:hidden">
-            {users.map((u) => (
-              <div key={String(u.id)} className="clay rounded-3xl bg-[#fdfaf3] p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-bold text-[#23344f]">{u.full_name}</p>
-                    <p className="text-xs text-[#66758d]">{u.email}</p>
-                  </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${roleBadge(u.role)}`}>{u.role}</span>
-                </div>
-                {u.role === "student" && (
-                  <div className="mt-2 text-xs text-[#66758d]">
-                    <p>Section: {u.section_name ?? (u.section_id ?? "—")}</p>
-                    <p>Course: {u.course_name ?? (u.course_id ?? "—")}</p>
-                  </div>
-                )}
-                <div className="mt-2">
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-bold ${u.is_active ? "bg-[#dff5e8] text-[#246044]" : "bg-[#ffe1d1] text-[#6b3d27]"}`}
-                  >
-                    {u.is_active ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setFormState({ mode: "edit", user: u })}
-                    className="rounded-full bg-[#d9efff] px-4 py-2.5 text-xs font-bold text-[#23446c] min-h-[44px]"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(u)}
-                    disabled={actionLoading === String(u.id)}
-                    className={`rounded-full px-4 py-2.5 text-xs font-bold disabled:opacity-60 min-h-[44px] ${u.is_active ? "bg-[#ffe1d1] text-[#6b3d27]" : "bg-[#dff5e8] text-[#246044]"}`}
-                  >
-                    {u.is_active ? "Deactivate" : "Activate"}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
+        <div className="overflow-x-auto" style={{ marginTop: "var(--space-4)" }}>
+          <table className="table-token min-w-[720px]">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Role</th>
+                <th scope="col">Section / Course</th>
+                <th scope="col">Status</th>
+                <th scope="col" style={{ textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={String(u.id)}>
+                  <td className="font-medium" style={{ fontWeight: 600 }}>{u.full_name}</td>
+                  <td className="tokens-small" style={{ color: "var(--color-muted)" }}>{u.email}</td>
+                  <td>
+                    <RoleBadge role={u.role} />
+                  </td>
+                  <td className="tokens-small" style={{ color: "var(--color-muted)" }}>
+                    {u.role === "student" ? (
+                      <>
+                        <span className="block">{u.section_name ?? (u.section_id != null ? `Section #${u.section_id}` : "—")}</span>
+                        <span className="block">{u.course_name ?? (u.course_id != null ? `Course #${u.course_id}` : "—")}</span>
+                      </>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>
+                    <StatusBadge active={u.is_active} />
+                  </td>
+                  <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                    <button
+                      type="button"
+                      onClick={() => setFormState({ mode: "edit", user: u })}
+                      className="inline-flex min-h-[44px] items-center px-2 text-sm font-semibold"
+                      style={{ color: "var(--color-muted)" }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(u)}
+                      disabled={actionLoading === String(u.id)}
+                      className="inline-flex min-h-[44px] items-center px-2 text-sm font-semibold disabled:opacity-60"
+                      style={{ color: u.is_active ? "var(--color-danger)" : "var(--color-success)" }}
+                    >
+                      {actionLoading === String(u.id) ? "…" : u.is_active ? "Deactivate" : "Activate"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {loadError && <p className="text-sm font-medium text-[#6b3d27]">{loadError}</p>}
+      {loadError && <p className="tokens-small mt-4 font-medium" style={{ color: "var(--color-danger)" }}>{loadError}</p>}
 
       {users.length < total && (
-        <div className="flex justify-center">
+        <div className="flex justify-center" style={{ marginTop: "var(--space-6)" }}>
           <button
             type="button"
             onClick={handleLoadMore}
             disabled={loadingMore}
-            className="w-full rounded-full bg-[#d9efff] px-6 py-2.5 text-sm font-bold text-[#315c86] hover:brightness-95 disabled:opacity-60 min-h-[44px] sm:w-auto"
+            className="tokens-btn tokens-btn-secondary w-full !min-h-[44px] text-sm disabled:opacity-60 sm:w-auto"
           >
             {loadingMore ? "Loading…" : "Load more"}
           </button>

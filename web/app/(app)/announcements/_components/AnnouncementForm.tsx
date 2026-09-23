@@ -207,24 +207,20 @@ export default function AnnouncementForm({ mode, initial }: Props) {
     }
   }
 
-  const inputCls = "clay-input block w-full px-4 py-2.5 text-sm text-text-main placeholder-text-muted min-h-[44px]";
+  const inputCls = "input-token";
 
   return (
-    <div className="clay-card rounded-clay p-4 sm:p-6">
-      <h2 className="mb-4 font-heading text-lg font-bold text-text-main">
-        {mode === "edit" ? "Edit Announcement" : "Create Announcement"}
-      </h2>
-
+    <div>
       {error && (
-        <div className="mb-4 rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{error}</div>
+        <div className="mb-4 tokens-small" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-3) var(--space-4)", fontWeight: 600 }}>{error}</div>
       )}
       {uploadError && (
-        <div className="mb-4 rounded-clay bg-danger/15 px-4 py-3 text-sm font-medium text-danger">{uploadError}</div>
+        <div className="mb-4 tokens-small" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-3) var(--space-4)", fontWeight: 600 }}>{uploadError}</div>
       )}
 
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <div>
-          <label htmlFor="ann-title" className="block text-sm font-semibold text-text-main">
+          <label htmlFor="ann-title" className="label-token">
             Title *
           </label>
           <input
@@ -234,12 +230,12 @@ export default function AnnouncementForm({ mode, initial }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Announcement title"
-            className={`${inputCls} mt-1.5`}
+            className={inputCls}
           />
         </div>
 
         <div>
-          <label htmlFor="ann-content" className="block text-sm font-semibold text-text-main">
+          <label htmlFor="ann-content" className="label-token">
             Content *
           </label>
           <textarea
@@ -249,19 +245,25 @@ export default function AnnouncementForm({ mode, initial }: Props) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Announcement content"
-            className={`${inputCls} mt-1.5`}
+            className={inputCls}
           />
         </div>
 
         <div>
-          <p className="mb-2 block text-sm font-semibold text-text-main">Type</p>
-          <div className="flex flex-wrap gap-3">
+          <p className="label-token">Type</p>
+          <div className="flex gap-6" style={{ borderBottom: "1px solid var(--color-line)" }}>
             {["general", "class"].map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`rounded-clay-pill px-5 py-2.5 text-sm font-bold transition-colors min-h-[44px] ${type === t ? "bg-[#315c86] text-white shadow-clay-sm" : "bg-surface text-text-muted hover:text-[#315c86]"}`}
+                aria-pressed={type === t}
+                className="inline-flex min-h-[44px] items-center text-sm font-bold transition-colors duration-200 motion-reduce:transition-none"
+                style={{
+                  color: type === t ? "var(--color-text)" : "var(--color-muted)",
+                  boxShadow: type === t ? "inset 0 -2px 0 var(--color-primary)" : "none",
+                  paddingInline: "2px",
+                }}
               >
                 {t === "general" ? "General" : "Class"}
               </button>
@@ -270,24 +272,27 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-text-main">Image</label>
+          <label className="label-token">Image</label>
           <input
             ref={fileInputRef}
             id="ann-image-file"
             type="file"
             accept="image/jpeg,image/png,image/webp"
             onChange={handleFileChange}
-            className="block w-full text-sm text-text-muted file:mr-4 file:rounded-clay-pill file:border-0 file:bg-primary/15 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary hover:file:bg-primary/25"
+            className="block w-full text-sm min-h-[44px]"
+            style={{ color: "var(--color-muted)" }}
           />
-          <p className="mt-1 text-xs text-text-muted">JPEG, PNG, or WebP. Max 10 MB.</p>
-          {uploading && <p className="mt-2 text-xs text-text-muted">Uploading…</p>}
+          <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>JPEG, PNG, or WebP. Max 10 MB.</p>
+          {uploading && <p className="tokens-small mt-2" style={{ color: "var(--color-muted)" }}>Uploading…</p>}
           {previewUrl && (
-            <div className="relative mt-2">
-              <img src={previewUrl} alt="Preview" className="h-48 rounded-clay object-cover" />
+            <div className="relative mt-2 inline-block">
+              <img src={previewUrl} alt="Preview" className="h-48 rounded-xl object-cover" />
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-danger text-white"
+                aria-label="Remove image"
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center"
+                style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
               >
                 <X size={14} />
               </button>
@@ -297,7 +302,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="ann-publish" className="block text-sm font-semibold text-text-main">
+            <label htmlFor="ann-publish" className="label-token">
               Publish at (optional)
             </label>
             <input
@@ -305,12 +310,12 @@ export default function AnnouncementForm({ mode, initial }: Props) {
               type="datetime-local"
               value={publishAt}
               onChange={(e) => setPublishAt(e.target.value)}
-              className={`${inputCls} mt-1.5`}
+              className={inputCls}
             />
-            <p className="mt-1 text-xs text-text-muted">Leave empty to publish immediately</p>
+            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>Leave empty to publish immediately</p>
           </div>
           <div>
-            <label htmlFor="ann-expires" className="block text-sm font-semibold text-text-main">
+            <label htmlFor="ann-expires" className="label-token">
               Expires at (optional)
             </label>
             <input
@@ -318,22 +323,23 @@ export default function AnnouncementForm({ mode, initial }: Props) {
               type="datetime-local"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className={`${inputCls} mt-1.5`}
+              className={inputCls}
             />
           </div>
         </div>
 
         {!isClass && (
-          <label className="flex items-start gap-3 rounded-xl bg-[#f0f0ff]/50 p-3">
+          <label className="flex items-start gap-3 rounded-xl p-3" style={{ border: "1px solid var(--color-line)", backgroundColor: "var(--color-surface)" }}>
             <input
               type="checkbox"
               checked={showOnTv}
               onChange={(e) => setShowOnTv(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-[#d9d7e2] text-[#315c86] focus:ring-[#315c86]"
+              className="mt-1 h-4 w-4"
+              style={{ accentColor: "var(--color-primary)" }}
             />
             <span className="flex-1">
-              <span className="block text-sm font-semibold text-text-main">Show on TV display</span>
-              <span className="block text-xs text-text-muted">Appears on the school lobby TV slideshow.</span>
+              <span className="block text-sm font-semibold" style={{ color: "var(--color-text)" }}>Show on TV display</span>
+              <span className="block text-xs" style={{ color: "var(--color-muted)" }}>Appears on the school lobby TV slideshow.</span>
             </span>
           </label>
         )}
@@ -344,14 +350,14 @@ export default function AnnouncementForm({ mode, initial }: Props) {
           <button
             type="button"
             onClick={() => router.push("/announcements")}
-            className="clay-btn-sm rounded-clay-pill bg-surface px-4 py-2.5 text-sm font-semibold text-text-main min-h-[44px] w-full sm:w-auto"
+            className="tokens-btn tokens-btn-secondary w-full text-sm sm:w-auto"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving || uploading}
-            className="clay-btn rounded-clay-pill bg-[#315c86] px-5 py-2.5 text-sm font-bold text-white shadow-clay disabled:cursor-not-allowed disabled:opacity-60 min-h-[44px] w-full sm:w-auto"
+            className="tokens-btn tokens-btn-primary w-full text-sm disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {saving ? "Saving…" : mode === "edit" ? "Save changes" : type === "class" ? "Publish class announcement" : "Publish"}
           </button>

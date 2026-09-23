@@ -105,7 +105,8 @@ export default function CategoryFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -115,44 +116,51 @@ export default function CategoryFormModal({
         role="dialog"
         aria-modal="true"
         aria-label={mode === "create" ? "Create category" : "Rename category"}
-        className="clay max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-[#fdfaf3] p-4 sm:p-6"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto p-4 sm:p-6"
+        style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-[#23344f]">{mode === "create" ? "Add category" : "Rename category"}</h2>
-          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f0e6d8] text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] min-w-[44px]">
-            Close
+        <div className="flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>
+          <h2 className="font-heading text-lg font-extrabold" style={{ color: "var(--color-text)" }}>{mode === "create" ? "Add category" : "Rename category"}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center text-sm font-bold"
+            style={{ borderRadius: "var(--radius-small)", border: "1px solid var(--color-line)", color: "var(--color-text)" }}
+          >
+            ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <label className="block text-sm">
-            <span className="text-xs font-bold text-[#23344f]">Name *</span>
+            <span className="label-token">Name *</span>
             <input
               ref={inputRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={50}
               placeholder="Category name"
-              className="mt-1 w-full rounded-xl bg-white p-2.5 text-sm ring-1 ring-[#d9efff] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5a8fc9] min-h-[44px]"
+              className="input-token"
               required
             />
-            <span className="mt-1 block text-xs text-[#66758d]">{name.trim().length}/50</span>
+            <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>{name.trim().length}/50</span>
           </label>
 
-          {error && <p className="rounded-xl bg-[#ffe1d1] px-3 py-2 text-sm font-medium text-[#6b3d27]">{error}</p>}
+          {error && <p className="tokens-small font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-2) var(--space-3)" }}>{error}</p>}
 
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
             <button
               type="button"
               onClick={onClose}
-              className="w-full rounded-full bg-[#f0e6d8] px-5 py-2.5 text-sm font-bold text-[#6b3d27] focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 min-h-[44px] sm:w-auto"
+              className="tokens-btn tokens-btn-secondary w-full !min-h-[44px] text-sm sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-full bg-[#dff5e8] px-5 py-2.5 text-sm font-bold text-[#246044] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60 min-h-[44px] sm:w-auto"
+              className="tokens-btn tokens-btn-primary w-full !min-h-[44px] text-sm disabled:opacity-60 sm:w-auto"
             >
               {submitting ? "Saving…" : mode === "create" ? "Create" : "Save"}
             </button>

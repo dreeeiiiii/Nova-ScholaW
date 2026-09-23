@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Images } from "lucide-react";
 import { resolveMediaUrl } from "@/lib/url";
 import Lightbox from "./Lightbox";
+import { EmptyState } from "../../_components/EmptyState";
 
 type Media = {
   id: number | string;
@@ -25,24 +27,60 @@ function formatDate(iso?: string) {
   }
 }
 
+function TileVisual({ m, src, title }: { m: Media; src: string; title: string }) {
+  return (
+    <span className="relative block aspect-[4/3] overflow-hidden" style={{ backgroundColor: "var(--color-background-deep)" }}>
+      {m.media_type === "video" ? (
+        <video src={src} preload="metadata" className="h-full w-full object-cover" />
+      ) : (
+        <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
+      )}
+      {m.media_type === "video" && (
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+          <span
+            className="flex h-10 w-10 items-center justify-center text-sm"
+            style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-surface)", color: "var(--color-text)" }}
+          >
+            ▶
+          </span>
+        </span>
+      )}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 hidden p-4 opacity-0 transition-opacity duration-200 motion-reduce:transition-none md:block md:group-hover/tile:opacity-100"
+        style={{ background: "linear-gradient(to top, rgba(20, 18, 31, 0.75), transparent)", paddingTop: "var(--space-8)" }}
+      >
+        <span className="block truncate text-sm font-bold" style={{ color: "var(--color-surface)" }}>
+          {title}
+        </span>
+        <span className="tokens-small mt-1 block" style={{ color: "rgba(255, 255, 255, 0.75)" }}>
+          {m.category_name || "Uncategorized"} · {formatDate(m.created_at)}
+        </span>
+      </span>
+    </span>
+  );
+}
+
 export default function GalleryGrid({ media }: { media: Media[] }) {
   const [selected, setSelected] = useState<Media | null>(null);
 
   if (media.length === 0) {
     return (
-      <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-        <p className="text-sm font-medium text-[#23344f]">No media found.</p>
-        <p className="mt-1 text-xs text-[#66758d]">Try adjusting filters or share a memory.</p>
-        <Link href="/gallery/upload" className="mt-4 inline-block rounded-full bg-[#315c86] px-6 py-2.5 text-sm font-bold text-white">
-          Upload media
-        </Link>
-      </div>
+      <EmptyState
+        icon={<Images size={20} strokeWidth={1.5} aria-hidden="true" />}
+        message="No media found. Try adjusting filters or share a memory."
+        action={
+          <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
+            Upload media
+          </Link>
+        }
+      />
     );
   }
 
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "var(--space-4)" }}>
         {media.map((m) => {
           const src = resolveMediaUrl(m.file_url);
           const title = m.caption || m.original_filename || `Media #${m.id}`;
@@ -51,29 +89,19 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
               key={String(m.id)}
               type="button"
               onClick={() => setSelected(m)}
-              className="clay overflow-hidden rounded-3xl bg-[#fdfaf3] text-left transition hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#315c86] focus-visible:ring-offset-2"
+              aria-label={`Open ${title}`}
+              className="group/tile block text-left transition-transform duration-200 ease-out motion-reduce:transition-none md:hover:-translate-y-0.5"
+              style={{ borderRadius: "var(--radius-small)", overflow: "hidden" }}
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-[#fbf7ef]">
-                {m.media_type === "video" ? (
-                  <video src={src} preload="metadata" className="h-full w-full object-cover" />
-                ) : (
-                  <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
-                )}
-                {m.media_type === "video" && (
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90">▶</span>
-                  </span>
-                )}
-              </div>
-              <div className="p-4">
-                <p className="truncate text-sm font-bold text-[#23344f]">{title}</p>
-                <p className="mt-1 text-xs text-text-muted">
+              <TileVisual m={m} src={src} title={title} />
+              <span className="block md:hidden" style={{ paddingBlock: "var(--space-2)" }}>
+                <span className="block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>
+                  {title}
+                </span>
+                <span className="tokens-small mt-0.5 block" style={{ color: "var(--color-muted)" }}>
                   {m.category_name || "Uncategorized"} · {formatDate(m.created_at)}
-                </p>
-                {m.uploader_name && (
-                  <p className="mt-1 text-xs text-text-muted">Uploaded by: {m.uploader_name}</p>
-                )}
-              </div>
+                </span>
+              </span>
             </button>
           );
         })}

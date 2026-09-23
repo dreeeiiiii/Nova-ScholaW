@@ -37,7 +37,7 @@ export async function loginAs(page: Page, email: string, password: string) {
   // password / rate-limit shows up here as a hard failure instead of a timeout.
   const [loginRes] = await Promise.all([
     page.waitForResponse((r) => r.url().includes("/api/auth/login")),
-    page.getByRole("button", { name: "Log in" }).click(),
+    page.getByRole("button", { name: "Sign in" }).click(),
   ]);
   if (!loginRes.ok()) {
     throw new Error(`Login failed (${loginRes.status()}) for ${email}`);

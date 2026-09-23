@@ -36,7 +36,7 @@ test("admin creates and deactivates a user", async ({ page }) => {
   if (hasRow > 0) {
     deactivateBtn = row.getByRole("button", { name: "Deactivate" });
   } else {
-    const card = page.locator("div.clay", { hasText: email }).first();
+    const card = page.locator("tr", { hasText: email }).first();
     deactivateBtn = card.getByRole("button", { name: "Deactivate" });
   }
   await expect(deactivateBtn).toBeVisible();
@@ -51,7 +51,7 @@ test("admin creates and deactivates a user", async ({ page }) => {
   if (hasTargetRow > 0) {
     await expect(targetRow.getByText("Inactive").first()).toBeVisible({ timeout: 10000 });
   } else {
-    const card2 = page.locator("div.clay", { hasText: email }).first();
+    const card2 = page.locator("tr", { hasText: email }).first();
     await expect(card2.getByText("Inactive").first()).toBeVisible({ timeout: 10000 });
   }
 

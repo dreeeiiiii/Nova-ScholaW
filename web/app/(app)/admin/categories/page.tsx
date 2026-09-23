@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch, ApiError } from "@/lib/api";
 import CategoryManagement from "./_components/CategoryManagement";
+import { PageHeader } from "../../_components/PageHeader";
 
 type Category = { id: number | string; name: string; created_at?: string };
 
@@ -22,28 +23,35 @@ export default async function CategoriesPage() {
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div>
-          <span className="text-sm font-bold text-[#315c86]">GALLERY</span>
-          <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Categories</h1>
-          <p className="mt-2 text-sm text-[#66758d]">
-            Manage gallery categories. Deleting a category clears it from media without deleting the media.
-          </p>
+      <div>
+        <PageHeader
+          eyebrow="Gallery"
+          title="Categories"
+          description="Manage gallery categories. Deleting a category clears it from media without deleting the media."
+        />
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            fontWeight: 600,
+          }}
+        >
+          {error}
         </div>
-        <div className="rounded-2xl bg-[#ffe1d1] px-4 py-3 text-sm font-medium text-[#6b3d27]">{error}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <span className="text-sm font-bold text-[#315c86]">GALLERY</span>
-        <h1 className="mt-2 font-heading text-2xl font-extrabold text-[#23344f]">Categories</h1>
-        <p className="mt-2 text-sm text-[#66758d]">
-          Manage gallery categories. Deleting a category clears it from media without deleting the media.
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Gallery"
+        title="Categories"
+        description="Manage gallery categories. Deleting a category clears it from media without deleting the media."
+      />
 
       <CategoryManagement initialCategories={categories} />
     </div>

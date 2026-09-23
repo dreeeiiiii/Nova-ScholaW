@@ -76,40 +76,42 @@ export default function DeleteAnnouncementModal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       role="dialog"
       aria-modal="true"
       aria-label="Delete announcement"
+      style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
     >
-      <div className="clay w-full max-w-md rounded-[2rem] bg-[#fdfaf3] p-6">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="font-heading text-lg font-bold text-[#23344f]">Delete announcement</h2>
+      <div className="w-full max-w-md p-6" style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}>
+        <div className="mb-4 flex items-start justify-between gap-4" style={{ borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>
+          <h2 className="font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Delete announcement</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-xl bg-white p-2 shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="min-h-[44px] min-w-[44px] p-2"
+            style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-surface)", border: "1px solid var(--color-line)", color: "var(--color-text)" }}
           >
             <X size={18} aria-hidden="true" />
           </button>
         </div>
 
-        <p className="text-sm text-text-main">
+        <p className="text-sm" style={{ color: "var(--color-text)" }}>
           Delete announcement &apos;{announcementTitle}&apos;? This cannot be undone.
         </p>
 
-        {error && <p className="mt-3 rounded-xl bg-danger/15 px-3 py-2 text-sm font-medium text-danger">{error}</p>}
+        {error && <p className="mt-3 tokens-small font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-2) var(--space-3)" }}>{error}</p>}
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex justify-end gap-3" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
           <button
             ref={cancelRef}
             type="button"
             onClick={onClose}
             disabled={pending}
-            className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-text-main shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2"
+            className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm disabled:opacity-60"
           >
             Cancel
           </button>
@@ -117,7 +119,8 @@ export default function DeleteAnnouncementModal({
             type="button"
             onClick={onDelete}
             disabled={pending}
-            className="rounded-full bg-[#8b3a2c] px-5 py-2.5 text-sm font-bold text-white shadow focus:outline-none focus:ring-2 focus:ring-[#315c86] focus:ring-offset-2 disabled:opacity-60"
+            className="tokens-btn !min-h-[44px] !px-5 !py-2 text-sm font-bold disabled:opacity-60"
+            style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
           >
             {pending ? "Deleting..." : "Delete"}
           </button>

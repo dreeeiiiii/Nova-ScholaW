@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Images as ImagesIcon } from "lucide-react";
 import ModerationQueue from "./ModerationQueue";
+import { EmptyState } from "../../../_components/EmptyState";
 import { resolveMediaUrl } from "@/lib/url";
 
 type Media = {
@@ -86,101 +88,150 @@ export default function ModerationTabs({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("pending")}
-          className={`rounded-full px-5 py-2.5 text-sm font-bold min-h-[44px] ${activeTab === "pending" ? "bg-[#315c86] text-white" : "bg-[#fdfaf3] text-[#23344f] clay"}`}
-        >
-          Pending
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("recent")}
-          className={`rounded-full px-5 py-2.5 text-sm font-bold min-h-[44px] ${activeTab === "recent" ? "bg-[#315c86] text-white" : "bg-[#fdfaf3] text-[#23344f] clay"}`}
-        >
-          Recently uploaded
-        </button>
-      </div>
-
-      {activeTab === "pending" && <ModerationQueue initialMedia={initialPending} error={pendingError} />}
-
-      {activeTab === "recent" && (
-        <div className="space-y-4">
-          {recentLoading && <p className="text-sm text-text-muted">Loading recent uploads…</p>}
-          {recentError && <div className="rounded-2xl bg-[#ffe1d1] px-4 py-3 text-sm font-medium text-[#6b3d27]">{recentError}</div>}
-          {!recentLoading && !recentError && recentMedia.length === 0 && (
-            <div className="clay rounded-3xl bg-[#fdfaf3] p-8 text-center">
-              <p className="text-sm font-medium text-[#23344f]">No recent uploads</p>
-            </div>
-          )}
-          {!recentLoading && recentMedia.length > 0 && (
-            <div className="grid gap-5 xl:grid-cols-2">
-              {recentMedia.map((m) => {
-                const src = resolveMediaUrl(m.file_url);
-                const title = m.caption?.trim() || m.original_filename || "Untitled upload";
-                const uploader = m.uploader_email || m.uploader_name || "Unknown";
-                return (
-                  <article key={String(m.id)} className="clay overflow-hidden rounded-3xl bg-[#fdfaf3] p-6">
-                    <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-[#fbf7ef]">
-                      {m.media_type === "video" ? (
-                        <video src={src} preload="metadata" className="h-full w-full object-cover" />
-                      ) : (
-                        <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
-                      )}
-                    </div>
-                    <h3 className="mt-4 font-bold text-[#23344f]">{title}</h3>
-                    <p className="mt-1 text-sm text-[#66758d]">Uploaded by: {uploader}</p>
-                    <p className="mt-1 text-xs text-[#66758d]">{formatDate(m.created_at)}</p>
-                    <p className="mt-1 text-xs text-[#66758d]">Caption: {m.caption || "—"}</p>
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDelete(m)}
-                        disabled={deleting === String(m.id)}
-                        className="rounded-full bg-[#ffe1d1] px-4 py-2.5 text-sm font-bold text-[#6b3d27] hover:brightness-95 disabled:opacity-60 min-h-[44px]"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-          {confirmDelete && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-              onClick={(e) => {
-                if (e.target === e.currentTarget) setConfirmDelete(null);
+    <div>
+      <div
+        className="flex gap-6"
+        role="tablist"
+        aria-label="Moderation views"
+        style={{ borderBottom: "1px solid var(--color-line)" }}
+      >
+        {(
+          [
+            { key: "pending", label: "Pending" },
+            { key: "recent", label: "Recently uploaded" },
+          ] as const
+        ).map((tab) => {
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(tab.key)}
+              className="inline-flex min-h-[44px] items-center text-sm font-bold transition-colors duration-200 motion-reduce:transition-none"
+              style={{
+                color: isActive ? "var(--color-text)" : "var(--color-muted)",
+                boxShadow: isActive ? "inset 0 -2px 0 var(--color-primary)" : "none",
+                paddingInline: "2px",
               }}
             >
-              <div role="dialog" aria-modal="true" className="clay w-full max-w-md rounded-3xl bg-[#fdfaf3] p-6">
-                <h2 className="font-bold text-[#23344f]">Delete this upload?</h2>
-                <p className="mt-2 text-sm text-[#66758d]">This will permanently delete the media. This cannot be undone.</p>
-                <div className="mt-6 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDelete(null)}
-                    className="rounded-full bg-[#f0e6d8] px-5 py-2.5 text-sm font-bold text-[#6b3d27] min-h-[44px]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(confirmDelete)}
-                    disabled={deleting === String(confirmDelete.id)}
-                    className="rounded-full bg-[#ffe1d1] px-5 py-2.5 text-sm font-bold text-[#6b3d27] disabled:opacity-60 min-h-[44px]"
-                  >
-                    {deleting === String(confirmDelete.id) ? "Deleting…" : "Delete"}
-                  </button>
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: "var(--space-6)" }}>
+        {activeTab === "pending" && <ModerationQueue initialMedia={initialPending} error={pendingError} />}
+
+        {activeTab === "recent" && (
+          <div>
+            {recentLoading && <p className="tokens-small" style={{ color: "var(--color-muted)" }}>Loading recent uploads…</p>}
+            {recentError && (
+              <div
+                className="tokens-small"
+                style={{
+                  borderRadius: "var(--radius-small)",
+                  backgroundColor: "var(--color-danger-bg)",
+                  color: "var(--color-danger)",
+                  padding: "var(--space-3) var(--space-4)",
+                  fontWeight: 600,
+                }}
+              >
+                {recentError}
+              </div>
+            )}
+            {!recentLoading && !recentError && recentMedia.length === 0 && (
+              <EmptyState
+                icon={<ImagesIcon size={20} strokeWidth={1.5} aria-hidden="true" />}
+                message="No recent uploads."
+              />
+            )}
+            {!recentLoading && recentMedia.length > 0 && (
+              <ul style={{ borderTop: "1px solid var(--color-line)" }}>
+                {recentMedia.map((m) => {
+                  const src = resolveMediaUrl(m.file_url);
+                  const title = m.caption?.trim() || m.original_filename || "Untitled upload";
+                  const uploader = m.uploader_email || m.uploader_name || "Unknown";
+                  return (
+                    <li
+                      key={String(m.id)}
+                      className="flex min-h-[44px] gap-4"
+                      style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+                    >
+                      <span className="block h-20 w-20 shrink-0 overflow-hidden" style={{ backgroundColor: "var(--color-background-deep)" }}>
+                        {m.media_type === "video" ? (
+                          <video src={src} preload="metadata" className="h-full w-full object-cover" />
+                        ) : (
+                          <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>{title}</span>
+                        <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>
+                          Uploaded by {uploader} · {formatDate(m.created_at)}
+                        </span>
+                        <span className="tokens-small block" style={{ color: "var(--color-muted)" }}>
+                          Caption: {m.caption || "—"}
+                        </span>
+                        <span className="mt-2 block">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDelete(m)}
+                            disabled={deleting === String(m.id)}
+                            className="inline-flex min-h-[44px] items-center text-sm font-semibold disabled:opacity-60"
+                            style={{ color: "var(--color-danger)" }}
+                          >
+                            Delete
+                          </button>
+                        </span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {confirmDelete && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setConfirmDelete(null);
+                }}
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  className="w-full max-w-md p-6"
+                  style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}
+                >
+                  <h2 className="font-heading font-bold" style={{ color: "var(--color-text)", borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>Delete this upload?</h2>
+                  <p className="tokens-small mt-4" style={{ color: "var(--color-muted)" }}>This will permanently delete the media. This cannot be undone.</p>
+                  <div className="mt-6 flex justify-end gap-3" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDelete(null)}
+                      className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(confirmDelete)}
+                      disabled={deleting === String(confirmDelete.id)}
+                      className="tokens-btn !min-h-[44px] !px-5 !py-2 text-sm font-bold disabled:opacity-60"
+                      style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
+                    >
+                      {deleting === String(confirmDelete.id) ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

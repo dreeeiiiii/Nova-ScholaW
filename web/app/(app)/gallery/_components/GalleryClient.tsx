@@ -56,11 +56,13 @@ export default function GalleryClient({
   }, [searchParams]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setQ(initialQ);
   }, [initialQ]);
 
   // Clear optimistic selections once the server confirms the new filters
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setOptimisticCategory(null);
     setOptimisticYear(null);
     setOptimisticMediaType(null);
@@ -109,43 +111,69 @@ export default function GalleryClient({
   const activeMediaType = optimisticMediaType ?? initialMediaType;
 
   return (
-    <div className="space-y-6">
+    <div>
       {pendingCount > 0 && (
-        <div className="clay rounded-2xl bg-[#fff9f2] p-4 text-sm text-[#23344f]">
-          ⏳ {pendingCount} upload{pendingCount > 1 ? "s" : ""} awaiting review.{" "}
-          <Link href="/gallery/mine" className="font-bold text-[#315c86] underline">
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-warning-bg)",
+            color: "var(--color-warning)",
+            padding: "var(--space-3) var(--space-4)",
+            marginBottom: "var(--space-4)",
+          }}
+        >
+          {pendingCount} upload{pendingCount > 1 ? "s" : ""} awaiting review.{" "}
+          <Link href="/gallery/mine" className="font-bold underline">
             View your uploads
           </Link>
         </div>
       )}
       {rejectedCount > 0 && (
-        <div className="clay rounded-2xl bg-[#ffe1d1] p-4 text-sm text-[#23344f]">
-          ⚠ {rejectedCount} upload{rejectedCount > 1 ? "s" : ""} rejected.{" "}
-          <Link href="/gallery/mine" className="font-bold text-[#315c86] underline">
+        <div
+          className="tokens-small"
+          style={{
+            borderRadius: "var(--radius-small)",
+            backgroundColor: "var(--color-danger-bg)",
+            color: "var(--color-danger)",
+            padding: "var(--space-3) var(--space-4)",
+            marginBottom: "var(--space-4)",
+          }}
+        >
+          {rejectedCount} upload{rejectedCount > 1 ? "s" : ""} rejected.{" "}
+          <Link href="/gallery/mine" className="font-bold underline">
             View your uploads
           </Link>
         </div>
       )}
-      <div className="clay flex flex-col gap-3 rounded-3xl bg-[#fdfaf3] p-4 sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex flex-1 items-center gap-2 rounded-2xl bg-white px-4 shadow-[inset_4px_4px_9px_#d5d2cb,inset_-4px_-4px_9px_#fffdf7] min-h-[44px]">
-            <Search size={16} className="text-text-muted" />
-            <input
-              id="gallery-search"
-              type="search"
-              placeholder="Search captions, filenames, categories…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              className="w-full bg-transparent p-3 text-sm outline-none placeholder:text-text-muted min-h-[44px]"
-            />
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="relative flex-1 lg:max-w-md">
+          <label className="sr-only" htmlFor="gallery-search">
+            Search gallery
+          </label>
+          <Search
+            size={16}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
+            style={{ color: "var(--color-muted)" }}
+          />
+          <input
+            id="gallery-search"
+            type="search"
+            placeholder="Search captions, filenames, categories…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="input-token"
+            style={{ paddingLeft: "2.75rem" }}
+          />
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <select
+            aria-label="Filter by category"
             value={activeCategory}
             onChange={(e) => updateParam("category_id", e.target.value)}
-            className="w-full rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none min-h-[44px] sm:w-auto"
+            className="input-token sm:w-auto"
           >
             <option value="">All categories</option>
             {categories.map((c) => (
@@ -154,11 +182,11 @@ export default function GalleryClient({
               </option>
             ))}
           </select>
-
           <select
+            aria-label="Filter by year"
             value={activeYear}
             onChange={(e) => updateParam("year", e.target.value)}
-            className="w-full rounded-2xl bg-white px-4 py-2.5 text-sm shadow-[inset_4px_4px_9px_#d5d2cb] outline-none min-h-[44px] sm:w-auto"
+            className="input-token sm:w-auto"
           >
             <option value="">All years</option>
             {YEAR_OPTIONS.map((y) => (
@@ -167,8 +195,12 @@ export default function GalleryClient({
               </option>
             ))}
           </select>
-
-          <div className="flex gap-2">
+          <div
+            className="flex gap-6"
+            role="tablist"
+            aria-label="Filter by media type"
+            style={{ borderBottom: "1px solid var(--color-line)" }}
+          >
             {[
               { v: "", label: "All" },
               { v: "image", label: "Image" },
@@ -179,8 +211,15 @@ export default function GalleryClient({
                 <button
                   key={opt.v || "all"}
                   type="button"
+                  role="tab"
+                  aria-selected={active}
                   onClick={() => updateParam("media_type", opt.v)}
-                  className={`rounded-full px-4 py-2.5 text-sm font-bold min-h-[44px] ${active ? "bg-[#d9efff] text-[#23446c] ring-2 ring-[#315c86]" : "bg-white text-text-muted"}`}
+                  className="inline-flex min-h-[44px] items-center text-sm font-bold transition-colors duration-200 motion-reduce:transition-none"
+                  style={{
+                    color: active ? "var(--color-text)" : "var(--color-muted)",
+                    boxShadow: active ? "inset 0 -2px 0 var(--color-primary)" : "none",
+                    paddingInline: "2px",
+                  }}
                 >
                   {opt.label}
                 </button>
@@ -190,17 +229,27 @@ export default function GalleryClient({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <p className="text-xs text-text-muted">{total} result{total === 1 ? "" : "s"}</p>
+      <div className="mt-4 flex items-center gap-3">
+        <p className="tokens-small" style={{ color: "var(--color-muted)" }}>
+          {total} result{total === 1 ? "" : "s"}
+        </p>
         {isPending && (
-          <span className="inline-flex items-center gap-2 text-xs text-text-muted" role="status" aria-live="polite">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[#315c86]" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2 text-xs" style={{ color: "var(--color-muted)" }} role="status" aria-live="polite">
+            <span
+              className="inline-block h-2 w-2 animate-pulse"
+              aria-hidden="true"
+              style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-primary)" }}
+            />
             Updating…
           </span>
         )}
       </div>
 
-      <div className={`transition-opacity ${isPending ? "opacity-60" : ""}`} aria-busy={isPending}>
+      <div
+        className="transition-opacity duration-200 motion-reduce:transition-none"
+        style={{ marginTop: "var(--space-4)", opacity: isPending ? 0.6 : 1 }}
+        aria-busy={isPending}
+      >
         <GalleryGrid media={media} />
       </div>
     </div>

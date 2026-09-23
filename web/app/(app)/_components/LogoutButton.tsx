@@ -23,7 +23,7 @@ export function LogoutButton({ className = "" }: { className?: string }) {
       onClick={onLogout}
       disabled={pending}
       data-testid="logout"
-      className={`press focus-ring flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold text-text-muted hover:text-primary ${className}`}
+      className={`tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
     >
       {pending ? "Logging out…" : "Log out"}
     </button>

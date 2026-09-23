@@ -47,6 +47,7 @@ export default function TvSlideshow({
 
   // Clock 1s
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setTime(new Date());
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
@@ -77,6 +78,7 @@ export default function TvSlideshow({
   // Trigger fade/slide on index change
   useEffect(() => {
     if (!shouldAnimate) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
       setVisible(true);
       return;
     }
@@ -87,12 +89,14 @@ export default function TvSlideshow({
 
   // Keep index in bounds
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     if (currentIndex >= announcements.length) setCurrentIndex(0);
   }, [announcements.length, currentIndex]);
 
   // Progress bar: animate 0→100 over 10s, reset on index change
   useEffect(() => {
     if (announcements.length <= 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
       setProgress(100);
       return;
     }
@@ -113,40 +117,46 @@ export default function TvSlideshow({
     ? time.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })
     : "";
 
+  const slideStyle = shouldAnimate
+    ? {
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(8px)",
+        transitionDuration: "600ms",
+        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+      }
+    : undefined;
+
   if (announcements.length === 0) {
     return (
-      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-b from-[#0f1419] to-[#1a1f2e] text-white">
-        {/* Ambient blobs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-[#315c86] opacity-20 blur-3xl" />
-          <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full bg-[#e7defb] opacity-20 blur-3xl" />
-          <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d9efff] opacity-20 blur-3xl" />
-        </div>
-
-        {/* Top bar */}
+      <div
+        className="relative flex min-h-screen w-full flex-col overflow-hidden"
+        style={{ backgroundColor: "var(--color-dark)", color: "var(--color-surface)" }}
+      >
+        {/* Brand strip */}
         <div className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d9efff] text-sm font-extrabold text-[#315c86]">
+            <div
+              className="flex h-10 w-10 items-center justify-center text-sm font-extrabold"
+              style={{ backgroundColor: "var(--color-primary-soft)", color: "var(--color-primary-ink)" }}
+            >
               NSH
             </div>
             <div>
-              <p className="font-heading text-sm font-extrabold text-white">Nova Schola Hub</p>
-              <p className="text-xs text-white/60">Official School Updates</p>
+              <p className="font-heading text-sm font-extrabold" style={{ color: "var(--color-surface)" }}>Nova Schola Hub</p>
+              <p className="text-xs" style={{ color: "rgba(255, 255, 255, 0.6)" }}>Official School Updates</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="font-heading text-2xl font-bold tabular-nums text-white sm:text-3xl">{timeStr}</p>
-            <p className="text-xs text-white/60">{dateStr}</p>
+            <p className="font-heading text-2xl font-bold tabular-nums sm:text-3xl" style={{ color: "var(--color-surface)" }}>{timeStr}</p>
+            <p className="text-xs" style={{ color: "rgba(255, 255, 255, 0.6)" }}>{dateStr}</p>
           </div>
         </div>
 
-        <div className="relative z-10 flex flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-white/5 p-10 text-center backdrop-blur-md shadow-2xl">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5">
-              <Megaphone size={48} className="text-white/30" aria-hidden="true" />
-            </div>
-            <h1 className="font-heading text-2xl font-bold text-white">No announcements right now</h1>
-            <p className="mt-2 text-sm text-white/50">Check back soon.</p>
+        <div className="relative z-10 flex flex-1 items-center justify-center p-6 text-center">
+          <div>
+            <Megaphone size={40} strokeWidth={1.5} aria-hidden="true" className="mx-auto" style={{ color: "rgba(255, 255, 255, 0.35)" }} />
+            <p className="tokens-heading-3 mt-6" style={{ color: "var(--color-surface)" }}>No announcements right now</p>
+            <p className="tokens-small mt-2" style={{ color: "rgba(255, 255, 255, 0.55)" }}>Check back soon.</p>
           </div>
         </div>
       </div>
@@ -155,122 +165,117 @@ export default function TvSlideshow({
 
   const current = announcements[currentIndex % announcements.length];
   const trimmedContent = trimContent(current.content);
+  const imageSrc = current.image_url ? resolveMediaUrl(current.image_url) : null;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-b from-[#0f1419] to-[#1a1f2e] text-white">
-      {/* Ambient blobs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -top-32 -left-32 h-[600px] w-[600px] rounded-full bg-[#315c86] opacity-20 blur-3xl" />
-        <div className="absolute -bottom-32 -right-32 h-[600px] w-[600px] rounded-full bg-[#e7defb] opacity-20 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d9efff] opacity-20 blur-3xl" />
-      </div>
+    <div
+      className="relative flex min-h-screen w-full flex-col overflow-hidden"
+      style={{ backgroundColor: "var(--color-dark)", color: "var(--color-surface)" }}
+    >
+      {/* Full-bleed image + flat legibility overlay */}
+      {imageSrc && (
+        <>
+          <img
+            src={imageSrc}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 62%, transparent)" }}
+          />
+        </>
+      )}
 
-      {/* Top bar */}
+      {/* Brand strip */}
       <div className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d9efff] text-sm font-extrabold text-[#315c86]">
+          <div
+            className="flex h-10 w-10 items-center justify-center text-sm font-extrabold"
+            style={{ backgroundColor: "var(--color-primary-soft)", color: "var(--color-primary-ink)" }}
+          >
             NSH
           </div>
           <div>
-            <p className="font-heading text-sm font-extrabold text-white">Nova Schola Hub</p>
-            <p className="text-xs text-white/60">Official School Updates</p>
+            <p className="font-heading text-sm font-extrabold" style={{ color: "var(--color-surface)" }}>Nova Schola Hub</p>
+            <p className="text-xs" style={{ color: "rgba(255, 255, 255, 0.6)" }}>Official School Updates</p>
           </div>
         </div>
         <div className="text-right">
-          <p className="font-heading text-6xl font-extrabold tabular-nums text-white sm:text-7xl">{timeStr}</p>
-          <p className="mt-1 flex items-center justify-end gap-2 text-sm text-white/60">
+          <p className="font-heading font-extrabold tabular-nums" style={{ color: "var(--color-surface)", fontSize: "clamp(2.5rem, 6vw, 4.5rem)", lineHeight: 1 }}>{timeStr}</p>
+          <p className="mt-1 flex items-center justify-end gap-2 text-sm" style={{ color: "rgba(255, 255, 255, 0.6)" }}>
             <Clock size={14} aria-hidden="true" />
             {dateStr}
           </p>
         </div>
       </div>
 
-      {/* Main card */}
-      <div className="relative z-10 flex flex-1 items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-5xl">
-          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md">
-            {current.image_url ? (
-              <>
-                <div className="relative">
-                  <img
-                    src={resolveMediaUrl(current.image_url)}
-                    alt=""
-                    className="aspect-video w-full object-cover"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent" aria-hidden="true" />
-                </div>
-                <div
-                  key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
-                  className={shouldAnimate ? "transition-all" : ""}
-                  style={
-                    shouldAnimate
-                      ? {
-                          opacity: visible ? 1 : 0,
-                          transform: visible ? "translateY(0)" : "translateY(8px)",
-                          transitionDuration: "600ms",
-                          transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-                        }
-                      : undefined
-                  }
-                >
-                  <div className="p-8 sm:p-12">
-                    <h1 className="font-heading text-4xl font-extrabold leading-tight text-white sm:text-5xl break-words">
-                      {current.title}
-                    </h1>
-                    <p className="mt-4 text-lg leading-relaxed text-white/80 sm:text-2xl break-words">
-                      {trimmedContent}
-                    </p>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div
-                key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
-                className={`p-8 sm:p-12 text-center ${shouldAnimate ? "transition-all" : ""}`}
-                style={
-                  shouldAnimate
-                    ? {
-                        opacity: visible ? 1 : 0,
-                        transform: visible ? "translateY(0)" : "translateY(8px)",
-                        transitionDuration: "600ms",
-                        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-                      }
-                    : undefined
-                }
-              >
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
-                  <Megaphone size={48} className="text-white/20" aria-hidden="true" />
-                </div>
-                <h1 className="font-heading text-4xl font-extrabold leading-tight text-white sm:text-5xl break-words">
-                  {current.title}
-                </h1>
-                <p className="mx-auto mt-4 max-w-3xl text-lg leading-relaxed text-white/80 sm:text-2xl break-words">
-                  {trimmedContent}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom bar */}
-          <div className="mt-6 flex items-center justify-between gap-4">
-            <span className="text-sm text-white/40">
-              {currentIndex + 1} / {announcements.length}
-            </span>
-            <div className="flex-1 mx-4 h-1 overflow-hidden rounded-full bg-white/10">
-              <div
-                key={currentIndex}
-                className="h-full rounded-full bg-[#d9efff]"
-                style={{
-                  width: `${progress}%`,
-                  transition: shouldAnimate && announcements.length > 1 ? "width 10s linear" : "none",
-                }}
-              />
-            </div>
-            <span className="text-sm text-white/40 min-w-[40px] text-right">
-              {!shouldAnimate ? "static" : ""}
-            </span>
-          </div>
+      {/* Slide */}
+      <div className="relative z-10 flex flex-1 items-end px-6 pb-10 sm:px-12 sm:pb-14">
+        <div
+          key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
+          className={shouldAnimate ? "transition-all" : ""}
+          style={{ ...slideStyle, maxWidth: "1100px" }}
+        >
+          <p
+            className="tokens-eyebrow"
+            style={{ color: "var(--color-accent)", display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}
+          >
+            <span
+              aria-hidden="true"
+              style={{ width: "8px", height: "8px", borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-accent)" }}
+            />
+            Announcement {currentIndex + 1} of {announcements.length}
+          </p>
+          <h1
+            className="font-heading break-words"
+            style={{
+              color: "var(--color-surface)",
+              fontWeight: "var(--weight-display)",
+              letterSpacing: "var(--tracking-display)",
+              lineHeight: 1.02,
+              fontSize: "clamp(2.5rem, 6vw, 5rem)",
+              marginTop: "var(--space-4)",
+            }}
+          >
+            {current.title}
+          </h1>
+          <p
+            className="break-words"
+            style={{
+              color: "rgba(255, 255, 255, 0.82)",
+              fontSize: "clamp(1.125rem, 2.2vw, 1.5rem)",
+              lineHeight: 1.6,
+              marginTop: "var(--space-4)",
+              maxWidth: "60ch",
+            }}
+          >
+            {trimmedContent}
+          </p>
         </div>
+      </div>
+
+      {/* Progress strip */}
+      <div className="relative z-10 flex items-center gap-4 px-6 pb-6 sm:px-12">
+        <span className="tokens-small tabular-nums" style={{ color: "rgba(255, 255, 255, 0.45)", minWidth: "48px" }}>
+          {currentIndex + 1} / {announcements.length}
+        </span>
+        <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}>
+          <div
+            key={currentIndex}
+            className="h-full rounded-full"
+            style={{
+              width: `${progress}%`,
+              backgroundColor: "var(--color-accent)",
+              transition: shouldAnimate && announcements.length > 1 ? "width 10s linear" : "none",
+            }}
+          />
+        </div>
+        <span className="tokens-small" style={{ color: "rgba(255, 255, 255, 0.45)", minWidth: "48px", textAlign: "right" }}>
+          {!shouldAnimate ? "static" : ""}
+        </span>
       </div>
     </div>
   );
