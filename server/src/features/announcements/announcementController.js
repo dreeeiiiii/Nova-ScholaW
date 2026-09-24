@@ -2,7 +2,30 @@ import * as announcementRepo from './announcementModel.js';
 import { audit } from '../audit/auditService.js';
 import { parseId } from '../../shared/utils/parseId.js';
 import { readNonEmpty, readOptionalString, readOptionalDate } from '../../shared/utils/normalize.js';
-import { uploadBuffer, deleteAsset } from '../../shared/config/cloudinary.js';
+import * as b2 from '../../shared/config/b2.js';
+
+const ANNOUNCEMENT_B2_PREFIX = 'announcements/';
+
+// B2 keys are shaped 'announcements/<timestamp>-<random>-<safe-filename>'.
+// Anything else in b2_key is a legacy Cloudinary public ID — serve the
+// stored image_url as-is and skip B2 deletes for those rows.
+const isAnnouncementB2Key = (key) => typeof key === 'string' && key.startsWith(ANNOUNCEMENT_B2_PREFIX);
+
+const attachAnnouncementImageUrl = async (row) => {
+  if (!row || !isAnnouncementB2Key(row.b2_key)) return row;
+  try {
+    row.image_url = await b2.getPresignedUrl(row.b2_key);
+  } catch (e) {
+    console.error('Failed to presign B2 URL', e.message || e);
+  }
+  return row;
+};
+
+const attachAnnouncementImageUrls = (rows) => Promise.all((rows ?? []).map(attachAnnouncementImageUrl));
+
+// New clients send b2_key; accept the legacy cloudinary_public_id alias so
+// old rows/clients keep working during the migration window.
+const readB2Key = (body) => readOptionalString(body?.b2_key) ?? readOptionalString(body?.cloudinary_public_id);
 
 const parseArrayOfIds = (value, label) => {
   if (!Array.isArray(value)) return null;
@@ -38,7 +61,7 @@ export const createGeneralAnnouncement = async (req, res, next) => {
     const title = readNonEmpty(req.body?.title, 'title');
     const content = readNonEmpty(req.body?.content, 'content');
     const image_url = readOptionalString(req.body?.image_url);
-    const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
+    const b2_key = readB2Key(req.body);
     const publish_at = readOptionalDate(req.body?.publish_at);
     const expires_at = readOptionalDate(req.body?.expires_at);
     const rawShowOnTv = req.body?.show_on_tv;
@@ -60,7 +83,7 @@ export const createGeneralAnnouncement = async (req, res, next) => {
       title,
       content,
       image_url,
-      cloudinary_public_id,
+      b2_key,
       show_on_tv,
       status,
       publish_at,
@@ -80,7 +103,7 @@ export const createClassAnnouncement = async (req, res, next) => {
     const title = readNonEmpty(req.body?.title, 'title');
     const content = readNonEmpty(req.body?.content, 'content');
     const image_url = readOptionalString(req.body?.image_url);
-    const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
+    const b2_key = readB2Key(req.body);
     const publish_at = readOptionalDate(req.body?.publish_at);
     const expires_at = readOptionalDate(req.body?.expires_at);
 
@@ -111,7 +134,7 @@ export const createClassAnnouncement = async (req, res, next) => {
       title,
       content,
       image_url,
-      cloudinary_public_id,
+      b2_key,
       status,
       publish_at,
       expires_at,
@@ -169,6 +192,7 @@ export const listAnnouncements = async (req, res, next) => {
         announcements = await announcementRepo.listUpcoming({ limit, offset });
         total = await announcementRepo.countUpcoming();
       }
+      await attachAnnouncementImageUrls(announcements);
       return res.json({ announcements, total });
     }
 
@@ -194,6 +218,7 @@ export const listAnnouncements = async (req, res, next) => {
       total = await announcementRepo.countAnnouncements({ type, author_id: undefined, status, q });
     }
 
+    await attachAnnouncementImageUrls(announcements);
     return res.json({ announcements, total });
   } catch (err) {
     return next(err);
@@ -218,6 +243,7 @@ export const getAnnouncement = async (req, res, next) => {
       return res.status(403).json({ status: 403, message: 'You do not have permission to view this announcement.' });
     }
 
+    await attachAnnouncementImageUrl(announcement);
     return res.json({ announcement, targets });
   } catch (err) {
     return next(err);
@@ -243,7 +269,7 @@ export const updateAnnouncement = async (req, res, next) => {
     const title = readOptionalString(req.body?.title);
     const content = readOptionalString(req.body?.content);
     const image_url = readOptionalString(req.body?.image_url);
-    const cloudinary_public_id = readOptionalString(req.body?.cloudinary_public_id);
+    const b2_key = readB2Key(req.body);
     const status = req.body?.status === 'draft' || req.body?.status === 'scheduled' || req.body?.status === 'published' || req.body?.status === 'archived'
       ? req.body.status
       : undefined;
@@ -268,7 +294,7 @@ export const updateAnnouncement = async (req, res, next) => {
     if (title !== null) fields.title = title;
     if (content !== null) fields.content = content;
     if (image_url !== null) fields.image_url = image_url;
-    if (cloudinary_public_id !== null) fields.cloudinary_public_id = cloudinary_public_id;
+    if (b2_key !== null) fields.b2_key = b2_key;
     if (show_on_tv !== undefined) fields.show_on_tv = show_on_tv;
     if (status !== undefined) fields.status = status;
     if (publish_at !== null) fields.publish_at = publish_at;
@@ -306,6 +332,7 @@ export const updateAnnouncement = async (req, res, next) => {
 
     await audit(req, 'announcement.update', 'announcement', id, { updated_fields: Object.keys(fields) });
 
+    await attachAnnouncementImageUrl(announcement);
     return res.json({ announcement, targets });
   } catch (err) {
     return next(err);
@@ -316,12 +343,17 @@ export const tvAnnouncements = async (req, res, next) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
     const { rows } = await announcementRepo.findPublishedGeneral({ limit });
-    const sanitized = rows.map(({ id, title, content, image_url, created_at }) => ({
-      id,
-      title,
-      content,
-      image_url,
-      created_at,
+    // findPublishedGeneral selects image_url but not b2_key; resolve keys for presigning.
+    const sanitized = await Promise.all(rows.map(async ({ id, title, content, image_url, created_at }) => {
+      const full = await announcementRepo.findById(id);
+      if (full && isAnnouncementB2Key(full.b2_key)) {
+        try {
+          image_url = await b2.getPresignedUrl(full.b2_key);
+        } catch (e) {
+          console.error('Failed to presign B2 URL', e.message || e);
+        }
+      }
+      return { id, title, content, image_url, created_at };
     }));
     return res.json({ announcements: sanitized });
   } catch (err) {
@@ -335,12 +367,14 @@ export const uploadAnnouncementImage = async (req, res, next) => {
     if (!file) {
       return res.status(400).json({ status: 400, message: 'No image file provided.' });
     }
-    const resourceType = file.mimetype.startsWith('video') ? 'video' : 'image';
-    const { secure_url, public_id } = await uploadBuffer(file.buffer, {
-      folder: 'novaschola/announcements',
-      resourceType,
+    const { key } = await b2.uploadBuffer(file.buffer, {
+      folder: 'announcements',
+      contentType: file.mimetype,
+      filename: file.originalname,
     });
-    return res.status(201).json({ image_url: secure_url, cloudinary_public_id: public_id });
+    const image_url = await b2.getPresignedUrl(key);
+    // Response field names preserved: image_url stays image_url; storage id is now b2_key.
+    return res.status(201).json({ image_url, b2_key: key });
   } catch (err) {
     return next(err);
   }
@@ -362,11 +396,11 @@ export const deleteAnnouncement = async (req, res, next) => {
       return res.status(403).json({ status: 403, message: 'You do not have permission to delete this announcement.' });
     }
 
-    if (existing.cloudinary_public_id) {
+    if (existing.b2_key && isAnnouncementB2Key(existing.b2_key)) {
       try {
-        await deleteAsset(existing.cloudinary_public_id, 'image');
+        await b2.deleteObject(existing.b2_key);
       } catch (e) {
-        console.error('Failed to delete Cloudinary asset', e.message || e);
+        console.error('Failed to delete B2 object', e.message || e);
       }
     }
 

@@ -10,10 +10,11 @@ import {
 
 const router = Router();
 const adminOnly = [authenticate, requireRole('admin')];
+const staffOnly = [authenticate, requireRole('admin', 'teacher')];
 
 router.get('/', listCategoriesHandler);
-router.post('/', adminOnly, createCategoryHandler);
-router.put('/:id', adminOnly, updateCategoryHandler);
+router.post('/', staffOnly, createCategoryHandler);
+router.put('/:id', staffOnly, updateCategoryHandler);
 router.delete('/:id', adminOnly, deleteCategoryHandler);
 
 export default router;

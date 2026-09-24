@@ -30,6 +30,25 @@ See `server/.env.example` for the full list.
 
 See `client/.env.example`. If unset, the client falls back to `/api` (Vite dev proxy) — correct for local dev only.
 
+## Create admin
+
+Admin users are created with a one-time SQL insert (no seed script):
+
+```sql
+-- Generate hash locally:
+--   cd server && node -e "const b=require('bcrypt');b.hash('YourStrongPassword',10).then(h=>console.log(h))"
+--
+-- Then run in Neon SQL Editor:
+INSERT INTO users (email, password_hash, full_name, role, is_active)
+VALUES (
+  'admin@my.nst.edu.ph',
+  '$2b$10$PASTE_HASH_HERE',
+  'System Admin',
+  'admin',
+  true
+);
+```
+
 ## 2. Deploy steps
 
 ### Database (Neon — already configured)
@@ -40,7 +59,7 @@ No migration needed for existing data. For a fresh DB:
 cd server
 npm install
 npm run db:migrate
-npm run db:seed
+# Create the initial admin user manually via SQL — see #create-admin below for the exact INSERT statement.
 ```
 
 ### Backend → Render (or Railway)

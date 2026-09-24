@@ -9,7 +9,7 @@ type Category = { id: number | string; name: string; created_at?: string };
 export default async function CategoriesPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "admin") redirect("/dashboard");
+  if (user.role !== "admin" && user.role !== "teacher") redirect("/dashboard");
 
   let categories: Category[] = [];
   let error: string | null = null;
@@ -53,7 +53,7 @@ export default async function CategoriesPage() {
         description="Manage gallery categories. Deleting a category clears it from media without deleting the media."
       />
 
-      <CategoryManagement initialCategories={categories} />
+      <CategoryManagement initialCategories={categories} canDelete={user.role === "admin"} />
     </div>
   );
 }

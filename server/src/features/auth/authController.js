@@ -97,7 +97,10 @@ export const register = async (req, res, next) => {
     const section_id = toNullableId(body.section_id);
     const course_id = toNullableId(body.course_id);
 
-    const studentLevel = body.student_level === 'course' ? 'course' : body.student_level === 'section' ? 'section' : null;
+    const rawLevel = body.student_level ?? body.studentLevel;
+    const student_level = rawLevel === 'course' || rawLevel === 'section'
+      ? rawLevel
+      : null;
     const sectionCourse =
       typeof body.sectionCourse === 'string' ? body.sectionCourse.trim().replace(/\s+/g, ' ').toLowerCase() : '';
 
@@ -122,7 +125,7 @@ export const register = async (req, res, next) => {
       role: 'student',
       section_id,
       course_id,
-      student_level: studentLevel,
+      student_level: student_level,
       section_course: sectionCourse === '' ? null : sectionCourse,
     });
 

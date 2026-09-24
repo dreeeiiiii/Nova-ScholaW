@@ -30,7 +30,7 @@ const allNavItems: NavItem[] = [
   { href: "/gallery/mine", label: "My Uploads", icon: Folder, roles: ["admin", "teacher", "student"] },
   { href: "/admin/moderation", label: "Moderation", icon: ClipboardList, roles: ["admin"] },
   { href: "/admin/users", label: "Users", icon: Users, roles: ["admin"] },
-  { href: "/admin/categories", label: "Categories", icon: Tags, roles: ["admin"] },
+  { href: "/admin/categories", label: "Categories", icon: Tags, roles: ["admin", "teacher"] },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ShieldCheck, roles: ["admin"] },
 ];
 

@@ -3,8 +3,22 @@ import assert from "node:assert/strict";
 import { once } from "node:events";
 
 import createApp from "../src/app.js";
+import config from "../src/shared/config/env.js";
 import { query, closePool } from "../src/shared/config/db.js";
 import { hashPassword } from "../src/shared/utils/password.js";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+
+// Same client config as server/src/shared/config/b2.js — lets the test
+// prove objects really exist in (and disappear from) the B2 bucket.
+const b2 = new S3Client({
+  endpoint: `https://${config.b2Endpoint}`,
+  region: config.b2Region,
+  credentials: {
+    accessKeyId: config.b2KeyId,
+    secretAccessKey: config.b2ApplicationKey,
+  },
+  forcePathStyle: true,
+});
 
 const domain = "my.nst.edu.ph";
 
@@ -36,6 +50,12 @@ const patchJson = async (baseUrl, path, body, token) =>
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: body ? JSON.stringify(body) : "",
+  });
+
+const deleteJson = async (baseUrl, path, token) =>
+  fetch(`${baseUrl}${path}`, {
+    method: "DELETE",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
 
 const buildMultipart = (fileContent, filename, contentType, extraFields = {}) => {
@@ -144,7 +164,7 @@ describe("gallery endpoints", () => {
     if (server) await new Promise((r) => server.close(r));
   });
 
-  it("Student uploads valid JPEG → 201 with status='approved'", async () => {
+  it("Student uploads valid JPEG → 201 with B2 presigned file_url + b2_key", async () => {
     const jpegBuffer = Buffer.from([
       0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00,
       0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
@@ -161,11 +181,36 @@ describe("gallery endpoints", () => {
     assert.equal(data.media.reviewed_by, studentId);
     assert.ok(data.media.reviewed_at);
     assert.equal(data.media.media_type, "image");
+    assert.equal(typeof data.media.file_url, "string");
+    assert.ok(data.media.file_url.length > 0);
     assert.ok(
-      data.media.file_url.startsWith("/uploads/gallery/images/") ||
-        data.media.file_url.startsWith("https://res.cloudinary.com/")
+      data.media.file_url.includes("s3.us-east-005.backblazeb2.com"),
+      "file_url must be a B2 presigned URL",
     );
-    assert.ok(data.media.file_url.endsWith(".jpg"));
+    assert.ok(
+      data.media.file_url.includes("X-Amz-Signature"),
+      "file_url must be signed",
+    );
+    assert.equal(typeof data.media.b2_key, "string");
+    assert.ok(data.media.b2_key.startsWith("gallery/"));
+
+    // The object actually exists in the bucket.
+    const head = await b2.send(
+      new GetObjectCommand({ Bucket: config.b2BucketName, Key: data.media.b2_key }),
+    );
+    assert.ok(head.ContentLength > 0);
+    await head.Body.transformToByteArray();
+
+    // The uploader deletes their own media; the object must vanish from B2.
+    const delRes = await deleteJson(baseUrl, `/api/gallery/${data.media.id}`, studentToken);
+    assert.equal(delRes.status, 200);
+
+    await assert.rejects(
+      b2.send(
+        new GetObjectCommand({ Bucket: config.b2BucketName, Key: data.media.b2_key }),
+      ),
+      (err) => err.name === "NoSuchKey" || err.name === "NotFound",
+    );
   });
 
   it("Student uploads image without category_id → 400", async () => {

@@ -64,7 +64,7 @@ describe("category CRUD endpoints", () => {
 
     await query("DELETE FROM gallery_media WHERE uploader_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
     await query("DELETE FROM audit_logs WHERE user_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
-    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
+    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Teacher Delete Test','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
     await query("DELETE FROM users WHERE email = ANY($1)", [
       [ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL],
     ]).catch(() => {});
@@ -152,8 +152,22 @@ describe("category CRUD endpoints", () => {
     assert.equal(res.status, 400);
   });
 
-  it("POST /api/categories — teacher tries to create → 403", async () => {
-    const res = await postJson(baseUrl, "/api/categories", { name: "Teacher Category" }, teacherToken);
+  it("POST /api/categories — teacher can create → 201", async () => {
+    const res = await postJson(baseUrl, "/api/categories", { name: "Teacher Category", description: "By teacher" }, teacherToken);
+    assert.equal(res.status, 201);
+    const data = await res.json();
+    assert.ok(data.category);
+    assert.ok(data.category.id);
+    assert.equal(data.category.name, "Teacher Category");
+
+    const list = await getJson(baseUrl, "/api/categories", null);
+    assert.equal(list.status, 200);
+    const listData = await list.json();
+    assert.ok(listData.categories.some((c) => c.name === "Teacher Category"));
+  });
+
+  it("POST /api/categories — student tries to create → 403", async () => {
+    const res = await postJson(baseUrl, "/api/categories", { name: "Student Category" }, studentToken);
     assert.equal(res.status, 403);
   });
 
@@ -168,12 +182,22 @@ describe("category CRUD endpoints", () => {
     assert.equal(data.category.name, "Updated Cat Name");
   });
 
-  it("PUT /api/categories/:id — teacher tries to update → 403", async () => {
+  it("PUT /api/categories/:id — teacher can update → 200", async () => {
     const res = await postJson(baseUrl, "/api/categories", { name: "Teacher Update Test" }, adminToken);
     const catId = (await res.json()).category.id;
 
-    const upd = await putJson(baseUrl, `/api/categories/${catId}`, { name: "Hacked" }, teacherToken);
-    assert.equal(upd.status, 403);
+    const upd = await putJson(baseUrl, `/api/categories/${catId}`, { name: "Teacher Updated Name" }, teacherToken);
+    assert.equal(upd.status, 200);
+    const data = await upd.json();
+    assert.equal(data.category.name, "Teacher Updated Name");
+  });
+
+  it("DELETE /api/categories/:id — teacher tries to delete → 403", async () => {
+    const res = await postJson(baseUrl, "/api/categories", { name: "Teacher Delete Test" }, adminToken);
+    const catId = (await res.json()).category.id;
+
+    const delRes = await deleteJson(baseUrl, `/api/categories/${catId}`, teacherToken);
+    assert.equal(delRes.status, 403);
   });
 
   it("PUT /api/categories/:id — non-existent → 404", async () => {
@@ -228,7 +252,7 @@ describe("gallery browse endpoint (public)", () => {
 
     await query("DELETE FROM gallery_media WHERE uploader_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
     await query("DELETE FROM audit_logs WHERE user_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
-    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
+    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Teacher Delete Test','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
     await query("DELETE FROM users WHERE email = ANY($1)", [
       [ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL],
     ]).catch(() => {});
@@ -355,7 +379,7 @@ describe("gallery search endpoint (public)", () => {
     const passwordHash = await hashPassword(PASSWORD);
 
     await query("DELETE FROM gallery_media WHERE uploader_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
-    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
+    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Teacher Delete Test','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
     await query("DELETE FROM users WHERE email = ANY($1)", [
       [ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL],
     ]).catch(() => {});
@@ -470,7 +494,7 @@ describe("gallery approval workflow polish", () => {
 
     await query("DELETE FROM gallery_media WHERE uploader_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
     await query("DELETE FROM audit_logs WHERE user_id IN (SELECT id FROM users WHERE email = ANY($1))", [[ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL]]).catch(() => {});
-    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
+    await query("DELETE FROM categories WHERE name IN ('Test Category','New Category','Update Test Cat','Updated Cat Name','Teacher Update Test','Delete Test Cat','Teacher Delete Test','Protected Category','Browse Category','Search Category','Workflow Category','Teacher Category')").catch(() => {});
     await query("DELETE FROM users WHERE email = ANY($1)", [
       [ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL],
     ]).catch(() => {});

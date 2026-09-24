@@ -7,6 +7,19 @@ import config from "../src/shared/config/env.js";
 import createApp from "../src/app.js";
 import { query, closePool } from "../src/shared/config/db.js";
 import { hashPassword } from "../src/shared/utils/password.js";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+
+// Same client config as server/src/shared/config/b2.js — lets the test
+// prove objects really exist in (and disappear from) the B2 bucket.
+const b2 = new S3Client({
+  endpoint: `https://${config.b2Endpoint}`,
+  region: config.b2Region,
+  credentials: {
+    accessKeyId: config.b2KeyId,
+    secretAccessKey: config.b2ApplicationKey,
+  },
+  forcePathStyle: true,
+});
 
 const domain = config.nstEmailDomain || "my.nst.edu.ph";
 
@@ -603,7 +616,7 @@ describe("announcement endpoints", () => {
     });
   });
 
-  it("Image upload valid JPEG → 201 with image_url", async () => {
+  it("Image upload valid JPEG → 201 with B2 presigned image_url + b2_key", async () => {
     const jpegBuffer = Buffer.from([
       0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01,
       0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
@@ -624,12 +637,55 @@ describe("announcement endpoints", () => {
     });
     assert.equal(res.status, 201);
     const data = await res.json();
-    assert.ok(data.image_url);
+    assert.equal(typeof data.image_url, "string");
+    assert.ok(data.image_url.length > 0);
     assert.ok(
-      data.image_url.startsWith("/uploads/announcements/") ||
-        data.image_url.startsWith("https://res.cloudinary.com/")
+      data.image_url.includes("s3.us-east-005.backblazeb2.com"),
+      "image_url must be a B2 presigned URL",
     );
-    assert.ok(data.image_url.endsWith(".jpg"));
+    assert.ok(
+      data.image_url.includes("X-Amz-Signature"),
+      "image_url must be signed",
+    );
+    assert.equal(typeof data.b2_key, "string");
+    assert.ok(data.b2_key.startsWith("announcements/"));
+
+    // The object actually exists in the bucket.
+    const head = await b2.send(
+      new GetObjectCommand({ Bucket: config.b2BucketName, Key: data.b2_key }),
+    );
+    assert.ok(head.ContentLength > 0);
+    await head.Body.transformToByteArray();
+
+    // Full round trip: attach the key to an announcement, then delete it.
+    const createRes = await postJson(
+      baseUrl,
+      "/api/announcements/general",
+      {
+        title: "B2 roundtrip probe",
+        content: "Proves upload → store → delete against B2.",
+        image_url: data.image_url,
+        b2_key: data.b2_key,
+      },
+      adminToken,
+    );
+    assert.equal(createRes.status, 201);
+    const announcementId = (await createRes.json()).announcement.id;
+
+    const delRes = await deleteJson(
+      baseUrl,
+      `/api/announcements/${announcementId}`,
+      adminToken,
+    );
+    assert.equal(delRes.status, 200);
+
+    // The object is gone from B2 after the DELETE endpoint ran.
+    await assert.rejects(
+      b2.send(
+        new GetObjectCommand({ Bucket: config.b2BucketName, Key: data.b2_key }),
+      ),
+      (err) => err.name === "NoSuchKey" || err.name === "NotFound",
+    );
   });
 
   it("Image upload oversized file → 400", async () => {

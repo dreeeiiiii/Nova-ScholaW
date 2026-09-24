@@ -40,7 +40,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
   );
 
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
-  const [cloudinaryPublicId, setCloudinaryPublicId] = useState((initial as { cloudinary_public_id?: string })?.cloudinary_public_id ?? "");
+  const [b2Key, setB2Key] = useState((initial as { b2_key?: string })?.b2_key ?? "");
   const [showOnTv, setShowOnTv] = useState<boolean>((initial as { show_on_tv?: boolean })?.show_on_tv ?? true);
   const [previewUrl, setPreviewUrl] = useState(initial?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
@@ -125,7 +125,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         return;
       }
       setImageUrl(data.image_url || "");
-      setCloudinaryPublicId((data as { cloudinary_public_id?: string }).cloudinary_public_id || "");
+      setB2Key((data as { b2_key?: string }).b2_key || "");
       // keep preview as blob for UI, but store imageUrl for submit
     } catch {
       setUploadError("Upload failed");
@@ -141,7 +141,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
     }
     setPreviewUrl("");
     setImageUrl("");
-    setCloudinaryPublicId("");
+    setB2Key("");
     setUploadError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
@@ -169,7 +169,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         title: title.trim(),
         content: content.trim(),
         image_url: imageUrl || undefined,
-        cloudinary_public_id: cloudinaryPublicId || undefined,
+        b2_key: b2Key || undefined,
         publish_at: publishAt ? new Date(publishAt).toISOString() : undefined,
         expires_at: expiresAt ? new Date(expiresAt).toISOString() : undefined,
       };

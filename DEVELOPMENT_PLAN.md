@@ -512,7 +512,7 @@ Each week ends with a working, runnable slice of the system (vertical slices whe
 
 ### Pre-deployment checklist
 1. `.env.production` populated; `NODE_ENV=production`.
-2. DB migrations/SQL applied; seed script generates a default admin (password changed at first login).
+2. DB migrations/SQL applied; create the initial admin user manually via SQL (see scripts/DEPLOY.md#create-admin).
 3. `/uploads` created with write permissions; static route disabled for non-image/video extensions.
 4. `CORS` allow-list = real client origin; helmet + rate limits on.
 5. Uploads disk caveat: back up `uploads/` before redeploys; for capstone demos, keep the seed demo media stable. (Long-term fix: swap `multer.storage` for an S3-style bucket in Week 6 if time permits.)

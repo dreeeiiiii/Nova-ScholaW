@@ -1,7 +1,7 @@
 import { query, getClient } from '../../shared/config/db.js';
 
 const ANNOUNCEMENT_COLUMNS = `
-  id, author_id, type, title, content, image_url, cloudinary_public_id, show_on_tv, status, publish_at, expires_at,
+  id, author_id, type, title, content, image_url, b2_key, show_on_tv, status, publish_at, expires_at,
   created_at, updated_at
 `;
 
@@ -11,7 +11,7 @@ export const createAnnouncement = async ({
   title,
   content,
   image_url,
-  cloudinary_public_id,
+  b2_key,
   show_on_tv,
   status,
   publish_at,
@@ -19,10 +19,10 @@ export const createAnnouncement = async ({
 }) => {
   const tv = show_on_tv ?? (type === 'general' ? true : false);
   const { rows } = await query(
-    `INSERT INTO announcements (author_id, type, title, content, image_url, cloudinary_public_id, show_on_tv, status, publish_at, expires_at)
+    `INSERT INTO announcements (author_id, type, title, content, image_url, b2_key, show_on_tv, status, publish_at, expires_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING ${ANNOUNCEMENT_COLUMNS}`,
-    [author_id, type, title, content, image_url ?? null, cloudinary_public_id ?? null, tv, status, publish_at ?? null, expires_at ?? null]
+    [author_id, type, title, content, image_url ?? null, b2_key ?? null, tv, status, publish_at ?? null, expires_at ?? null]
   );
   return rows[0];
 };
@@ -235,7 +235,7 @@ WHERE a.status = 'published'
 };
 
 export const updateAnnouncement = async (id, fields = {}) => {
-  const allowedFields = ['title', 'content', 'image_url', 'cloudinary_public_id', 'status', 'publish_at', 'expires_at'];
+  const allowedFields = ['title', 'content', 'image_url', 'b2_key', 'status', 'publish_at', 'expires_at'];
   const sets = [];
   const params = [];
 
@@ -332,16 +332,16 @@ export const findPublishedGeneral = async ({ limit = 20 } = {}) => {
   return { rows };
 };
 
-export const createClassWithTargets = async ({ author_id, title, content, image_url, cloudinary_public_id, status, publish_at, expires_at, section_ids, course_ids, student_ids }) => {
+export const createClassWithTargets = async ({ author_id, title, content, image_url, b2_key, status, publish_at, expires_at, section_ids, course_ids, student_ids }) => {
   const client = await getClient();
   try {
     await client.query('BEGIN');
 
     const { rows: annRows } = await client.query(
-      `INSERT INTO announcements (author_id, type, title, content, image_url, cloudinary_public_id, show_on_tv, status, publish_at, expires_at)
+      `INSERT INTO announcements (author_id, type, title, content, image_url, b2_key, show_on_tv, status, publish_at, expires_at)
        VALUES ($1, 'class', $2, $3, $4, $5, false, $6, $7, $8)
        RETURNING ${ANNOUNCEMENT_COLUMNS}`,
-      [author_id, title, content, image_url ?? null, cloudinary_public_id ?? null, status, publish_at ?? null, expires_at ?? null]
+      [author_id, title, content, image_url ?? null, b2_key ?? null, status, publish_at ?? null, expires_at ?? null]
     );
     const announcement = annRows[0];
 

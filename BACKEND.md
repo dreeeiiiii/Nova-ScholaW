@@ -1,6 +1,6 @@
 # Backend Overview
 
-NovaSchola is a school portal API for managing announcements, a media gallery, user accounts, and academic structure (sections and courses). The backend is built with Node.js (ES Modules), Express 4, PostgreSQL (via `pg`), and JWT-based authentication. Run `npm start` to launch the server, `npm test` to run the test suite (193 tests, 21 suites), and `npm run db:seed` to populate the database with test data. The entry point is `src/server.js`, which creates the app via `src/app.js`.
+NovaSchola is a school portal API for managing announcements, a media gallery, user accounts, and academic structure (sections and courses). The backend is built with Node.js (ES Modules), Express 4, PostgreSQL (via `pg`), and JWT-based authentication. Run `npm start` to launch the server and `npm test` to run the test suite (193 tests, 21 suites). Create the initial admin user manually via SQL — see scripts/DEPLOY.md#create-admin for the exact INSERT statement. The entry point is `src/server.js`, which creates the app via `src/app.js`.
 
 # Folder Structure
 
@@ -8,7 +8,6 @@ NovaSchola is a school portal API for managing announcements, a media gallery, u
 src/
 ├── app.js                              # Express app factory — mounts routes, middleware
 ├── server.js                           # Entry point — starts HTTP server, graceful shutdown
-├── seed.js                             # Database seeder script
 │
 ├── features/                           # Business domains — one folder per feature
 │   ├── academic/                       # Sections & courses CRUD

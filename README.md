@@ -32,7 +32,6 @@ NovaScholaW/
 │       ├── middleware/# authenticate, requireRole, upload, rateLimiter, ...
 │       ├── config/    # env, db (pg Pool), constants, multer
 │       ├── db/migrate.js  # applies DATABASE_SCHEMA.sql
-│       └── seed.js    # demo users + sections/courses
 ├── scripts/DEPLOY.md  # Vercel + Render + Neon deployment steps
 ├── DATABASE_SCHEMA.sql
 └── TASKS.md           # 50-task build plan
@@ -52,7 +51,7 @@ cd server
 npm install
 cp .env.example .env   # then fill in DATABASE_URL, JWT_SECRET, CLIENT_ORIGIN, ...
 npm run db:migrate     # applies DATABASE_SCHEMA.sql to DATABASE_URL
-npm run db:seed        # creates demo accounts + sections/courses
+# Create the initial admin user manually via SQL — see scripts/DEPLOY.md#create-admin for the exact INSERT statement.
 npm run dev            # nodemon on http://localhost:5000
 ```
 
@@ -89,22 +88,16 @@ Open http://localhost:3000/login.
 | --- | -------- | ------- |
 | `API_URL` | No | `http://localhost:5000` (server URL, defaults if unset) |
 
-## Demo accounts (seeded)
+## Initial admin
+Create the admin user manually via SQL — see
+scripts/DEPLOY.md#create-admin for the exact INSERT statement.
 
-| Role | Email | Password |
-| ---- | ----- | -------- |
-| Admin | `admin@my.nst.edu.ph` | `Admin@1234` |
-| Teacher | `teacher@my.nst.edu.ph` | `Nova1234!` |
-| Student | `student1@my.nst.edu.ph` | `Nova1234!` |
-
-> **E2E fixtures:** Playwright tests use `b22test_*@my.nst.edu.ph` accounts (see `web/e2e/fixtures.ts`: `b22test_admin`, `b22test_teacher`, `b22test_student`, etc.).
-
-## Migrations & seed
+## Migrations
 
 ```bash
 cd server
 npm run db:migrate   # node src/db/migrate.js — applies DATABASE_SCHEMA.sql
-npm run db:seed      # node src/seed.js — idempotent demo data
+# Create the initial admin user manually via SQL — see scripts/DEPLOY.md#create-admin for the exact INSERT statement.
 ```
 
 ## Tests
@@ -118,6 +111,8 @@ cd web && npx playwright test  # 13 E2E tests
 The suite covers auth, users/roles, announcements (incl. visibility + TV feed),
 gallery upload/moderation/search, categories, audit logging + dashboard stats,
 and schema/utils.
+
+> **E2E fixtures:** Playwright tests use `b22test_*@my.nst.edu.ph` accounts (see `web/e2e/fixtures.ts`: `b22test_admin`, `b22test_teacher`, `b22test_student`, etc.).
 
 ## Key routes
 

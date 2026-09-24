@@ -13,16 +13,50 @@ const PUBLIC_COLUMNS = `
 const UPDATABLE_FIELDS = ['full_name', 'role', 'section_id', 'course_id'];
 
 export const listDistinctSectionCourse = async (level) => {
-  const { rows } = await query(
-    `SELECT DISTINCT section_course
-       FROM users
-      WHERE student_level = $1
-        AND section_course IS NOT NULL
-        AND section_course <> ''
-      ORDER BY section_course ASC`,
-    [level]
-  );
-  return rows.map((r) => r.section_course);
+  if (level !== 'section' && level !== 'course') {
+    return [];
+  }
+
+  const sectionQuery = `
+    SELECT value FROM (
+      SELECT DISTINCT LOWER(TRIM(name)) AS value
+        FROM sections
+       WHERE name IS NOT NULL AND TRIM(name) <> ''
+      UNION
+      SELECT DISTINCT LOWER(TRIM(s.name)) AS value
+        FROM users u
+        JOIN sections s ON s.id = u.section_id
+       WHERE u.section_id IS NOT NULL
+         AND s.name IS NOT NULL AND TRIM(s.name) <> ''
+      UNION
+      SELECT DISTINCT LOWER(TRIM(section_course)) AS value
+        FROM users
+       WHERE student_level = 'section'
+         AND section_course IS NOT NULL AND TRIM(section_course) <> ''
+    ) AS combined
+    ORDER BY value ASC`;
+
+  const courseQuery = `
+    SELECT value FROM (
+      SELECT DISTINCT LOWER(TRIM(name)) AS value
+        FROM courses
+       WHERE name IS NOT NULL AND TRIM(name) <> ''
+      UNION
+      SELECT DISTINCT LOWER(TRIM(c.name)) AS value
+        FROM users u
+        JOIN courses c ON c.id = u.course_id
+       WHERE u.course_id IS NOT NULL
+         AND c.name IS NOT NULL AND TRIM(c.name) <> ''
+      UNION
+      SELECT DISTINCT LOWER(TRIM(section_course)) AS value
+        FROM users
+       WHERE student_level = 'course'
+         AND section_course IS NOT NULL AND TRIM(section_course) <> ''
+    ) AS combined
+    ORDER BY value ASC`;
+
+  const { rows } = await query(level === 'section' ? sectionQuery : courseQuery);
+  return rows.map((r) => r.value);
 };
 
 export const findById = async (id) => {

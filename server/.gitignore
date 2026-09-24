@@ -3,4 +3,5 @@ node_modules/
 uploads/
 !.gitkeep
 *.log
+backups/
 .vscode/

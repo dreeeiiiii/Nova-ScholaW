@@ -27,9 +27,18 @@ if (isProduction) {
   ['DATABASE_URL', 'JWT_SECRET', 'CLIENT_ORIGIN', 'UPLOAD_DIR', 'NST_EMAIL_DOMAIN'].forEach(requireEnv);
 }
 
-const cloudinaryCloudName = requireEnv('CLOUDINARY_CLOUD_NAME');
-const cloudinaryApiKey = requireEnv('CLOUDINARY_API_KEY');
-const cloudinaryApiSecret = requireEnv('CLOUDINARY_API_SECRET');
+const b2BucketName = requireEnv('B2_BUCKET_NAME');
+const b2BucketId = requireEnv('B2_BUCKET_ID');
+const b2Endpoint = requireEnv('B2_ENDPOINT');
+const b2Region = requireEnv('B2_REGION');
+const b2KeyId = requireEnv('B2_KEY_ID');
+const b2ApplicationKey = requireEnv('B2_APPLICATION_KEY');
+
+const b2PresignExpirySecondsRaw = process.env.B2_PRESIGN_EXPIRY_SECONDS || '3600';
+const b2PresignExpirySeconds = Number(b2PresignExpirySecondsRaw);
+if (!Number.isInteger(b2PresignExpirySeconds) || b2PresignExpirySeconds < 1) {
+  throw new Error('B2_PRESIGN_EXPIRY_SECONDS must be a positive integer.');
+}
 
 const optional = (key, note) => {
   if (!process.env[key]) warn(key, note);
@@ -56,9 +65,13 @@ const config = Object.freeze({
   maxImageSizeMb: Number(process.env.MAX_IMAGE_SIZE_MB || 10),
   maxVideoSizeMb: Number(process.env.MAX_VIDEO_SIZE_MB || 50),
   maxVideoDurationSeconds: Number(process.env.MAX_VIDEO_DURATION_SECONDS || 120),
-  cloudinaryCloudName,
-  cloudinaryApiKey,
-  cloudinaryApiSecret,
+  b2BucketName,
+  b2BucketId,
+  b2Endpoint,
+  b2Region,
+  b2KeyId,
+  b2ApplicationKey,
+  b2PresignExpirySeconds,
 });
 
 export default config;

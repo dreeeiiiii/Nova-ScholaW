@@ -19,7 +19,7 @@ function formatDate(iso?: string) {
   }
 }
 
-export default function CategoryManagement({ initialCategories }: { initialCategories: Category[] }) {
+export default function CategoryManagement({ initialCategories, canDelete = false }: { initialCategories: Category[]; canDelete?: boolean }) {
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [formState, setFormState] = useState<{ mode: "create" | "edit"; category?: Category } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
@@ -122,14 +122,16 @@ export default function CategoryManagement({ initialCategories }: { initialCateg
                 >
                   Rename
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(cat)}
-                  className="inline-flex min-h-[44px] items-center px-3 text-sm font-semibold"
-                  style={{ color: "var(--color-danger)" }}
-                >
-                  Delete
-                </button>
+                {canDelete && (
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(cat)}
+                    className="inline-flex min-h-[44px] items-center px-3 text-sm font-semibold"
+                    style={{ color: "var(--color-danger)" }}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </li>
           ))}

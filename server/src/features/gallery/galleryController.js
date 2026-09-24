@@ -4,7 +4,26 @@ import { audit } from '../audit/auditService.js';
 import { parseId } from '../../shared/utils/parseId.js';
 import * as galleryModel from './galleryModel.js';
 import { findCategoryById } from '../categories/categoryModel.js';
-import { uploadBuffer, deleteAsset } from '../../shared/config/cloudinary.js';
+import * as b2 from '../../shared/config/b2.js';
+
+const GALLERY_B2_PREFIX = 'gallery/';
+
+// B2 keys are shaped 'gallery/<timestamp>-<random>-<safe-filename>'.
+// Anything else in b2_key is a legacy Cloudinary public ID — serve the
+// stored file_url as-is and skip B2 deletes for those rows.
+const isGalleryB2Key = (key) => typeof key === 'string' && key.startsWith(GALLERY_B2_PREFIX);
+
+const attachGalleryFileUrl = async (row) => {
+  if (!row || !isGalleryB2Key(row.b2_key)) return row;
+  try {
+    row.file_url = await b2.getPresignedUrl(row.b2_key);
+  } catch (e) {
+    console.error('Failed to presign B2 URL', e.message || e);
+  }
+  return row;
+};
+
+const attachGalleryFileUrls = (rows) => Promise.all((rows ?? []).map(attachGalleryFileUrl));
 
 const determineMediaType = (file) => {
   if (file.mimetype === 'video/mp4') return 'video';
@@ -33,11 +52,14 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     const mediaType = determineMediaType(file);
     await validateUploadedFile(file, mediaType);
 
-    const resourceType = file.mimetype.startsWith('video') ? 'video' : 'image';
-    const { secure_url, public_id } = await uploadBuffer(file.buffer, {
-      folder: 'novaschola/gallery',
-      resourceType,
+    const { key } = await b2.uploadBuffer(file.buffer, {
+      folder: 'gallery',
+      contentType: file.mimetype,
+      filename: file.originalname,
     });
+    // file_url column is NOT NULL: store a fresh presigned URL now; read
+    // paths refresh it from b2_key on every response.
+    const file_url = await b2.getPresignedUrl(key);
 
     try {
       const status = 'approved';
@@ -47,8 +69,8 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
         uploader_id: req.user.id,
         category_id: categoryId,
         media_type: mediaType,
-        file_url: secure_url,
-        cloudinary_public_id: public_id,
+        file_url,
+        b2_key: key,
         original_filename: file.originalname,
         caption,
         status,
@@ -82,6 +104,7 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
 export const listPendingMedia = async (req, res, next) => {
   try {
     const media = await galleryModel.listPending();
+    await attachGalleryFileUrls(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -108,6 +131,7 @@ export const approveMedia = async (req, res, next) => {
 
     await audit(req, 'gallery.approve', 'gallery_media', id, null);
 
+    await attachGalleryFileUrl(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -139,6 +163,7 @@ export const rejectMedia = async (req, res, next) => {
 
     await audit(req, 'gallery.reject', 'gallery_media', id, { rejection_reason });
 
+    await attachGalleryFileUrl(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -148,6 +173,7 @@ export const rejectMedia = async (req, res, next) => {
 export const myUploads = async (req, res, next) => {
   try {
     const media = await galleryModel.listByUploader(req.user.id);
+    await attachGalleryFileUrls(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -158,6 +184,7 @@ export const listRecentMedia = async (req, res, next) => {
   try {
     const limit = req.query.limit ? Math.min(Math.max(Number(req.query.limit) || 50, 1), 100) : 50;
     const media = await galleryModel.listRecent({ limit });
+    await attachGalleryFileUrls(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -171,6 +198,7 @@ export const browseGallery = async (req, res, next) => {
 
     const { media, total } = await galleryModel.browse({ category_id, year, month, media_type, featured, limit, offset });
 
+    await attachGalleryFileUrls(media);
     return res.json({ media, total });
   } catch (err) {
     return next(err);
@@ -198,6 +226,7 @@ export const featureMedia = async (req, res, next) => {
 
     await audit(req, 'gallery.feature', 'gallery_media', id, { featured });
 
+    await attachGalleryFileUrl(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -243,6 +272,7 @@ export const reassignCategory = async (req, res, next) => {
 
     await audit(req, 'gallery.category_update', 'gallery_media', id, { category_id: newCategoryId });
 
+    await attachGalleryFileUrl(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -265,12 +295,11 @@ export const deleteGalleryMedia = async (req, res, next) => {
       return res.status(403).json({ status: 403, message: 'You do not have permission to delete this media.' });
     }
 
-    if (existing.cloudinary_public_id) {
+    if (existing.b2_key && isGalleryB2Key(existing.b2_key)) {
       try {
-        const resourceType = existing.media_type === 'video' ? 'video' : 'image';
-        await deleteAsset(existing.cloudinary_public_id, resourceType);
+        await b2.deleteObject(existing.b2_key);
       } catch (e) {
-        console.error('Failed to delete Cloudinary asset', e.message || e);
+        console.error('Failed to delete B2 object', e.message || e);
       }
     }
 
@@ -295,6 +324,7 @@ export const getGalleryItem = async (req, res, next) => {
       return res.status(404).json({ status: 404, message: 'Media not found.' });
     }
 
+    await attachGalleryFileUrl(media);
     return res.json({ media });
   } catch (err) {
     return next(err);
@@ -349,6 +379,7 @@ export const searchGallery = async (req, res, next) => {
       offset,
     });
 
+    await attachGalleryFileUrls(media);
     return res.json({ media, total });
   } catch (err) {
     return next(err);

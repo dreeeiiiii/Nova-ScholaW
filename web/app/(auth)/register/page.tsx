@@ -93,6 +93,7 @@ function RegisterForm() {
           section_id: null,
           course_id: null,
           studentLevel,
+          student_level: studentLevel,
           sectionCourse: normalizedSection,
         }),
       });
