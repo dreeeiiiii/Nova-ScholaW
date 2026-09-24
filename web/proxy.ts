@@ -14,7 +14,7 @@ export const config = {
   ],
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // UX redirect, not a security boundary.
   // Real verification is server-side in (app)/layout.tsx and protected pages via getCurrentUser().
   const token = request.cookies.get("ns_token")?.value;
