@@ -494,9 +494,19 @@ const run = async () => {
         throw new Error(`section "${sectionName}" not found (sections must seed first)`);
       }
       if (!live) {
-        stats.usersCreated++;
-        stats.studentsCreated++;
-        console.log(`[user] would create ${local}@my.nst.edu.ph (role=student, ${sectionName})`);
+        // Dry-run mirrors ensureUser's existence check/reporting (read-only):
+        // existing student → SKIP, missing student → WOULD CREATE.
+        const norm = normalizeEmail(`${local}@my.nst.edu.ph`);
+        const existing = await userModel.findByEmail(norm);
+        if (existing) {
+          emailToId.set(norm, existing.id);
+          stats.usersSkipped++;
+          console.log(`[user] skip existing ${norm} (role=${existing.role}, ${sectionName})`);
+        } else {
+          stats.usersCreated++;
+          stats.studentsCreated++;
+          console.log(`[user] would create ${norm} (role=student, ${sectionName})`);
+        }
         continue;
       }
       await ensureUser({
