@@ -101,23 +101,30 @@ describe('B1.4 gallery featured column', () => {
 
   const jpeg = Buffer.from([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00]);
 
-  it('default featured is false after upload', async () => {
+  it('upload enters moderation as pending; admin approves before it is listed', async () => {
     const { boundary, body } = buildMultipart(jpeg, 'feat1.jpg', 'image/jpeg', { category_id: String(categoryId), title: 'Feat Default 1' });
     const res = await uploadFile(baseUrl, '/api/gallery/upload', { boundary, body }, adminToken);
     assert.equal(res.status, 201);
     const data = await res.json();
     assert.equal(data.media.featured, false);
-    assert.equal(data.media.status, 'approved');
+    assert.equal(data.media.status, 'pending');
     mediaId1 = data.media.id;
+
+    const approved = await patchJson(baseUrl, `/api/gallery/${mediaId1}/approve`, {}, adminToken);
+    assert.equal(approved.status, 200);
+    assert.equal((await approved.json()).media.status, 'approved');
   });
 
   it('GET /api/gallery?featured=true returns only flagged rows', async () => {
-    // create and feature second media
+    // create, approve, then feature second media
     const { boundary, body } = buildMultipart(jpeg, 'feat2.jpg', 'image/jpeg', { category_id: String(categoryId), title: 'Feat To Feature' });
     const res = await uploadFile(baseUrl, '/api/gallery/upload', { boundary, body }, adminToken);
     assert.equal(res.status, 201);
     const mid = (await res.json()).media.id;
     mediaIdFeatured = mid;
+
+    const appr = await patchJson(baseUrl, `/api/gallery/${mid}/approve`, {}, adminToken);
+    assert.equal(appr.status, 200);
 
     const feat = await patchJson(baseUrl, `/api/gallery/${mid}/feature`, { featured: true }, adminToken);
     assert.equal(feat.status, 200);

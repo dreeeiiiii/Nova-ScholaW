@@ -85,7 +85,7 @@ describe('B1.6 PATCH /api/gallery/:id/category (pending-only reassign)', () => {
     adminToken = await login(ADMIN_EMAIL);
     teacherToken = await login(TEACHER_EMAIL);
 
-    // Create pending media directly (uploads now default to approved)
+    // Create pending media directly (uploads also enter as pending; direct insert keeps this fixture independent of the upload endpoint)
     const pendRes = await query(
       `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status)
        VALUES ($1, $2, 'image', '/uploads/gallery/images/catpending.jpg', 'catpending.jpg', 'CATREASSIGN Pending', 'pending')
@@ -94,11 +94,13 @@ describe('B1.6 PATCH /api/gallery/:id/category (pending-only reassign)', () => {
     );
     pendingId = pendRes.rows[0].id;
 
-    // Create approved media (upload defaults to approved, no approve PATCH needed)
+    // Create approved media: upload enters moderation as pending, then approve via endpoint
     const { boundary: b2, body: body2 } = buildMultipart(jpeg, 'catapproved.jpg', 'image/jpeg', { category_id: String(catAId), title: 'CATREASSIGN Approved' });
     const up2 = await uploadFile(baseUrl, '/api/gallery/upload', { boundary: b2, body: body2 }, adminToken);
     assert.equal(up2.status, 201);
     approvedId = (await up2.json()).media.id;
+    const appr = await patchJson(baseUrl, `/api/gallery/${approvedId}/approve`, {}, adminToken);
+    assert.equal(appr.status, 200);
 
     // Create rejected media: insert pending directly, then reject via endpoint
     const rejIns = await query(

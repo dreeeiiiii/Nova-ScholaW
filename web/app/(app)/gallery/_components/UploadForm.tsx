@@ -340,7 +340,7 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
         >
           {pending ? "Uploading…" : "Submit for review"}
         </button>
-        <p className="tokens-small mt-2 text-center" style={{ color: "var(--color-muted)" }}>Uploads are published immediately. Content that violates school guidelines will be removed.</p>
+        <p className="tokens-small mt-2 text-center" style={{ color: "var(--color-muted)" }}>Uploads enter the moderation queue. Your photo or video will appear in the gallery after an admin approves it.</p>
       </form>
 
       {showReview && (

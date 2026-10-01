@@ -62,9 +62,10 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     const file_url = await b2.getPresignedUrl(key);
 
     try {
-      const status = 'approved';
-      const reviewedBy = req.user.id;
-      const reviewedAt = new Date();
+      // New uploads always enter the moderation queue as pending. Only an
+      // admin approve/reject action moves them out (never auto-approved, so
+      // uploads cannot bypass admin review).
+      const status = 'pending';
       const media = await galleryModel.insertMedia({
         uploader_id: req.user.id,
         category_id: categoryId,
@@ -74,8 +75,8 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
         original_filename: file.originalname,
         caption,
         status,
-        reviewed_by: reviewedBy,
-        reviewed_at: reviewedAt,
+        reviewed_by: null,
+        reviewed_at: null,
         rejection_reason: null,
         featured: false,
       });

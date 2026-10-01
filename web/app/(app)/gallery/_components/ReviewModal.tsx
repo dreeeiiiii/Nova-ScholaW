@@ -88,7 +88,7 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
         </div>
         <h2 className="mt-4 font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Upload successful</h2>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
-          Your upload is now live in the gallery. Admins may remove it later if it violates our guidelines.
+          Upload successful. Your photo or video will appear in the gallery after admin review.
         </p>
         <div style={{ borderTop: "1px solid var(--color-line)", marginTop: "var(--space-6)", paddingTop: "var(--space-4)" }}>
           <button
