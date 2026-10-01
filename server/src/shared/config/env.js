@@ -45,12 +45,32 @@ const optional = (key, note) => {
   return process.env[key];
 };
 
+// Role-specific institutional email domains. Each resolves from its dedicated
+// variable, falling back to the legacy single-domain variable for students
+// (backward compatibility with existing deployments), then to the
+// institutional default.
+const resolveDomain = (specificKey, legacyKey, defaultDomain) => {
+  const raw = process.env[specificKey] ?? (legacyKey ? process.env[legacyKey] : undefined) ?? defaultDomain;
+  const domain = String(raw).trim().toLowerCase();
+  if (!process.env[specificKey] && !(legacyKey && process.env[legacyKey])) {
+    warn(specificKey, `defaulting to ${domain}`);
+  }
+  return domain;
+};
+
 const jwtSecret =
   process.env.JWT_SECRET ??
   (() => {
     warn('JWT_SECRET', 'using an in-memory secret — tokens will not survive restarts (development only)');
     return randomBytes(32).toString('hex');
   })();
+
+const adminEmailDomain = resolveDomain('NST_ADMIN_EMAIL_DOMAIN', null, 'nst.edu.ph');
+const teacherEmailDomain = resolveDomain('NST_TEACHER_EMAIL_DOMAIN', null, 'tr.nst.edu.ph');
+const studentEmailDomain = resolveDomain('NST_STUDENT_EMAIL_DOMAIN', 'NST_EMAIL_DOMAIN', 'my.nst.edu.ph');
+// Legacy single-domain alias — always mirrors the student domain.
+// Prefer the role-specific domains above.
+const nstEmailDomain = process.env.NST_EMAIL_DOMAIN ?? studentEmailDomain;
 
 const config = Object.freeze({
   nodeEnv,
@@ -61,7 +81,10 @@ const config = Object.freeze({
   databaseUrl: optional('DATABASE_URL', 'database features disabled until server/.env is configured'),
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   uploadDir: path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
-  nstEmailDomain: optional('NST_EMAIL_DOMAIN', 'email-domain validation will be relaxed'),
+  nstEmailDomain,
+  adminEmailDomain,
+  teacherEmailDomain,
+  studentEmailDomain,
   maxImageSizeMb: Number(process.env.MAX_IMAGE_SIZE_MB || 10),
   maxVideoSizeMb: Number(process.env.MAX_VIDEO_SIZE_MB || 50),
   maxVideoDurationSeconds: Number(process.env.MAX_VIDEO_DURATION_SECONDS || 120),

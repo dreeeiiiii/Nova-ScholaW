@@ -1,6 +1,6 @@
 import { signToken } from '../../shared/utils/jwt.js';
 import { comparePassword, hashPassword } from '../../shared/utils/password.js';
-import { normalizeEmail } from '../../shared/utils/nstEmail.js';
+import { getRoleEmailDomain, isRoleEmail, normalizeEmail } from '../../shared/utils/nstEmail.js';
 import { audit } from '../audit/auditService.js';
 import { findByEmailWithHash, findByEmail, createUser as insertUser, updateLastLogin, findByIdWithJoins, listDistinctSectionCourse } from '../users/userModel.js';
 import { findSectionById } from '../academic/sectionModel.js';
@@ -82,8 +82,9 @@ export const register = async (req, res, next) => {
     if (fullName === '' || fullName.length > 100) {
       return res.status(400).json({ status: 400, message: 'Full name must be between 1 and 100 characters.' });
     }
-    if (!email.toLowerCase().endsWith('@my.nst.edu.ph')) {
-      return res.status(400).json({ status: 400, message: 'Only @my.nst.edu.ph emails can register' });
+    // Self-registration always creates a student, so the student domain applies.
+    if (!isRoleEmail(email, 'student')) {
+      return res.status(400).json({ status: 400, message: `Only @${getRoleEmailDomain('student')} emails can register` });
     }
     if (password.length < 8) {
       return res.status(400).json({ status: 400, message: 'Password must be at least 8 characters long.' });

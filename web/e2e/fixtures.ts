@@ -8,9 +8,9 @@ const STUDENT_PASSWORD = process.env.TEST_STUDENT_PASSWORD || "B22Test123!";
 const STUDENT2_PASSWORD = process.env.TEST_STUDENT2_PASSWORD || "Empty123!";
 
 export const credentials = {
-  admin: { email: "b22test_admin@my.nst.edu.ph", password: ADMIN_PASSWORD },
-  teacher: { email: "b22test_teacher@my.nst.edu.ph", password: TEACHER_PASSWORD },
-  teacher2: { email: "b22test_teacher2@my.nst.edu.ph", password: TEACHER2_PASSWORD },
+  admin: { email: "b22test_admin@nst.edu.ph", password: ADMIN_PASSWORD },
+  teacher: { email: "b22test_teacher@tr.nst.edu.ph", password: TEACHER_PASSWORD },
+  teacher2: { email: "b22test_teacher2@tr.nst.edu.ph", password: TEACHER2_PASSWORD },
   student: { email: "b22test_student@my.nst.edu.ph", password: STUDENT_PASSWORD },
   studentEmpty: { email: "b22test_student_empty@my.nst.edu.ph", password: STUDENT2_PASSWORD },
 };

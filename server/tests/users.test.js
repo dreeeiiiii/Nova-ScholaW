@@ -9,9 +9,14 @@ import { signToken } from '../src/shared/utils/jwt.js';
 import { hashPassword } from '../src/shared/utils/password.js';
 
 const domain = config.nstEmailDomain || 'my.nst.edu.ph';
-const ADMIN_EMAIL = `usertest_admin@${domain}`;
+const adminDomain = config.adminEmailDomain || 'nst.edu.ph';
+const teacherDomain = config.teacherEmailDomain || 'tr.nst.edu.ph';
+const ADMIN_EMAIL = `usertest_admin@${adminDomain}`;
+const TEACHER_EMAIL = `usertest_teacher@${teacherDomain}`;
 const STUDENT_EMAIL = `usertest_student@${domain}`;
 const TARGET_EMAIL = `usertest_target@${domain}`;
+const TARGET_TEACHER_EMAIL = `usertest_target_teacher@${teacherDomain}`;
+const TARGET_ADMIN_EMAIL = `usertest_target_admin@${adminDomain}`;
 const NON_NST_EMAIL = 'usertest_external@gmail.com';
 
 const request = async (baseUrl, path, { method = 'GET', token, body } = {}) => {
@@ -72,7 +77,7 @@ describe('user endpoints (admin CRUD)', () => {
 
   after(async () => {
     await query('DELETE FROM users WHERE email = ANY($1)', [
-      [ADMIN_EMAIL, STUDENT_EMAIL, TARGET_EMAIL],
+      [ADMIN_EMAIL, TEACHER_EMAIL, STUDENT_EMAIL, TARGET_EMAIL, TARGET_TEACHER_EMAIL, TARGET_ADMIN_EMAIL],
     ]).catch(() => {});
     await closePool().catch(() => {});
     if (server) {
@@ -127,6 +132,104 @@ describe('user endpoints (admin CRUD)', () => {
     assert.equal(res.status, 400);
     const body = await res.json();
     assert.match(body.message, new RegExp(`@${domain}`));
+  });
+
+  it('creates a teacher with a teacher-domain email (201)', async () => {
+    const res = await request(baseUrl, '/api/users', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        email: TARGET_TEACHER_EMAIL,
+        password: 'TempPass123!',
+        full_name: 'Target Teacher',
+        role: 'teacher',
+      },
+    });
+    assert.equal(res.status, 201);
+    const body = await res.json();
+    assert.equal(body.user.email, TARGET_TEACHER_EMAIL);
+    assert.equal(body.user.role, 'teacher');
+  });
+
+  it('creates an admin with an admin-domain email (201)', async () => {
+    const res = await request(baseUrl, '/api/users', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        email: TARGET_ADMIN_EMAIL,
+        password: 'TempPass123!',
+        full_name: 'Target Admin',
+        role: 'admin',
+      },
+    });
+    assert.equal(res.status, 201);
+    const body = await res.json();
+    assert.equal(body.user.email, TARGET_ADMIN_EMAIL);
+    assert.equal(body.user.role, 'admin');
+  });
+
+  it('rejects an admin using the student domain (400)', async () => {
+    const res = await request(baseUrl, '/api/users', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        email: `usertest_wrong_admin@${domain}`,
+        password: 'TempPass123!',
+        full_name: 'Wrong Admin',
+        role: 'admin',
+      },
+    });
+    assert.equal(res.status, 400);
+    const body = await res.json();
+    assert.match(body.message, new RegExp(`@${adminDomain}`));
+  });
+
+  it('rejects a teacher using the student domain (400)', async () => {
+    const res = await request(baseUrl, '/api/users', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        email: `usertest_wrong_teacher@${domain}`,
+        password: 'TempPass123!',
+        full_name: 'Wrong Teacher',
+        role: 'teacher',
+      },
+    });
+    assert.equal(res.status, 400);
+    const body = await res.json();
+    assert.match(body.message, new RegExp(`@${teacherDomain}`));
+  });
+
+  it('rejects a student using the teacher domain (400)', async () => {
+    const res = await request(baseUrl, '/api/users', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        email: `usertest_wrong_student@${teacherDomain}`,
+        password: 'TempPass123!',
+        full_name: 'Wrong Student',
+        role: 'student',
+      },
+    });
+    assert.equal(res.status, 400);
+    const body = await res.json();
+    assert.match(body.message, new RegExp(`@${domain}`));
+  });
+
+  it('rejects a teacher with a non-NST email (400)', async () => {
+    const res = await request(baseUrl, '/api/users', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        email: NON_NST_EMAIL,
+        password: 'TempPass123!',
+        full_name: 'External Teacher',
+        role: 'teacher',
+      },
+    });
+    assert.equal(res.status, 400);
+    const body = await res.json();
+    assert.match(body.message, new RegExp(`@${teacherDomain}`));
   });
 
   it('rejects creating a duplicate email (409)', async () => {

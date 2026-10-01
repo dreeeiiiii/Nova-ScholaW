@@ -9,8 +9,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const schemaPath = path.join(__dirname, '../../../../DATABASE_SCHEMA.sql');
 
 const run = async () => {
-  if (!config.databaseUrl) {
+  // In NODE_ENV=test the pool (via db.js + testGuard) targets DATABASE_URL_TEST;
+  // the production DATABASE_URL is not required in that mode.
+  if (!config.databaseUrl && config.nodeEnv !== 'test') {
     throw new Error('DATABASE_URL is not set. Configure server/.env before migrating.');
+  }
+  if (config.nodeEnv === 'test' && !process.env.DATABASE_URL_TEST) {
+    throw new Error('DATABASE_URL_TEST is not set. Configure server/.env.test before migrating the test database.');
   }
 
   console.log(`[migrate] Reading schema from ${schemaPath}`);

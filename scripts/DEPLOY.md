@@ -15,7 +15,9 @@ Target topology: **Vercel** (client) + **Render** (server, or Railway) + **Neon*
 | `JWT_EXPIRES_IN` | No | `8h` |
 | `CLIENT_ORIGIN` | Yes | `https://novaschola.vercel.app` |
 | `UPLOAD_DIR` | Yes | `uploads` |
-| `NST_EMAIL_DOMAIN` | Yes | `my.nst.edu.ph` |
+| `NST_ADMIN_EMAIL_DOMAIN` | Yes | `nst.edu.ph` |
+| `NST_TEACHER_EMAIL_DOMAIN` | Yes | `tr.nst.edu.ph` |
+| `NST_STUDENT_EMAIL_DOMAIN` | Yes | `my.nst.edu.ph` |
 | `MAX_IMAGE_SIZE_MB` | No | `10` |
 | `MAX_VIDEO_SIZE_MB` | No | `50` |
 | `MAX_VIDEO_DURATION_SECONDS` | No | `120` |
@@ -41,7 +43,7 @@ Admin users are created with a one-time SQL insert (no seed script):
 -- Then run in Neon SQL Editor:
 INSERT INTO users (email, password_hash, full_name, role, is_active)
 VALUES (
-  'admin@my.nst.edu.ph',
+  'admin@nst.edu.ph',
   '$2b$10$PASTE_HASH_HERE',
   'System Admin',
   'admin',

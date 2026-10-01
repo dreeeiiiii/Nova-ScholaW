@@ -12,6 +12,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "db:migrate": "node src/shared/db/migrate.js",
+    "db:migrate:test": "cross-env NODE_ENV=test node src/shared/db/migrate.js",
     "seed:production": "node scripts/seed-production.js",
     "test": "cross-env NODE_ENV=test node --test --test-concurrency=1"
   },

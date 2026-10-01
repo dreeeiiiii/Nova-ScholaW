@@ -1,8 +1,15 @@
 import { test, expect } from "./fixtures";
 import { credentials, loginAs } from "./fixtures";
 
-function uniqueEmail(prefix: string) {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}@my.nst.edu.ph`.toLowerCase();
+// Institutional email domain per role (mirrors backend NST_*_EMAIL_DOMAIN).
+const ROLE_DOMAINS = {
+  admin: "nst.edu.ph",
+  teacher: "tr.nst.edu.ph",
+  student: "my.nst.edu.ph",
+} as const;
+
+function uniqueEmail(prefix: string, role: keyof typeof ROLE_DOMAINS = "student") {
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}@${ROLE_DOMAINS[role]}`.toLowerCase();
 }
 
 test("admin creates and deactivates a user", async ({ page }) => {

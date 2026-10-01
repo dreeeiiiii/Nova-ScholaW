@@ -5,6 +5,9 @@ import Link from "next/link";
 import { AuthShell } from "../_components/AuthShell";
 
 function RegisterForm() {
+  // Student self-signup domain. Source of truth is the backend
+  // NST_STUDENT_EMAIL_DOMAIN configuration (defaults to my.nst.edu.ph).
+  const STUDENT_EMAIL_DOMAIN = "my.nst.edu.ph";
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,8 +64,8 @@ function RegisterForm() {
       setError("Full name must be 100 characters or fewer.");
       return;
     }
-    if (!email.trim().toLowerCase().endsWith("@my.nst.edu.ph")) {
-      setError("Only @my.nst.edu.ph emails can register");
+    if (!email.trim().toLowerCase().endsWith(`@${STUDENT_EMAIL_DOMAIN}`)) {
+      setError(`Only @${STUDENT_EMAIL_DOMAIN} emails can register`);
       return;
     }
     if (password.length < 8) {
@@ -229,12 +232,12 @@ function RegisterForm() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@my.nst.edu.ph"
+              placeholder={`you@${STUDENT_EMAIL_DOMAIN}`}
               className="input-token"
               required
             />
             <p className="tokens-small" style={{ color: "var(--color-muted)", marginTop: "var(--space-2)" }}>
-              Must be an @my.nst.edu.ph email
+              Must be an @{STUDENT_EMAIL_DOMAIN} email
             </p>
           </div>
 

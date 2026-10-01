@@ -1,11 +1,18 @@
 import pg from 'pg';
 
 import config from './env.js';
+import { assertTestDatabaseSafety } from './testGuard.js';
 
 const { Pool } = pg;
 
+// In NODE_ENV=test the connection ALWAYS comes from DATABASE_URL_TEST via the
+// fail-closed testGuard (never the production DATABASE_URL). Every other
+// environment uses the production DATABASE_URL unchanged.
+const connectionString =
+  config.nodeEnv === 'test' ? assertTestDatabaseSafety(process.env.DATABASE_URL_TEST) : config.databaseUrl;
+
 const pool = new Pool({
-  connectionString: config.databaseUrl,
+  connectionString,
   ssl: { rejectUnauthorized: false },
 });
 

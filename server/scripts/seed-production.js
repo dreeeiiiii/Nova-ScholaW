@@ -35,11 +35,10 @@
 // Demo password comes ONLY from SEED_DEMO_PASSWORD (never committed to git)
 // and applies ONLY to newly created users. Existing users are left untouched.
 //
-// NOTE on emails: seed accounts use @novaschola.test. The app's registration
-// endpoint enforces @my.nst.edu.ph (NST_EMAIL_DOMAIN), but login does not
-// check the domain, so demo accounts log in normally. They are inserted via
-// the users model directly, bypassing the registration domain check —
-// intentional for demo seeding.
+// NOTE on emails: seed accounts use the institutional role-specific domains
+// (admin @nst.edu.ph, teachers @tr.nst.edu.ph, students @my.nst.edu.ph),
+// matching the backend NST_*_EMAIL_DOMAIN validation, so seeded accounts pass
+// the same rules as app-created accounts. Login does not check domains.
 
 import { query, getClient, closePool } from '../src/shared/config/db.js';
 import config from '../src/shared/config/env.js';
@@ -87,16 +86,16 @@ const SEED_SECTIONS = [
 ];
 
 const SEED_TEACHERS = [
-  { email: 'maria.santos@novaschola.test', full_name: 'Maria Santos' },
-  { email: 'john.reyes@novaschola.test', full_name: 'John Reyes' },
-  { email: 'ana.delacruz@novaschola.test', full_name: 'Ana Dela Cruz' },
-  { email: 'carlos.mendoza@novaschola.test', full_name: 'Carlos Mendoza' },
-  { email: 'jenny.lim@novaschola.test', full_name: 'Jenny Lim' },
-  { email: 'roberto.garcia@novaschola.test', full_name: 'Roberto Garcia' },
-  { email: 'lucia.fernandez@novaschola.test', full_name: 'Lucia Fernandez' },
-  { email: 'mark.villanueva@novaschola.test', full_name: 'Mark Villanueva' },
-  { email: 'grace.aquino@novaschola.test', full_name: 'Grace Aquino' },
-  { email: 'daniel.torres@novaschola.test', full_name: 'Daniel Torres' },
+  { email: 'maria.santos@tr.nst.edu.ph', full_name: 'Maria Santos' },
+  { email: 'john.reyes@tr.nst.edu.ph', full_name: 'John Reyes' },
+  { email: 'ana.delacruz@tr.nst.edu.ph', full_name: 'Ana Dela Cruz' },
+  { email: 'carlos.mendoza@tr.nst.edu.ph', full_name: 'Carlos Mendoza' },
+  { email: 'jenny.lim@tr.nst.edu.ph', full_name: 'Jenny Lim' },
+  { email: 'roberto.garcia@tr.nst.edu.ph', full_name: 'Roberto Garcia' },
+  { email: 'lucia.fernandez@tr.nst.edu.ph', full_name: 'Lucia Fernandez' },
+  { email: 'mark.villanueva@tr.nst.edu.ph', full_name: 'Mark Villanueva' },
+  { email: 'grace.aquino@tr.nst.edu.ph', full_name: 'Grace Aquino' },
+  { email: 'daniel.torres@tr.nst.edu.ph', full_name: 'Daniel Torres' },
 ];
 
 // [full_name, email-local-part, sectionName, isActive]
@@ -151,70 +150,70 @@ const SEED_CATEGORIES = [
 //   pubInDays: publish_at offset for scheduled ; expInDays: expires_at offset (past allowed)
 //   tv: show_on_tv ; tg: targets for class { s:[sectionNames], c:[courseCodes], u:[studentEmails] }
 const SEED_ANNOUNCEMENTS = [
-  { t: 'g', st: 'published', tv: true, by: 'admin@novaschola.test', title: 'Class Suspension Advisory', content: 'Demo advisory: classes are suspended on Friday due to severe weather, per the school administration. Please monitor official channels for further updates. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'admin@novaschola.test', title: 'Enrollment Reminder for Next Semester', content: 'Demo reminder: enrollment for the next semester opens Monday at the registrar office. Bring your report card and a photocopy of your birth certificate. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'maria.santos@novaschola.test', title: 'Midterm Examination Schedule', content: 'Students are reminded that the Midterm Examinations will be conducted according to the schedule released by the school administration. Please check the official examination schedule and coordinate with your instructors for any concerns.' },
-  { t: 'g', st: 'published', tv: true, by: 'john.reyes@novaschola.test', title: 'Foundation Day Celebration', content: 'Demo announcement: the school Foundation Day celebration will be held on the main campus grounds with booths, performances, and a parade. All students and faculty are invited. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'admin@novaschola.test', title: 'Reminder: Library Hours and ID Policy', content: 'Demo reminder: the library is open 8:00 AM to 5:00 PM on school days. Always wear your school ID on campus. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: false, by: 'maria.santos@novaschola.test', title: 'Faculty Meeting on Friday', content: 'Demo notice: all faculty members are requested to attend the meeting on Friday at 3:00 PM in the conference room. Agenda includes grading deadlines and event assignments. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'john.reyes@novaschola.test', title: 'Intramurals Tryouts Schedule', content: 'Demo notice: tryouts for basketball, volleyball, badminton, and track events start next week at the school covered court. Bring your athletic attire and parent consent form. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: false, by: 'ana.delacruz@novaschola.test', title: 'Second Semester Grading Deadlines', content: 'Demo memo for faculty: encoding of second-semester grades closes at the end of the month. Late submissions require a written explanation to the academic head. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'carlos.mendoza@novaschola.test', title: 'Community Outreach Volunteers Needed', content: 'Demo call: the outreach office needs forty student volunteers for the weekend coastal clean-up. Service hours will be credited. Sign up at the student affairs office. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'jenny.lim@novaschola.test', title: 'Recognition Day Honors List', content: 'Demo announcement: congratulations to all honor students for this semester. The recognition program will be held in the gymnasium; awardees must be in complete uniform. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'roberto.garcia@novaschola.test', title: 'Important Advisory Regarding the Proper Use of Laboratory Equipment and Safety Protocols for All Science Classes This Semester', content: 'Demo advisory with a long title (edge case): students must wear safety goggles and secure long hair before entering the laboratory. Report any damaged apparatus to your instructor immediately. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'published', tv: true, by: 'lucia.fernandez@novaschola.test', title: 'Lost and Found', content: 'Claim unclaimed IDs and wallets at the guard house. Short notice edge case.' },
-  { t: 'g', st: 'published', tv: false, by: 'mark.villanueva@novaschola.test', title: 'Student Handbook Addendum on Dress Code', content: 'Demo notice with long content (edge case): ' + 'All students are expected to observe the prescribed dress code on school days, including wash days. Shirts must be tucked in, skirts must be of regulation length, and closed shoes must be worn at all times inside the campus. Repeated violations will be referred to the discipline office for counseling and appropriate sanction. Class advisers are requested to check compliance during the first-period assembly. Parents and guardians will be notified after the third recorded violation. The full addendum is available at the student affairs office for photocopying. '.repeat(3) + 'This is sample data for presentation purposes.' },
-  { t: 'g', st: 'scheduled', tv: true, pubInDays: 7, by: 'grace.aquino@novaschola.test', title: 'Semestral Break Advisory', content: 'Demo advisory: semestral break begins in one week. Dormitory residents must coordinate checkout with the housing office. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'scheduled', tv: true, pubInDays: 14, by: 'daniel.torres@novaschola.test', title: 'Christmas Party and Year-End Program', content: 'Demo announcement: the year-end celebration will feature class presentations and the annual lantern parade. Food assignments will be coordinated per section. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'scheduled', tv: true, pubInDays: 21, by: 'admin@novaschola.test', title: 'Career Fair and Job Placement Week', content: 'Demo announcement: graduating students are invited to the career fair with partner companies. Bring updated resumes and wear business attire. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'draft', tv: false, by: 'maria.santos@novaschola.test', title: 'Draft: Thesis Defense Panel Schedule', content: 'Draft edge case (not yet final): tentative thesis defense panels for graduating classes. Subject to confirmation by the research coordinator. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'draft', tv: false, by: 'john.reyes@novaschola.test', title: 'Draft: Canteen Menu Survey', content: 'Draft edge case: proposed survey on canteen menu preferences. Pending approval from the administration. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'archived', tv: false, by: 'admin@novaschola.test', title: 'Brigada Eskwela Kickoff (Archived)', content: 'Archived record from the school clean-up drive: thank you to all parent and student volunteers. This is sample data for presentation purposes.' },
-  { t: 'g', st: 'archived', tv: true, expInDays: -30, by: 'ana.delacruz@novaschola.test', title: 'Fire Drill Recap (Expired)', content: 'Expired edge case: last quarter fire drill results and evacuation-time report. Kept for records. This is sample data for presentation purposes.' },
-  { t: 'c', st: 'published', by: 'maria.santos@novaschola.test', title: 'BSIS 1-A Laboratory Schedule', content: 'Demo class notice: BSIS 1-A computer laboratory sessions move to Room 204 every Tuesday and Thursday. Bring your activity notebook. This is sample data for presentation purposes.', tg: { s: ['BSIS 1-A'], c: [], u: [] } },
-  { t: 'c', st: 'published', by: 'john.reyes@novaschola.test', title: 'BSIT Remedial Programming Sessions', content: 'Demo class notice: remedial programming sessions for all BSIT students every Wednesday afternoon at the IT lab. Attendance will be checked. This is sample data for presentation purposes.', tg: { s: [], c: ['BSIT'], u: [] } },
-  { t: 'c', st: 'published', by: 'carlos.mendoza@novaschola.test', title: 'Thesis Advisees Meeting', content: 'Demo class notice: all my thesis advisees must attend the consultation meeting on Saturday morning. Bring your chapter drafts. This is sample data for presentation purposes.', tg: { s: [], c: [], u: ['andrei.manacop@novaschola.test', 'sofia.cruz@novaschola.test', 'miguel.torres@novaschola.test'] } },
-  { t: 'c', st: 'published', by: 'jenny.lim@novaschola.test', title: 'BBA Accounting Quiz Coverage', content: 'Demo class notice: the accounting quiz covers chapters 4 to 6. Calculators allowed; no mobile phones during the exam. This is sample data for presentation purposes.', tg: { s: ['BBA 1-A'], c: ['BBA'], u: [] } },
-  { t: 'c', st: 'published', by: 'roberto.garcia@novaschola.test', title: 'BSHM Kitchen Duty Roster', content: 'Demo class notice: the kitchen duty roster for BSHM first and second year is posted on the bulletin board. Wear complete kitchen uniform. This is sample data for presentation purposes.', tg: { s: ['BSHM 1-A', 'BSHM 2-A'], c: [], u: [] } },
-  { t: 'c', st: 'published', by: 'lucia.fernandez@novaschola.test', title: 'BSCS Capstone Proposal Guidelines', content: 'Demo class notice: capstone proposals must follow the new format with problem statement, objectives, and system architecture diagram. Deadline is end of month. This is sample data for presentation purposes.', tg: { s: [], c: ['BSCS'], u: [] } },
-  { t: 'c', st: 'published', by: 'mark.villanueva@novaschola.test', title: 'BEED Field Study Briefing', content: 'Demo class notice: BEED first-year students must attend the field study briefing before deployment to partner schools. Bring your observation forms. This is sample data for presentation purposes.', tg: { s: ['BEED 1-A'], c: [], u: [] } },
-  { t: 'c', st: 'published', by: 'grace.aquino@novaschola.test', title: 'Saturday Make-up Classes', content: 'Demo class notice: make-up classes will be held on Saturday for missed sessions this week. Check your section assignment below. This is sample data for presentation purposes.', tg: { s: ['BSIS 2-A'], c: [], u: ['lily.gonzales@novaschola.test', 'isaac.bautista@novaschola.test'] } },
-  { t: 'c', st: 'scheduled', pubInDays: 10, by: 'admin@novaschola.test', title: 'Scholarship Interviews for Computing Programs', content: 'Demo class notice: scholarship interviews for computing program applicants will be conducted next week at the guidance office. Bring your grades and recommendation letter. This is sample data for presentation purposes.', tg: { s: [], c: ['BSIS', 'BSIT', 'BSCS'], u: [] } },
-  { t: 'c', st: 'draft', by: 'daniel.torres@novaschola.test', title: 'Draft: BSCS 3-A Research Colloquium', content: 'Draft edge case: proposed research colloquium for third-year computing students. Topics and panelists to be confirmed. This is sample data for presentation purposes.', tg: { s: ['BSCS 3-A'], c: [], u: [] } },
+  { t: 'g', st: 'published', tv: true, by: 'admin@nst.edu.ph', title: 'Class Suspension Advisory', content: 'Demo advisory: classes are suspended on Friday due to severe weather, per the school administration. Please monitor official channels for further updates. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'admin@nst.edu.ph', title: 'Enrollment Reminder for Next Semester', content: 'Demo reminder: enrollment for the next semester opens Monday at the registrar office. Bring your report card and a photocopy of your birth certificate. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'maria.santos@tr.nst.edu.ph', title: 'Midterm Examination Schedule', content: 'Students are reminded that the Midterm Examinations will be conducted according to the schedule released by the school administration. Please check the official examination schedule and coordinate with your instructors for any concerns.' },
+  { t: 'g', st: 'published', tv: true, by: 'john.reyes@tr.nst.edu.ph', title: 'Foundation Day Celebration', content: 'Demo announcement: the school Foundation Day celebration will be held on the main campus grounds with booths, performances, and a parade. All students and faculty are invited. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'admin@nst.edu.ph', title: 'Reminder: Library Hours and ID Policy', content: 'Demo reminder: the library is open 8:00 AM to 5:00 PM on school days. Always wear your school ID on campus. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: false, by: 'maria.santos@tr.nst.edu.ph', title: 'Faculty Meeting on Friday', content: 'Demo notice: all faculty members are requested to attend the meeting on Friday at 3:00 PM in the conference room. Agenda includes grading deadlines and event assignments. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'john.reyes@tr.nst.edu.ph', title: 'Intramurals Tryouts Schedule', content: 'Demo notice: tryouts for basketball, volleyball, badminton, and track events start next week at the school covered court. Bring your athletic attire and parent consent form. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: false, by: 'ana.delacruz@tr.nst.edu.ph', title: 'Second Semester Grading Deadlines', content: 'Demo memo for faculty: encoding of second-semester grades closes at the end of the month. Late submissions require a written explanation to the academic head. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'carlos.mendoza@tr.nst.edu.ph', title: 'Community Outreach Volunteers Needed', content: 'Demo call: the outreach office needs forty student volunteers for the weekend coastal clean-up. Service hours will be credited. Sign up at the student affairs office. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'jenny.lim@tr.nst.edu.ph', title: 'Recognition Day Honors List', content: 'Demo announcement: congratulations to all honor students for this semester. The recognition program will be held in the gymnasium; awardees must be in complete uniform. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'roberto.garcia@tr.nst.edu.ph', title: 'Important Advisory Regarding the Proper Use of Laboratory Equipment and Safety Protocols for All Science Classes This Semester', content: 'Demo advisory with a long title (edge case): students must wear safety goggles and secure long hair before entering the laboratory. Report any damaged apparatus to your instructor immediately. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'published', tv: true, by: 'lucia.fernandez@tr.nst.edu.ph', title: 'Lost and Found', content: 'Claim unclaimed IDs and wallets at the guard house. Short notice edge case.' },
+  { t: 'g', st: 'published', tv: false, by: 'mark.villanueva@tr.nst.edu.ph', title: 'Student Handbook Addendum on Dress Code', content: 'Demo notice with long content (edge case): ' + 'All students are expected to observe the prescribed dress code on school days, including wash days. Shirts must be tucked in, skirts must be of regulation length, and closed shoes must be worn at all times inside the campus. Repeated violations will be referred to the discipline office for counseling and appropriate sanction. Class advisers are requested to check compliance during the first-period assembly. Parents and guardians will be notified after the third recorded violation. The full addendum is available at the student affairs office for photocopying. '.repeat(3) + 'This is sample data for presentation purposes.' },
+  { t: 'g', st: 'scheduled', tv: true, pubInDays: 7, by: 'grace.aquino@tr.nst.edu.ph', title: 'Semestral Break Advisory', content: 'Demo advisory: semestral break begins in one week. Dormitory residents must coordinate checkout with the housing office. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'scheduled', tv: true, pubInDays: 14, by: 'daniel.torres@tr.nst.edu.ph', title: 'Christmas Party and Year-End Program', content: 'Demo announcement: the year-end celebration will feature class presentations and the annual lantern parade. Food assignments will be coordinated per section. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'scheduled', tv: true, pubInDays: 21, by: 'admin@nst.edu.ph', title: 'Career Fair and Job Placement Week', content: 'Demo announcement: graduating students are invited to the career fair with partner companies. Bring updated resumes and wear business attire. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'draft', tv: false, by: 'maria.santos@tr.nst.edu.ph', title: 'Draft: Thesis Defense Panel Schedule', content: 'Draft edge case (not yet final): tentative thesis defense panels for graduating classes. Subject to confirmation by the research coordinator. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'draft', tv: false, by: 'john.reyes@tr.nst.edu.ph', title: 'Draft: Canteen Menu Survey', content: 'Draft edge case: proposed survey on canteen menu preferences. Pending approval from the administration. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'archived', tv: false, by: 'admin@nst.edu.ph', title: 'Brigada Eskwela Kickoff (Archived)', content: 'Archived record from the school clean-up drive: thank you to all parent and student volunteers. This is sample data for presentation purposes.' },
+  { t: 'g', st: 'archived', tv: true, expInDays: -30, by: 'ana.delacruz@tr.nst.edu.ph', title: 'Fire Drill Recap (Expired)', content: 'Expired edge case: last quarter fire drill results and evacuation-time report. Kept for records. This is sample data for presentation purposes.' },
+  { t: 'c', st: 'published', by: 'maria.santos@tr.nst.edu.ph', title: 'BSIS 1-A Laboratory Schedule', content: 'Demo class notice: BSIS 1-A computer laboratory sessions move to Room 204 every Tuesday and Thursday. Bring your activity notebook. This is sample data for presentation purposes.', tg: { s: ['BSIS 1-A'], c: [], u: [] } },
+  { t: 'c', st: 'published', by: 'john.reyes@tr.nst.edu.ph', title: 'BSIT Remedial Programming Sessions', content: 'Demo class notice: remedial programming sessions for all BSIT students every Wednesday afternoon at the IT lab. Attendance will be checked. This is sample data for presentation purposes.', tg: { s: [], c: ['BSIT'], u: [] } },
+  { t: 'c', st: 'published', by: 'carlos.mendoza@tr.nst.edu.ph', title: 'Thesis Advisees Meeting', content: 'Demo class notice: all my thesis advisees must attend the consultation meeting on Saturday morning. Bring your chapter drafts. This is sample data for presentation purposes.', tg: { s: [], c: [], u: ['andrei.manacop@my.nst.edu.ph', 'sofia.cruz@my.nst.edu.ph', 'miguel.torres@my.nst.edu.ph'] } },
+  { t: 'c', st: 'published', by: 'jenny.lim@tr.nst.edu.ph', title: 'BBA Accounting Quiz Coverage', content: 'Demo class notice: the accounting quiz covers chapters 4 to 6. Calculators allowed; no mobile phones during the exam. This is sample data for presentation purposes.', tg: { s: ['BBA 1-A'], c: ['BBA'], u: [] } },
+  { t: 'c', st: 'published', by: 'roberto.garcia@tr.nst.edu.ph', title: 'BSHM Kitchen Duty Roster', content: 'Demo class notice: the kitchen duty roster for BSHM first and second year is posted on the bulletin board. Wear complete kitchen uniform. This is sample data for presentation purposes.', tg: { s: ['BSHM 1-A', 'BSHM 2-A'], c: [], u: [] } },
+  { t: 'c', st: 'published', by: 'lucia.fernandez@tr.nst.edu.ph', title: 'BSCS Capstone Proposal Guidelines', content: 'Demo class notice: capstone proposals must follow the new format with problem statement, objectives, and system architecture diagram. Deadline is end of month. This is sample data for presentation purposes.', tg: { s: [], c: ['BSCS'], u: [] } },
+  { t: 'c', st: 'published', by: 'mark.villanueva@tr.nst.edu.ph', title: 'BEED Field Study Briefing', content: 'Demo class notice: BEED first-year students must attend the field study briefing before deployment to partner schools. Bring your observation forms. This is sample data for presentation purposes.', tg: { s: ['BEED 1-A'], c: [], u: [] } },
+  { t: 'c', st: 'published', by: 'grace.aquino@tr.nst.edu.ph', title: 'Saturday Make-up Classes', content: 'Demo class notice: make-up classes will be held on Saturday for missed sessions this week. Check your section assignment below. This is sample data for presentation purposes.', tg: { s: ['BSIS 2-A'], c: [], u: ['lily.gonzales@my.nst.edu.ph', 'isaac.bautista@my.nst.edu.ph'] } },
+  { t: 'c', st: 'scheduled', pubInDays: 10, by: 'admin@nst.edu.ph', title: 'Scholarship Interviews for Computing Programs', content: 'Demo class notice: scholarship interviews for computing program applicants will be conducted next week at the guidance office. Bring your grades and recommendation letter. This is sample data for presentation purposes.', tg: { s: [], c: ['BSIS', 'BSIT', 'BSCS'], u: [] } },
+  { t: 'c', st: 'draft', by: 'daniel.torres@tr.nst.edu.ph', title: 'Draft: BSCS 3-A Research Colloquium', content: 'Draft edge case: proposed research colloquium for third-year computing students. Topics and panelists to be confirmed. This is sample data for presentation purposes.', tg: { s: ['BSCS 3-A'], c: [], u: [] } },
 ];
 
 // Gallery spec: 30 images. status approved|pending|rejected ; feat: featured flag
 const SEED_GALLERY = [
-  { f: 'seed-gal-01.jpg', cat: 'Foundation Day', by: 'maria.santos@novaschola.test', st: 'approved', feat: true, bg: '#1d4ed8', label: 'Foundation Day Parade', cap: 'Foundation Day opening parade on the main grounds (demo photo).' },
-  { f: 'seed-gal-02.jpg', cat: 'Classroom Activities', by: 'maria.santos@novaschola.test', st: 'approved', feat: false, bg: '#047857', label: 'Science Class Activity', cap: 'Science class group activity (demo photo).' },
-  { f: 'seed-gal-03.jpg', cat: 'School Events', by: 'john.reyes@novaschola.test', st: 'approved', feat: false, bg: '#7c3aed', label: 'Leadership Seminar', cap: 'Student leadership seminar session (demo photo).' },
-  { f: 'seed-gal-04.jpg', cat: 'Campus Life', by: 'john.reyes@novaschola.test', st: 'approved', feat: false, bg: '#b45309', label: 'Campus Clean-up Drive', cap: 'Campus clean-up drive with student volunteers (demo photo).' },
-  { f: 'seed-gal-05.jpg', cat: 'Orientation', by: 'ana.delacruz@novaschola.test', st: 'approved', feat: false, bg: '#0e7490', label: 'Freshmen Orientation', cap: 'Freshmen orientation welcome walk (demo photo).' },
-  { f: 'seed-gal-06.jpg', cat: 'Classroom Activities', by: 'ana.delacruz@novaschola.test', st: 'approved', feat: false, bg: '#4d7c0f', label: 'Math Workshop', cap: 'Mathematics problem-solving workshop (demo photo).' },
-  { f: 'seed-gal-07.jpg', cat: 'Intramurals', by: 'carlos.mendoza@novaschola.test', st: 'approved', feat: true, bg: '#c2410c', label: 'Intramurals Finals', cap: 'Intramurals basketball finals crowd (demo photo).' },
-  { f: 'seed-gal-08.jpg', cat: 'Intramurals', by: 'carlos.mendoza@novaschola.test', st: 'approved', feat: false, bg: '#a16207', label: 'Track Events', cap: 'Track and field awarding moment (demo photo).' },
-  { f: 'seed-gal-09.jpg', cat: 'Recognition', by: 'jenny.lim@novaschola.test', st: 'approved', feat: false, bg: '#6d28d9', label: 'Honors Assembly', cap: 'Semester honors assembly on stage (demo photo).' },
-  { f: 'seed-gal-10.jpg', cat: 'Recognition', by: 'jenny.lim@novaschola.test', st: 'approved', feat: false, bg: '#0f766e', label: 'Medal Ceremony', cap: 'Awarding of medals to honor students (demo photo).' },
-  { f: 'seed-gal-11.jpg', cat: 'Faculty Activities', by: 'roberto.garcia@novaschola.test', st: 'approved', feat: false, bg: '#52525b', label: 'Teacher Training', cap: 'Faculty in-service training session (demo photo).' },
-  { f: 'seed-gal-12.jpg', cat: 'Faculty Activities', by: 'roberto.garcia@novaschola.test', st: 'approved', feat: false, bg: '#44403c', label: 'Team Building', cap: 'Faculty team-building games (demo photo).' },
-  { f: 'seed-gal-13.jpg', cat: 'Student Organizations', by: 'lucia.fernandez@novaschola.test', st: 'approved', feat: true, bg: '#be123c', label: 'Org Fair', cap: 'Student organization fair booths (demo photo).' },
-  { f: 'seed-gal-14.jpg', cat: 'Student Organizations', by: 'andrei.manacop@novaschola.test', st: 'approved', feat: false, bg: '#9d174d', label: 'Art Club Exhibit', cap: 'Art club exhibit pieces on display (demo photo).' },
-  { f: 'seed-gal-15.jpg', cat: 'Community Outreach', by: 'sofia.cruz@novaschola.test', st: 'approved', feat: false, bg: '#15803d', label: 'Tree Planting', cap: 'Community tree-planting activity (demo photo).' },
-  { f: 'seed-gal-16.jpg', cat: 'Community Outreach', by: 'miguel.torres@novaschola.test', st: 'approved', feat: false, bg: '#0d9488', label: 'Gift Giving', cap: 'Holiday gift-giving for partner barangay (demo photo).' },
-  { f: 'seed-gal-17.jpg', cat: 'School Events', by: 'mark.villanueva@novaschola.test', st: 'approved', feat: false, bg: '#4338ca', label: 'Science Fair', cap: 'School science fair project booths (demo photo).' },
-  { f: 'seed-gal-18.jpg', cat: 'Campus Life', by: 'grace.aquino@novaschola.test', st: 'approved', feat: true, bg: '#0369a1', label: 'Morning Assembly', cap: 'Monday morning flag ceremony assembly (demo photo).' },
-  { f: 'seed-gal-19.jpg', cat: 'Classroom Activities', by: 'emma.garcia@novaschola.test', st: 'pending', feat: false, bg: '#65a30d', label: 'Group Study', cap: 'Student group study session entry awaiting review (demo photo).' },
-  { f: 'seed-gal-20.jpg', cat: 'Campus Life', by: 'liam.villanueva@novaschola.test', st: 'pending', feat: false, bg: '#0891b2', label: 'Canteen Break', cap: 'Students during lunch break entry awaiting review (demo photo).' },
-  { f: 'seed-gal-21.jpg', cat: 'School Events', by: 'noah.aquino@novaschola.test', st: 'pending', feat: false, bg: '#7c2d12', label: 'Cultural Show', cap: 'Cultural dance rehearsal entry awaiting review (demo photo).' },
-  { f: 'seed-gal-22.jpg', cat: 'Intramurals', by: 'mia.ramos@novaschola.test', st: 'pending', feat: false, bg: '#a21caf', label: 'Cheerdance', cap: 'Cheerdance practice entry awaiting review (demo photo). Long caption edge case: the squad practiced three times a week for two months, preparing props, uniforms, and a five-minute routine combining stunts, pyramids, and dance breaks for the upcoming sports fest opening program. '.repeat(2) + '(demo photo).' },
-  { f: 'seed-gal-23.jpg', cat: 'Orientation', by: 'ethan.navarro@novaschola.test', st: 'pending', feat: false, bg: '#1e40af', label: 'Campus Tour', cap: 'New-student campus tour entry awaiting review (demo photo).' },
-  { f: 'seed-gal-24.jpg', cat: 'Student Organizations', by: 'chloe.salazar@novaschola.test', st: 'pending', feat: false, bg: '#831843', label: 'Debate Club', cap: 'Debate club practice entry awaiting review (demo photo).' },
-  { f: 'seed-gal-25.jpg', cat: 'Community Outreach', by: 'gabriel.morales@novaschola.test', st: 'pending', feat: false, bg: '#166534', label: 'Feeding Program', cap: 'Weekend feeding program entry awaiting review (demo photo).' },
-  { f: 'seed-gal-26.jpg', cat: 'Foundation Day', by: 'ruby.padilla@novaschola.test', st: 'pending', feat: false, bg: '#92400e', label: 'Booth Setup', cap: 'Foundation Day booth setup entry awaiting review (demo photo).' },
-  { f: 'seed-gal-27.jpg', cat: 'Campus Life', by: 'nathan.velasco@novaschola.test', st: 'rejected', feat: false, bg: '#57534e', label: 'Blurry Hallway Shot', cap: 'Rejected: blurry hallway photo without visible subjects (demo photo).' },
-  { f: 'seed-gal-28.jpg', cat: 'School Events', by: 'ella.santiago@novaschola.test', st: 'rejected', feat: false, bg: '#713f12', label: 'Duplicate Upload', cap: 'Rejected: duplicate upload of an existing event photo (demo photo).' },
-  { f: 'seed-gal-29.jpg', cat: 'Classroom Activities', by: 'oliver.marquez@novaschola.test', st: 'rejected', feat: false, bg: '#3f3f46', label: 'Personal Selfie', cap: 'Rejected: personal selfie unrelated to school activities (demo photo).' },
-  { f: 'seed-gal-30.jpg', cat: 'Intramurals', by: 'hannah.lopez@novaschola.test', st: 'rejected', feat: false, bg: '#7f1d1d', label: 'Low Quality', cap: 'Rejected: low-resolution image not suitable for publication (demo photo).' },
+  { f: 'seed-gal-01.jpg', cat: 'Foundation Day', by: 'maria.santos@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#1d4ed8', label: 'Foundation Day Parade', cap: 'Foundation Day opening parade on the main grounds (demo photo).' },
+  { f: 'seed-gal-02.jpg', cat: 'Classroom Activities', by: 'maria.santos@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#047857', label: 'Science Class Activity', cap: 'Science class group activity (demo photo).' },
+  { f: 'seed-gal-03.jpg', cat: 'School Events', by: 'john.reyes@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#7c3aed', label: 'Leadership Seminar', cap: 'Student leadership seminar session (demo photo).' },
+  { f: 'seed-gal-04.jpg', cat: 'Campus Life', by: 'john.reyes@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#b45309', label: 'Campus Clean-up Drive', cap: 'Campus clean-up drive with student volunteers (demo photo).' },
+  { f: 'seed-gal-05.jpg', cat: 'Orientation', by: 'ana.delacruz@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#0e7490', label: 'Freshmen Orientation', cap: 'Freshmen orientation welcome walk (demo photo).' },
+  { f: 'seed-gal-06.jpg', cat: 'Classroom Activities', by: 'ana.delacruz@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#4d7c0f', label: 'Math Workshop', cap: 'Mathematics problem-solving workshop (demo photo).' },
+  { f: 'seed-gal-07.jpg', cat: 'Intramurals', by: 'carlos.mendoza@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#c2410c', label: 'Intramurals Finals', cap: 'Intramurals basketball finals crowd (demo photo).' },
+  { f: 'seed-gal-08.jpg', cat: 'Intramurals', by: 'carlos.mendoza@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#a16207', label: 'Track Events', cap: 'Track and field awarding moment (demo photo).' },
+  { f: 'seed-gal-09.jpg', cat: 'Recognition', by: 'jenny.lim@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#6d28d9', label: 'Honors Assembly', cap: 'Semester honors assembly on stage (demo photo).' },
+  { f: 'seed-gal-10.jpg', cat: 'Recognition', by: 'jenny.lim@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#0f766e', label: 'Medal Ceremony', cap: 'Awarding of medals to honor students (demo photo).' },
+  { f: 'seed-gal-11.jpg', cat: 'Faculty Activities', by: 'roberto.garcia@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#52525b', label: 'Teacher Training', cap: 'Faculty in-service training session (demo photo).' },
+  { f: 'seed-gal-12.jpg', cat: 'Faculty Activities', by: 'roberto.garcia@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#44403c', label: 'Team Building', cap: 'Faculty team-building games (demo photo).' },
+  { f: 'seed-gal-13.jpg', cat: 'Student Organizations', by: 'lucia.fernandez@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#be123c', label: 'Org Fair', cap: 'Student organization fair booths (demo photo).' },
+  { f: 'seed-gal-14.jpg', cat: 'Student Organizations', by: 'andrei.manacop@my.nst.edu.ph', st: 'approved', feat: false, bg: '#9d174d', label: 'Art Club Exhibit', cap: 'Art club exhibit pieces on display (demo photo).' },
+  { f: 'seed-gal-15.jpg', cat: 'Community Outreach', by: 'sofia.cruz@my.nst.edu.ph', st: 'approved', feat: false, bg: '#15803d', label: 'Tree Planting', cap: 'Community tree-planting activity (demo photo).' },
+  { f: 'seed-gal-16.jpg', cat: 'Community Outreach', by: 'miguel.torres@my.nst.edu.ph', st: 'approved', feat: false, bg: '#0d9488', label: 'Gift Giving', cap: 'Holiday gift-giving for partner barangay (demo photo).' },
+  { f: 'seed-gal-17.jpg', cat: 'School Events', by: 'mark.villanueva@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#4338ca', label: 'Science Fair', cap: 'School science fair project booths (demo photo).' },
+  { f: 'seed-gal-18.jpg', cat: 'Campus Life', by: 'grace.aquino@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#0369a1', label: 'Morning Assembly', cap: 'Monday morning flag ceremony assembly (demo photo).' },
+  { f: 'seed-gal-19.jpg', cat: 'Classroom Activities', by: 'emma.garcia@my.nst.edu.ph', st: 'pending', feat: false, bg: '#65a30d', label: 'Group Study', cap: 'Student group study session entry awaiting review (demo photo).' },
+  { f: 'seed-gal-20.jpg', cat: 'Campus Life', by: 'liam.villanueva@my.nst.edu.ph', st: 'pending', feat: false, bg: '#0891b2', label: 'Canteen Break', cap: 'Students during lunch break entry awaiting review (demo photo).' },
+  { f: 'seed-gal-21.jpg', cat: 'School Events', by: 'noah.aquino@my.nst.edu.ph', st: 'pending', feat: false, bg: '#7c2d12', label: 'Cultural Show', cap: 'Cultural dance rehearsal entry awaiting review (demo photo).' },
+  { f: 'seed-gal-22.jpg', cat: 'Intramurals', by: 'mia.ramos@my.nst.edu.ph', st: 'pending', feat: false, bg: '#a21caf', label: 'Cheerdance', cap: 'Cheerdance practice entry awaiting review (demo photo). Long caption edge case: the squad practiced three times a week for two months, preparing props, uniforms, and a five-minute routine combining stunts, pyramids, and dance breaks for the upcoming sports fest opening program. '.repeat(2) + '(demo photo).' },
+  { f: 'seed-gal-23.jpg', cat: 'Orientation', by: 'ethan.navarro@my.nst.edu.ph', st: 'pending', feat: false, bg: '#1e40af', label: 'Campus Tour', cap: 'New-student campus tour entry awaiting review (demo photo).' },
+  { f: 'seed-gal-24.jpg', cat: 'Student Organizations', by: 'chloe.salazar@my.nst.edu.ph', st: 'pending', feat: false, bg: '#831843', label: 'Debate Club', cap: 'Debate club practice entry awaiting review (demo photo).' },
+  { f: 'seed-gal-25.jpg', cat: 'Community Outreach', by: 'gabriel.morales@my.nst.edu.ph', st: 'pending', feat: false, bg: '#166534', label: 'Feeding Program', cap: 'Weekend feeding program entry awaiting review (demo photo).' },
+  { f: 'seed-gal-26.jpg', cat: 'Foundation Day', by: 'ruby.padilla@my.nst.edu.ph', st: 'pending', feat: false, bg: '#92400e', label: 'Booth Setup', cap: 'Foundation Day booth setup entry awaiting review (demo photo).' },
+  { f: 'seed-gal-27.jpg', cat: 'Campus Life', by: 'nathan.velasco@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#57534e', label: 'Blurry Hallway Shot', cap: 'Rejected: blurry hallway photo without visible subjects (demo photo).' },
+  { f: 'seed-gal-28.jpg', cat: 'School Events', by: 'ella.santiago@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#713f12', label: 'Duplicate Upload', cap: 'Rejected: duplicate upload of an existing event photo (demo photo).' },
+  { f: 'seed-gal-29.jpg', cat: 'Classroom Activities', by: 'oliver.marquez@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#3f3f46', label: 'Personal Selfie', cap: 'Rejected: personal selfie unrelated to school activities (demo photo).' },
+  { f: 'seed-gal-30.jpg', cat: 'Intramurals', by: 'hannah.lopez@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#7f1d1d', label: 'Low Quality', cap: 'Rejected: low-resolution image not suitable for publication (demo photo).' },
 ];
 
 const REJECTION_REASON = 'Demo moderation: photo does not meet gallery guidelines.';
@@ -334,9 +333,9 @@ const run = async () => {
   const emailToId = new Map();
   const categoryNameToId = new Map();
   const seedUserEmails = new Set([
-    normalizeEmail('admin@novaschola.test'),
+    normalizeEmail('admin@nst.edu.ph'),
     ...SEED_TEACHERS.map((t) => normalizeEmail(t.email)),
-    ...SEED_STUDENT_ROWS.map((s) => normalizeEmail(`${s[1]}@novaschola.test`)),
+    ...SEED_STUDENT_ROWS.map((s) => normalizeEmail(`${s[1]}@my.nst.edu.ph`)),
   ]);
 
   // ---- 1. Courses (idempotent by code/name) ----
@@ -470,9 +469,9 @@ const run = async () => {
   };
 
   try {
-    await ensureUser({ email: 'admin@novaschola.test', full_name: 'System Administrator', role: 'admin', section_id: null, course_id: null, is_active: true });
+    await ensureUser({ email: 'admin@nst.edu.ph', full_name: 'System Administrator', role: 'admin', section_id: null, course_id: null, is_active: true });
   } catch (err) {
-    fail('user', 'admin@novaschola.test', err);
+    fail('user', 'admin@nst.edu.ph', err);
   }
   for (const t of SEED_TEACHERS) {
     try {
@@ -497,11 +496,11 @@ const run = async () => {
       if (!live) {
         stats.usersCreated++;
         stats.studentsCreated++;
-        console.log(`[user] would create ${local}@novaschola.test (role=student, ${sectionName})`);
+        console.log(`[user] would create ${local}@my.nst.edu.ph (role=student, ${sectionName})`);
         continue;
       }
       await ensureUser({
-        email: `${local}@novaschola.test`,
+        email: `${local}@my.nst.edu.ph`,
         full_name: fullName,
         role: 'student',
         section_id: sectionId,
@@ -509,12 +508,12 @@ const run = async () => {
         is_active: isActive,
       });
     } catch (err) {
-      fail('user', `${local}@novaschola.test`, err);
+      fail('user', `${local}@my.nst.edu.ph`, err);
     }
   }
 
   // ---- 4. Categories (idempotent by name) ----
-  const adminRow = await userModel.findByEmail(normalizeEmail('admin@novaschola.test'));
+  const adminRow = await userModel.findByEmail(normalizeEmail('admin@nst.edu.ph'));
   const adminId = adminRow ? adminRow.id : null;
   for (const seed of SEED_CATEGORIES) {
     try {
@@ -726,9 +725,9 @@ const run = async () => {
   const v = await getClient();
   try {
     const seedEmails = [
-      normalizeEmail('admin@novaschola.test'),
+      normalizeEmail('admin@nst.edu.ph'),
       ...SEED_TEACHERS.map((t) => normalizeEmail(t.email)),
-      ...SEED_STUDENT_ROWS.map((s) => normalizeEmail(`${s[1]}@novaschola.test`)),
+      ...SEED_STUDENT_ROWS.map((s) => normalizeEmail(`${s[1]}@my.nst.edu.ph`)),
     ];
     const { rows: userRows } = await v.query(
       `SELECT email, role, is_active, section_id, course_id,
@@ -769,7 +768,7 @@ const run = async () => {
     // Auth safety: exactly ONE read-only bcrypt check of the admin demo account,
     // only on a live run with a password configured. Never touches last_login_at.
     if (live && DEMO_PASSWORD) {
-      const admin = await userModel.findByEmailWithHash(normalizeEmail('admin@novaschola.test'));
+      const admin = await userModel.findByEmailWithHash(normalizeEmail('admin@nst.edu.ph'));
       const ok = admin && admin.is_active ? await comparePassword(DEMO_PASSWORD, admin.password_hash).catch(() => false) : false;
       console.log(`[verify] admin demo login check: ${ok ? 'OK' : 'FAIL (new account or pre-existing password)'}`);
       if (!ok) {

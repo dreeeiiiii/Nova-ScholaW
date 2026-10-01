@@ -79,7 +79,9 @@ Open http://localhost:3000/login.
 | `JWT_EXPIRES_IN` | No | `8h` |
 | `CLIENT_ORIGIN` | Yes (prod) | `http://localhost:3000` |
 | `UPLOAD_DIR` | Yes (prod) | `uploads` |
-| `NST_EMAIL_DOMAIN` | Yes (prod) | `my.nst.edu.ph` |
+| `NST_ADMIN_EMAIL_DOMAIN` | Yes (prod) | `nst.edu.ph` |
+| `NST_TEACHER_EMAIL_DOMAIN` | Yes (prod) | `tr.nst.edu.ph` |
+| `NST_STUDENT_EMAIL_DOMAIN` | Yes (prod) | `my.nst.edu.ph` |
 | `MAX_IMAGE_SIZE_MB` / `MAX_VIDEO_SIZE_MB` / `MAX_VIDEO_DURATION_SECONDS` | No | `10` / `50` / `120` |
 
 **Web** (`web/.env.local`, see `web/.env.example`):
@@ -104,7 +106,28 @@ npm run db:migrate   # node src/db/migrate.js — applies DATABASE_SCHEMA.sql
 
 ```bash
 cd server
-npm test             # node --test, requires DATABASE_URL — 193 tests (21 suites)
+npm test             # node --test, isolated test DB only — never production
+```
+
+**Test database isolation (mandatory).** Suites contain destructive setup
+(blanket `DELETE`s), so they must never touch the production Neon database:
+
+1. Create a dedicated, clearly-named test database, e.g. local PostgreSQL:
+   `createdb novalschola_test` (name must contain `test`; hosted/cloud
+   hosts are rejected).
+2. Copy `server/.env.test.example` to gitignored `server/.env.test` and set
+   `DATABASE_URL_TEST` to it. No real credentials are committed.
+3. Provision the schema: `npm run db:migrate:test` (targets the test DB only).
+4. Run `npm test`.
+
+A fail-closed guard (`server/src/shared/config/testGuard.js`, enforced inside
+`server/src/shared/config/db.js` in every test process) refuses to connect
+unless `NODE_ENV=test`, `DATABASE_URL_TEST` is set, differs from production,
+is not hosted, and names a `*test*` database. Without a configured test DB,
+`npm test` aborts before opening any connection. **Never run the suite
+against the production database.**
+
+```bash
 cd web && npx playwright test  # 13 E2E tests
 ```
 
@@ -112,7 +135,7 @@ The suite covers auth, users/roles, announcements (incl. visibility + TV feed),
 gallery upload/moderation/search, categories, audit logging + dashboard stats,
 and schema/utils.
 
-> **E2E fixtures:** Playwright tests use `b22test_*@my.nst.edu.ph` accounts (see `web/e2e/fixtures.ts`: `b22test_admin`, `b22test_teacher`, `b22test_student`, etc.).
+> **E2E fixtures:** Playwright tests use role-specific institutional emails (see `web/e2e/fixtures.ts`: `b22test_admin@nst.edu.ph`, `b22test_teacher@tr.nst.edu.ph`, `b22test_student@my.nst.edu.ph`, etc.).
 
 ## Key routes
 

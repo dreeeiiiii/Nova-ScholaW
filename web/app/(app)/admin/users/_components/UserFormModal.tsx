@@ -18,6 +18,14 @@ type User = {
 type Section = { id: number | string; name: string };
 type Course = { id: number | string; name: string };
 
+// Institutional email domain required per role (mirrors the backend
+// NST_*_EMAIL_DOMAIN configuration).
+const ROLE_EMAIL_DOMAINS: Record<User["role"], string> = {
+  admin: "nst.edu.ph",
+  teacher: "tr.nst.edu.ph",
+  student: "my.nst.edu.ph",
+};
+
 export default function UserFormModal({
   mode,
   initial,
@@ -76,6 +84,7 @@ export default function UserFormModal({
     e.preventDefault();
     setError(null);
 
+    const expectedDomain = ROLE_EMAIL_DOMAINS[role];
     if (!fullName.trim()) {
       setError("Full name is required");
       return;
@@ -84,8 +93,8 @@ export default function UserFormModal({
       setError("Email is required");
       return;
     }
-    if (!email.endsWith("@my.nst.edu.ph")) {
-      setError("Email must end with @my.nst.edu.ph");
+    if (!email.trim().toLowerCase().endsWith(`@${expectedDomain}`)) {
+      setError(`Email must end with @${expectedDomain} for role ${role}`);
       return;
     }
     if (mode === "create") {
@@ -198,10 +207,11 @@ export default function UserFormModal({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={mode === "edit"}
-              placeholder="user@my.nst.edu.ph"
+              placeholder={`user@${ROLE_EMAIL_DOMAINS[role]}`}
               className="input-token disabled:opacity-60"
               required
             />
+            <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>Must end with @{ROLE_EMAIL_DOMAINS[role]}</span>
           </label>
 
           {mode === "create" ? (

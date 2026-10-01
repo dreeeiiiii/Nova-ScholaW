@@ -1,9 +1,8 @@
-import config from '../../shared/config/env.js';
 import * as userRepo from './userModel.js';
 import * as sectionRepo from '../academic/sectionModel.js';
 import * as courseRepo from '../academic/courseModel.js';
 import { hashPassword } from '../../shared/utils/password.js';
-import { isNstEmail, normalizeEmail } from '../../shared/utils/nstEmail.js';
+import { getRoleEmailDomain, isRoleEmail, normalizeEmail } from '../../shared/utils/nstEmail.js';
 import { audit } from '../audit/auditService.js';
 import { parseId } from '../../shared/utils/parseId.js';
 import { normalizeLimit, normalizeOffset } from '../../shared/utils/normalize.js';
@@ -111,10 +110,16 @@ export const createUser = async (req, res, next) => {
     if (email === '') {
       return res.status(400).json({ status: 400, message: 'Email is required.' });
     }
-    if (!isNstEmail(email)) {
+    if (role === null) {
       return res.status(400).json({
         status: 400,
-        message: `Email must end with @${config.nstEmailDomain}.`,
+        message: 'Role must be one of: admin, teacher, student.',
+      });
+    }
+    if (!isRoleEmail(email, role)) {
+      return res.status(400).json({
+        status: 400,
+        message: `Email must end with @${getRoleEmailDomain(role)} for role ${role}.`,
       });
     }
     if (password === '' || password.length < 8) {
@@ -125,12 +130,6 @@ export const createUser = async (req, res, next) => {
     }
     if (fullName === null) {
       return res.status(400).json({ status: 400, message: 'Full name is required.' });
-    }
-    if (role === null) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Role must be one of: admin, teacher, student.',
-      });
     }
 
     const existing = await userRepo.findByEmail(email);
