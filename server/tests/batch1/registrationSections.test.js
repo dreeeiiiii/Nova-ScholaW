@@ -96,6 +96,38 @@ test('strict student sections: reuse, concurrency, integrity, management and log
     assert.equal((await app.request('/sections/' + created.section_id, { token, method: 'DELETE' })).status, 409);
     assert.equal((await app.request('/sections', { token, method: 'POST', body: { name: ' bsis  1-a ', grade_level: '1st Year', department_id: college } })).status, 409);
   });
+  await t.test('Admin-created and edited sections appear in registration and assign the existing record', async () => {
+    const token = await app.login('admin@nst.edu.ph');
+    const response = await app.request('/sections', { token, method: 'POST', body: { name: 'BSIS 3-A', grade_level: '3rd Year', department_id: college } });
+    assert.equal(response.status, 201);
+    const id = response.data.section.id;
+    let options = await app.request('/auth/sections?department_id=' + college + '&grade_level=3rd%20Year');
+    assert.ok(options.data.sections.some(s => s.id === id && s.name === 'BSIS 3-A'));
+    assert.equal((await app.request('/sections/' + id, { token, method: 'PUT', body: { name: 'BSIS 3-B' } })).status, 200);
+    options = await app.request('/auth/sections?department_id=' + college + '&grade_level=3rd%20Year');
+    assert.ok(options.data.sections.some(s => s.id === id && s.name === 'BSIS 3-B'));
+    assert.equal((await register('admin-section@my.nst.edu.ph', { section_id: id, grade_level: '3rd Year' })).status, 201);
+    assert.equal((await student('admin-section@my.nst.edu.ph')).section_id, id);
+  });
+  await t.test('zero matching sections permits manual registration and is immediately shared in both lists', async () => {
+    const token = await app.login('admin@nst.edu.ph');
+    const url = '/auth/sections?department_id=' + shs + '&grade_level=Grade%2011';
+    assert.deepEqual((await app.request(url)).data.sections, []);
+    assert.equal((await register('zero-section@my.nst.edu.ph', { department_id: shs, course_id: stem, grade_level: 'Grade 11', new_section_name: 'STEM 11-A' })).status, 201);
+    const first = await student('zero-section@my.nst.edu.ph');
+    assert.ok(first.section_id);
+    assert.ok((await app.request('/sections?department_id=' + shs, { token })).data.sections.some(s => s.id === first.section_id));
+    assert.ok((await app.request(url)).data.sections.some(s => s.id === first.section_id));
+    assert.equal((await register('zero-select@my.nst.edu.ph', { department_id: shs, course_id: stem, grade_level: 'Grade 11', section_id: first.section_id })).status, 201);
+    assert.equal((await student('zero-select@my.nst.edu.ph')).section_id, first.section_id);
+    assert.equal((await register('zero-normalized@my.nst.edu.ph', { department_id: shs, course_id: stem, grade_level: 'Grade 11', new_section_name: ' stem   11-a ' })).status, 201);
+    assert.equal((await student('zero-normalized@my.nst.edu.ph')).section_id, first.section_id);
+    const unused = await app.request('/sections', { token, method: 'POST', body: { name: 'STEM 12-Z', grade_level: 'Grade 12', department_id: shs } });
+    assert.equal(unused.status, 201);
+    assert.equal((await app.request('/sections/' + unused.data.section.id, { token, method: 'DELETE' })).status, 200);
+    assert.ok(!(await app.request('/auth/sections?department_id=' + shs)).data.sections.some(s => s.id === unused.data.section.id));
+    assert.equal((await app.request('/sections/' + first.section_id, { token, method: 'DELETE' })).status, 409);
+  });
   await t.test('public choices validate course department and filter grade', async () => {
     const result = await app.request('/auth/sections?department_id=' + college + '&course_id=' + bsis + '&grade_level=2nd%20Year');
     assert.equal(result.status, 200); assert.equal(result.data.sections.length, 0); assert.ok(result.data.courses.some(c => c.id === bsis));
