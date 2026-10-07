@@ -26,7 +26,7 @@ export default function GalleryGuestGrid({ media }: { media: Media[] }) {
   if (media.length === 0) {
     return (
       <NstGalleryEmpty
-        message="No memories yet."
+        message="No approved event photos are available yet."
       />
     );
   }
@@ -48,7 +48,7 @@ export default function GalleryGuestGrid({ media }: { media: Media[] }) {
                 {title}
               </span>
               <span className="tokens-small mt-0.5 block" style={{ color: "var(--color-muted)" }}>
-                {m.category_name || "Uncategorized"} · {formatDate(m.created_at)}
+                {m.category_name || "Uncategorized"} · Uploaded {formatDate(m.created_at)}
               </span>
             </figcaption>
           </figure>

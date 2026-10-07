@@ -5,3 +5,6 @@
 /web/ui-retest-results/
 /web/dialog-test-results/
 /web/live-test-results/
+
+# Local NST gallery verification artifacts
+.gallery-validation/

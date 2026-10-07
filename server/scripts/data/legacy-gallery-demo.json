@@ -1,0 +1,242 @@
+[
+  {
+    "filename": "seed-gal-01.jpg",
+    "category": "Foundation Day",
+    "uploader": "maria.santos@tr.nst.edu.ph",
+    "background": "#1d4ed8",
+    "label": "Foundation Day Parade",
+    "caption": "Foundation Day opening parade on the main grounds (demo photo)."
+  },
+  {
+    "filename": "seed-gal-02.jpg",
+    "category": "Classroom Activities",
+    "uploader": "maria.santos@tr.nst.edu.ph",
+    "background": "#047857",
+    "label": "Science Class Activity",
+    "caption": "Science class group activity (demo photo)."
+  },
+  {
+    "filename": "seed-gal-03.jpg",
+    "category": "School Events",
+    "uploader": "john.reyes@tr.nst.edu.ph",
+    "background": "#7c3aed",
+    "label": "Leadership Seminar",
+    "caption": "Student leadership seminar session (demo photo)."
+  },
+  {
+    "filename": "seed-gal-04.jpg",
+    "category": "Campus Life",
+    "uploader": "john.reyes@tr.nst.edu.ph",
+    "background": "#b45309",
+    "label": "Campus Clean-up Drive",
+    "caption": "Campus clean-up drive with student volunteers (demo photo)."
+  },
+  {
+    "filename": "seed-gal-05.jpg",
+    "category": "Orientation",
+    "uploader": "ana.delacruz@tr.nst.edu.ph",
+    "background": "#0e7490",
+    "label": "Freshmen Orientation",
+    "caption": "Freshmen orientation welcome walk (demo photo)."
+  },
+  {
+    "filename": "seed-gal-06.jpg",
+    "category": "Classroom Activities",
+    "uploader": "ana.delacruz@tr.nst.edu.ph",
+    "background": "#4d7c0f",
+    "label": "Math Workshop",
+    "caption": "Mathematics problem-solving workshop (demo photo)."
+  },
+  {
+    "filename": "seed-gal-07.jpg",
+    "category": "Intramurals",
+    "uploader": "carlos.mendoza@tr.nst.edu.ph",
+    "background": "#c2410c",
+    "label": "Intramurals Finals",
+    "caption": "Intramurals basketball finals crowd (demo photo)."
+  },
+  {
+    "filename": "seed-gal-08.jpg",
+    "category": "Intramurals",
+    "uploader": "carlos.mendoza@tr.nst.edu.ph",
+    "background": "#a16207",
+    "label": "Track Events",
+    "caption": "Track and field awarding moment (demo photo)."
+  },
+  {
+    "filename": "seed-gal-09.jpg",
+    "category": "Recognition",
+    "uploader": "jenny.lim@tr.nst.edu.ph",
+    "background": "#6d28d9",
+    "label": "Honors Assembly",
+    "caption": "Semester honors assembly on stage (demo photo)."
+  },
+  {
+    "filename": "seed-gal-10.jpg",
+    "category": "Recognition",
+    "uploader": "jenny.lim@tr.nst.edu.ph",
+    "background": "#0f766e",
+    "label": "Medal Ceremony",
+    "caption": "Awarding of medals to honor students (demo photo)."
+  },
+  {
+    "filename": "seed-gal-11.jpg",
+    "category": "Faculty Activities",
+    "uploader": "roberto.garcia@tr.nst.edu.ph",
+    "background": "#52525b",
+    "label": "Teacher Training",
+    "caption": "Faculty in-service training session (demo photo)."
+  },
+  {
+    "filename": "seed-gal-12.jpg",
+    "category": "Faculty Activities",
+    "uploader": "roberto.garcia@tr.nst.edu.ph",
+    "background": "#44403c",
+    "label": "Team Building",
+    "caption": "Faculty team-building games (demo photo)."
+  },
+  {
+    "filename": "seed-gal-13.jpg",
+    "category": "Student Organizations",
+    "uploader": "lucia.fernandez@tr.nst.edu.ph",
+    "background": "#be123c",
+    "label": "Org Fair",
+    "caption": "Student organization fair booths (demo photo)."
+  },
+  {
+    "filename": "seed-gal-14.jpg",
+    "category": "Student Organizations",
+    "uploader": "andrei.manacop@my.nst.edu.ph",
+    "background": "#9d174d",
+    "label": "Art Club Exhibit",
+    "caption": "Art club exhibit pieces on display (demo photo)."
+  },
+  {
+    "filename": "seed-gal-15.jpg",
+    "category": "Community Outreach",
+    "uploader": "sofia.cruz@my.nst.edu.ph",
+    "background": "#15803d",
+    "label": "Tree Planting",
+    "caption": "Community tree-planting activity (demo photo)."
+  },
+  {
+    "filename": "seed-gal-16.jpg",
+    "category": "Community Outreach",
+    "uploader": "miguel.torres@my.nst.edu.ph",
+    "background": "#0d9488",
+    "label": "Gift Giving",
+    "caption": "Holiday gift-giving for partner barangay (demo photo)."
+  },
+  {
+    "filename": "seed-gal-17.jpg",
+    "category": "School Events",
+    "uploader": "mark.villanueva@tr.nst.edu.ph",
+    "background": "#4338ca",
+    "label": "Science Fair",
+    "caption": "School science fair project booths (demo photo)."
+  },
+  {
+    "filename": "seed-gal-18.jpg",
+    "category": "Campus Life",
+    "uploader": "grace.aquino@tr.nst.edu.ph",
+    "background": "#0369a1",
+    "label": "Morning Assembly",
+    "caption": "Monday morning flag ceremony assembly (demo photo)."
+  },
+  {
+    "filename": "seed-gal-19.jpg",
+    "category": "Classroom Activities",
+    "uploader": "emma.garcia@my.nst.edu.ph",
+    "background": "#65a30d",
+    "label": "Group Study",
+    "caption": "Student group study session entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-20.jpg",
+    "category": "Campus Life",
+    "uploader": "liam.villanueva@my.nst.edu.ph",
+    "background": "#0891b2",
+    "label": "Canteen Break",
+    "caption": "Students during lunch break entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-21.jpg",
+    "category": "School Events",
+    "uploader": "noah.aquino@my.nst.edu.ph",
+    "background": "#7c2d12",
+    "label": "Cultural Show",
+    "caption": "Cultural dance rehearsal entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-22.jpg",
+    "category": "Intramurals",
+    "uploader": "mia.ramos@my.nst.edu.ph",
+    "background": "#a21caf",
+    "label": "Cheerdance",
+    "caption": "Cheerdance practice entry awaiting review (demo photo). Long caption edge case: the squad practiced three times a week for two months, preparing props, uniforms, and a five-minute routine combining stunts, pyramids, and dance breaks for the upcoming sports fest opening program. Cheerdance practice entry awaiting review (demo photo). Long caption edge case: the squad practiced three times a week for two months, preparing props, uniforms, and a five-minute routine combining stunts, pyramids, and dance breaks for the upcoming sports fest opening program. (demo photo)."
+  },
+  {
+    "filename": "seed-gal-23.jpg",
+    "category": "Orientation",
+    "uploader": "ethan.navarro@my.nst.edu.ph",
+    "background": "#1e40af",
+    "label": "Campus Tour",
+    "caption": "New-student campus tour entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-24.jpg",
+    "category": "Student Organizations",
+    "uploader": "chloe.salazar@my.nst.edu.ph",
+    "background": "#831843",
+    "label": "Debate Club",
+    "caption": "Debate club practice entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-25.jpg",
+    "category": "Community Outreach",
+    "uploader": "gabriel.morales@my.nst.edu.ph",
+    "background": "#166534",
+    "label": "Feeding Program",
+    "caption": "Weekend feeding program entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-26.jpg",
+    "category": "Foundation Day",
+    "uploader": "ruby.padilla@my.nst.edu.ph",
+    "background": "#92400e",
+    "label": "Booth Setup",
+    "caption": "Foundation Day booth setup entry awaiting review (demo photo)."
+  },
+  {
+    "filename": "seed-gal-27.jpg",
+    "category": "Campus Life",
+    "uploader": "nathan.velasco@my.nst.edu.ph",
+    "background": "#57534e",
+    "label": "Blurry Hallway Shot",
+    "caption": "Rejected: blurry hallway photo without visible subjects (demo photo)."
+  },
+  {
+    "filename": "seed-gal-28.jpg",
+    "category": "School Events",
+    "uploader": "ella.santiago@my.nst.edu.ph",
+    "background": "#713f12",
+    "label": "Duplicate Upload",
+    "caption": "Rejected: duplicate upload of an existing event photo (demo photo)."
+  },
+  {
+    "filename": "seed-gal-29.jpg",
+    "category": "Classroom Activities",
+    "uploader": "oliver.marquez@my.nst.edu.ph",
+    "background": "#3f3f46",
+    "label": "Personal Selfie",
+    "caption": "Rejected: personal selfie unrelated to school activities (demo photo)."
+  },
+  {
+    "filename": "seed-gal-30.jpg",
+    "category": "Intramurals",
+    "uploader": "hannah.lopez@my.nst.edu.ph",
+    "background": "#7f1d1d",
+    "label": "Low Quality",
+    "caption": "Rejected: low-resolution image not suitable for publication (demo photo)."
+  }
+]

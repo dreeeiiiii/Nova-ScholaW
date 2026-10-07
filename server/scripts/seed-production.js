@@ -5,9 +5,7 @@
 //   *  6 courses (by code) + 12 sections (by name)
 //   * 10 gallery categories (by name)
 //   * 30 announcements (20 general + 10 class w/ announcement_targets), by title+type
-//   * 30 gallery_media rows (by original_filename): 18 approved (4 featured),
-//     8 pending, 4 rejected — images are ORIGINAL sharp-generated files
-//     uploaded through the real B2 path (b2.uploadBuffer, folder 'gallery/').
+//   * Gallery images are excluded. Use import-nst-gallery.js for real NST photos.
 //   * NOT seeded: audit_logs (system-generated), notifications (table does not
 //     exist in this project — verified: no notification table, model, route or UI).
 //
@@ -46,7 +44,6 @@ import { hashPassword, comparePassword } from '../src/shared/utils/password.js';
 import { normalizeEmail } from '../src/shared/utils/nstEmail.js';
 import * as userModel from '../src/features/users/userModel.js';
 import * as announcementModel from '../src/features/announcements/announcementModel.js';
-import * as galleryModel from '../src/features/gallery/galleryModel.js';
 import * as categoryModel from '../src/features/categories/categoryModel.js';
 import * as sectionModel from '../src/features/academic/sectionModel.js';
 import * as courseModel from '../src/features/academic/courseModel.js';
@@ -182,41 +179,9 @@ const SEED_ANNOUNCEMENTS = [
   { t: 'c', st: 'draft', by: 'daniel.torres@tr.nst.edu.ph', title: 'Draft: BSCS 3-A Research Colloquium', content: 'Draft edge case: proposed research colloquium for third-year computing students. Topics and panelists to be confirmed. This is sample data for presentation purposes.', tg: { s: ['BSCS 3-A'], c: [], u: [] } },
 ];
 
-// Gallery spec: 30 images. status approved|pending|rejected ; feat: featured flag
-const SEED_GALLERY = [
-  { f: 'seed-gal-01.jpg', cat: 'Foundation Day', by: 'maria.santos@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#1d4ed8', label: 'Foundation Day Parade', cap: 'Foundation Day opening parade on the main grounds (demo photo).' },
-  { f: 'seed-gal-02.jpg', cat: 'Classroom Activities', by: 'maria.santos@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#047857', label: 'Science Class Activity', cap: 'Science class group activity (demo photo).' },
-  { f: 'seed-gal-03.jpg', cat: 'School Events', by: 'john.reyes@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#7c3aed', label: 'Leadership Seminar', cap: 'Student leadership seminar session (demo photo).' },
-  { f: 'seed-gal-04.jpg', cat: 'Campus Life', by: 'john.reyes@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#b45309', label: 'Campus Clean-up Drive', cap: 'Campus clean-up drive with student volunteers (demo photo).' },
-  { f: 'seed-gal-05.jpg', cat: 'Orientation', by: 'ana.delacruz@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#0e7490', label: 'Freshmen Orientation', cap: 'Freshmen orientation welcome walk (demo photo).' },
-  { f: 'seed-gal-06.jpg', cat: 'Classroom Activities', by: 'ana.delacruz@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#4d7c0f', label: 'Math Workshop', cap: 'Mathematics problem-solving workshop (demo photo).' },
-  { f: 'seed-gal-07.jpg', cat: 'Intramurals', by: 'carlos.mendoza@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#c2410c', label: 'Intramurals Finals', cap: 'Intramurals basketball finals crowd (demo photo).' },
-  { f: 'seed-gal-08.jpg', cat: 'Intramurals', by: 'carlos.mendoza@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#a16207', label: 'Track Events', cap: 'Track and field awarding moment (demo photo).' },
-  { f: 'seed-gal-09.jpg', cat: 'Recognition', by: 'jenny.lim@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#6d28d9', label: 'Honors Assembly', cap: 'Semester honors assembly on stage (demo photo).' },
-  { f: 'seed-gal-10.jpg', cat: 'Recognition', by: 'jenny.lim@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#0f766e', label: 'Medal Ceremony', cap: 'Awarding of medals to honor students (demo photo).' },
-  { f: 'seed-gal-11.jpg', cat: 'Faculty Activities', by: 'roberto.garcia@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#52525b', label: 'Teacher Training', cap: 'Faculty in-service training session (demo photo).' },
-  { f: 'seed-gal-12.jpg', cat: 'Faculty Activities', by: 'roberto.garcia@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#44403c', label: 'Team Building', cap: 'Faculty team-building games (demo photo).' },
-  { f: 'seed-gal-13.jpg', cat: 'Student Organizations', by: 'lucia.fernandez@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#be123c', label: 'Org Fair', cap: 'Student organization fair booths (demo photo).' },
-  { f: 'seed-gal-14.jpg', cat: 'Student Organizations', by: 'andrei.manacop@my.nst.edu.ph', st: 'approved', feat: false, bg: '#9d174d', label: 'Art Club Exhibit', cap: 'Art club exhibit pieces on display (demo photo).' },
-  { f: 'seed-gal-15.jpg', cat: 'Community Outreach', by: 'sofia.cruz@my.nst.edu.ph', st: 'approved', feat: false, bg: '#15803d', label: 'Tree Planting', cap: 'Community tree-planting activity (demo photo).' },
-  { f: 'seed-gal-16.jpg', cat: 'Community Outreach', by: 'miguel.torres@my.nst.edu.ph', st: 'approved', feat: false, bg: '#0d9488', label: 'Gift Giving', cap: 'Holiday gift-giving for partner barangay (demo photo).' },
-  { f: 'seed-gal-17.jpg', cat: 'School Events', by: 'mark.villanueva@tr.nst.edu.ph', st: 'approved', feat: false, bg: '#4338ca', label: 'Science Fair', cap: 'School science fair project booths (demo photo).' },
-  { f: 'seed-gal-18.jpg', cat: 'Campus Life', by: 'grace.aquino@tr.nst.edu.ph', st: 'approved', feat: true, bg: '#0369a1', label: 'Morning Assembly', cap: 'Monday morning flag ceremony assembly (demo photo).' },
-  { f: 'seed-gal-19.jpg', cat: 'Classroom Activities', by: 'emma.garcia@my.nst.edu.ph', st: 'pending', feat: false, bg: '#65a30d', label: 'Group Study', cap: 'Student group study session entry awaiting review (demo photo).' },
-  { f: 'seed-gal-20.jpg', cat: 'Campus Life', by: 'liam.villanueva@my.nst.edu.ph', st: 'pending', feat: false, bg: '#0891b2', label: 'Canteen Break', cap: 'Students during lunch break entry awaiting review (demo photo).' },
-  { f: 'seed-gal-21.jpg', cat: 'School Events', by: 'noah.aquino@my.nst.edu.ph', st: 'pending', feat: false, bg: '#7c2d12', label: 'Cultural Show', cap: 'Cultural dance rehearsal entry awaiting review (demo photo).' },
-  { f: 'seed-gal-22.jpg', cat: 'Intramurals', by: 'mia.ramos@my.nst.edu.ph', st: 'pending', feat: false, bg: '#a21caf', label: 'Cheerdance', cap: 'Cheerdance practice entry awaiting review (demo photo). Long caption edge case: the squad practiced three times a week for two months, preparing props, uniforms, and a five-minute routine combining stunts, pyramids, and dance breaks for the upcoming sports fest opening program. '.repeat(2) + '(demo photo).' },
-  { f: 'seed-gal-23.jpg', cat: 'Orientation', by: 'ethan.navarro@my.nst.edu.ph', st: 'pending', feat: false, bg: '#1e40af', label: 'Campus Tour', cap: 'New-student campus tour entry awaiting review (demo photo).' },
-  { f: 'seed-gal-24.jpg', cat: 'Student Organizations', by: 'chloe.salazar@my.nst.edu.ph', st: 'pending', feat: false, bg: '#831843', label: 'Debate Club', cap: 'Debate club practice entry awaiting review (demo photo).' },
-  { f: 'seed-gal-25.jpg', cat: 'Community Outreach', by: 'gabriel.morales@my.nst.edu.ph', st: 'pending', feat: false, bg: '#166534', label: 'Feeding Program', cap: 'Weekend feeding program entry awaiting review (demo photo).' },
-  { f: 'seed-gal-26.jpg', cat: 'Foundation Day', by: 'ruby.padilla@my.nst.edu.ph', st: 'pending', feat: false, bg: '#92400e', label: 'Booth Setup', cap: 'Foundation Day booth setup entry awaiting review (demo photo).' },
-  { f: 'seed-gal-27.jpg', cat: 'Campus Life', by: 'nathan.velasco@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#57534e', label: 'Blurry Hallway Shot', cap: 'Rejected: blurry hallway photo without visible subjects (demo photo).' },
-  { f: 'seed-gal-28.jpg', cat: 'School Events', by: 'ella.santiago@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#713f12', label: 'Duplicate Upload', cap: 'Rejected: duplicate upload of an existing event photo (demo photo).' },
-  { f: 'seed-gal-29.jpg', cat: 'Classroom Activities', by: 'oliver.marquez@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#3f3f46', label: 'Personal Selfie', cap: 'Rejected: personal selfie unrelated to school activities (demo photo).' },
-  { f: 'seed-gal-30.jpg', cat: 'Intramurals', by: 'hannah.lopez@my.nst.edu.ph', st: 'rejected', feat: false, bg: '#7f1d1d', label: 'Low Quality', cap: 'Rejected: low-resolution image not suitable for publication (demo photo).' },
-];
+// Gallery imports must use first-party NST photographs via import-nst-gallery.js.
+const SEED_GALLERY = [];
 
-const REJECTION_REASON = 'Demo moderation: photo does not meet gallery guidelines.';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -251,21 +216,6 @@ const fail = (scope, label, err) => {
   console.error(`[${scope}] ERROR ${label}: ${err.message}`);
 };
 
-// Generate a small ORIGINAL image (no external/copyrighted source).
-// Lazy-imports sharp so --dry-run never touches it.
-const generateDemoImage = async ({ bg, label }) => {
-  const sharp = (await import('sharp')).default;
-  const svg = `<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1200" height="800" fill="${bg}"/>
-    <circle cx="150" cy="120" r="70" fill="#ffffff" opacity="0.18"/>
-    <circle cx="1080" cy="700" r="110" fill="#ffffff" opacity="0.12"/>
-    <rect x="80" y="300" width="1040" height="200" rx="24" fill="#000000" opacity="0.28"/>
-    <text x="600" y="395" font-family="Arial,sans-serif" font-size="64" font-weight="bold" fill="#ffffff" text-anchor="middle">Nova Schola</text>
-    <text x="600" y="460" font-family="Arial,sans-serif" font-size="44" fill="#ffffff" text-anchor="middle">${label}</text>
-  </svg>`;
-  return sharp(Buffer.from(svg)).jpeg({ quality: 82 }).toBuffer();
-};
-
 const findCourse = async (code, name) => {
   const { rows } = await query(`SELECT id, code, name FROM courses WHERE code = $1 OR name = $2 LIMIT 1`, [code, name]);
   return rows[0] ?? null;
@@ -276,10 +226,6 @@ const findSection = async (name) => {
 };
 const findAnnouncement = async (title, type) => {
   const { rows } = await query(`SELECT id FROM announcements WHERE title = $1 AND type = $2 LIMIT 1`, [title, type]);
-  return rows[0] ?? null;
-};
-const findGalleryByFilename = async (filename) => {
-  const { rows } = await query(`SELECT id FROM gallery_media WHERE original_filename = $1 LIMIT 1`, [filename]);
   return rows[0] ?? null;
 };
 const offsetDate = (days) => new Date(Date.now() + days * 86400000).toISOString();
@@ -653,83 +599,7 @@ const run = async () => {
     }
   }
 
-  // ---- 6. Gallery: 30 rows (idempotent by original_filename) ----
-  for (const seed of SEED_GALLERY) {
-    try {
-      const existing = await findGalleryByFilename(seed.f);
-      if (existing) {
-        stats.gallerySkipped++;
-        console.log(`[gallery] skip existing ${seed.f}`);
-        continue;
-      }
-      const uploaderId = await resolveAuthor(seed.by);
-      if (uploaderId === null) throw new Error(`uploader ${seed.by} not found (users must seed first)`);
-      let categoryId = categoryNameToId.get(seed.cat) ?? null;
-      if (categoryId === null) {
-        const cat = await categoryModel.findCategoryByName(seed.cat);
-        categoryId = cat ? cat.id : null;
-      }
-      if (categoryId === null) {
-        if (!live) categoryId = 0; // dry-run placeholder
-        else throw new Error(`category "${seed.cat}" not found`);
-      }
-      if (!live) {
-        stats.galleryCreated++;
-        console.log(`[gallery] would upload+create ${seed.f} (${seed.st}${seed.feat ? ', featured' : ''})`);
-        continue;
-      }
-      // Upload FIRST; only insert the DB row on success (no dangling file_url).
-      const buffer = await generateDemoImage({ bg: seed.bg, label: seed.label });
-      let key;
-      try {
-        ({ key } = await b2.uploadBuffer(buffer, { folder: 'gallery', contentType: 'image/jpeg', filename: seed.f }));
-        stats.imagesUploaded++;
-      } catch (uploadErr) {
-        throw new Error(`B2 upload failed: ${uploadErr.message}`);
-      }
-      let file_url;
-      try {
-        file_url = await b2.getPresignedUrl(key);
-      } catch (presignErr) {
-        try {
-          await b2.deleteObject(key);
-        } catch {
-          /* best-effort cleanup of this run's object only */
-        }
-        throw new Error(`B2 presign failed: ${presignErr.message}`);
-      }
-      try {
-        const isApproved = seed.st === 'approved';
-        const isRejected = seed.st === 'rejected';
-        await galleryModel.insertMedia({
-          uploader_id: uploaderId,
-          category_id: categoryId,
-          media_type: 'image',
-          file_url,
-          b2_key: key,
-          original_filename: seed.f,
-          caption: seed.cap,
-          status: seed.st,
-          reviewed_by: seed.st === 'pending' ? null : adminId,
-          reviewed_at: seed.st === 'pending' ? null : new Date(),
-          rejection_reason: isRejected ? REJECTION_REASON : null,
-          featured: seed.feat === true,
-        });
-        void isApproved;
-        stats.galleryCreated++;
-        console.log(`[gallery] uploaded+created ${seed.f} (${seed.st})`);
-      } catch (dbErr) {
-        try {
-          await b2.deleteObject(key);
-        } catch {
-          /* best-effort cleanup of this run's object only */
-        }
-        throw new Error(`DB insert failed: ${dbErr.message}`);
-      }
-    } catch (err) {
-      fail('gallery', seed.f, err);
-    }
-  }
+  // Gallery seeding disabled: use the dedicated, sourced NST importer.
 
   // ---- 7. Verification (read-only; never calls updateLastLogin) ----
   const v = await getClient();

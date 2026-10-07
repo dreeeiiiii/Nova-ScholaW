@@ -8,7 +8,10 @@ const defaultAnnouncements = ['general','department','class'].map((type,i)=>({id
 let announcements = defaultAnnouncements;
 const displayRecords = JSON.parse(await readFile(new URL("../../../server/scripts/data/display-announcements.json", import.meta.url), "utf8"));
 const displayFeed = displayRecords.map((a,i) => ({ ...a, id:100+i, type:"general", author_id:1, author_name:"Nova admin", display_import:true, display_import_key:a.key, created_at:(a.source_date||"2026-10-08")+"T00:00:00Z", publish_at:a.source_date?a.source_date+"T00:00:00Z":null }));
-const media = ['pending','approved','rejected'].map((status,i)=>({id:i+1,title:`Campus moment ${i+1}`,caption:`Campus moment ${i+1}`,file_url:'http://127.0.0.1:5055/fixture.jpg',media_type:'image',original_filename:'school-event.jpg',category_id:1,category_name:'School events',uploader_id:3,uploader_name:'Nova student',uploader_email:'student@my.nst.edu.ph',created_at:'2026-10-07T00:00:00Z',status,rejection_reason:status==='rejected'?'Please choose a clearer school event image.':null}));
+let media = ['pending','approved','rejected'].map((status,i)=>({id:i+1,title:`Campus moment ${i+1}`,caption:`Campus moment ${i+1}`,file_url:'http://127.0.0.1:5055/fixture.jpg',media_type:'image',original_filename:'school-event.jpg',category_id:1,category_name:'School events',uploader_id:3,uploader_name:'Nova student',uploader_email:'student@my.nst.edu.ph',created_at:'2026-10-07T00:00:00Z',status,rejection_reason:status==='rejected'?'Please choose a clearer school event image.':null}));
+const defaultMedia = media;
+const nstRecords = JSON.parse(await readFile(new URL("../../../server/scripts/data/nst-gallery.json", import.meta.url), "utf8"));
+const nstMedia = nstRecords.map((r,i)=>({...defaultMedia[1],id:900+i,caption:r.caption,original_filename:r.filename,file_url:r.localPath,b2_key:"gallery/ui-only-"+r.filename,category_name:r.category,status:"approved",reviewed_by:1,uploader_id:1,uploader_name:"Nova admin",uploader_email:"admin@nst.edu.ph",created_at:"2026-10-08T00:00:00Z"}));
 const writes=[];
 let galleryEmpty = false;
 const server=http.createServer(async (req,res)=>{
@@ -22,6 +25,7 @@ const server=http.createServer(async (req,res)=>{
   const role=(req.headers.authorization||'').replace('Bearer ui-','');
   const reply=(data,status=200)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));};
   // Disposable visual-test toggle; never backed by production data or storage.
+  if(path==='/__gallery-nst' && req.method==='POST'){media=body.enabled?nstMedia:defaultMedia;galleryEmpty=false;reply({count:media.length});return;}
   if(path==='/__gallery-empty' && req.method==='POST'){galleryEmpty=body.empty===true;reply({empty:galleryEmpty});return;}
   if(path==='/__tv-feed' && req.method==='POST'){announcements=body.mode==='empty'?[]:body.mode==='display'?displayFeed:body.mode==='mixed'?[{...displayFeed[0],image_url:null},...displayFeed.slice(1),{...displayFeed[0],id:301,title:"Future scheduled demo",status:"scheduled",publish_at:"2099-01-01T00:00:00Z"},{...displayFeed[0],id:302,title:"Expired demo",expires_at:"2020-01-01T00:00:00Z"},...defaultAnnouncements.filter(a=>a.type!=='general')]:defaultAnnouncements;reply({count:announcements.length});return;}
   if(path==='/__writes'){reply(writes);return;}
@@ -39,7 +43,7 @@ const server=http.createServer(async (req,res)=>{
   if(path==='/api/audit-logs'){reply({logs:[{id:1,user_name:'Nova teacher',user_email:'teacher@tr.nst.edu.ph',action:'announcement.create',entity_type:'announcement',entity_id:3,details:{type:'class',title:'Class project reminders'},ip_address:'127.0.0.1',created_at:'2026-10-07T00:00:00Z'}],total:1});return;}
   if(path.startsWith('/api/announcements/')){if(path.endsWith('public')||path.endsWith('tv')){const rows=announcements.filter(a=>a.type==='general');const offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||100);reply({announcements:rows.slice(offset,offset+limit),total:rows.length});}else reply({announcement:announcements.find(a=>String(a.id)===path.split('/').at(-1))||announcements[2],targets:[]});return;}
   if(path==='/api/announcements'){const type=url.searchParams.get('type');const rows=url.searchParams.get('upcoming')?[]:announcements.filter(a=>!type||a.type===type);reply({announcements:rows,total:rows.length});return;}
-  if(path.startsWith('/api/gallery')){const rows=path.endsWith('pending')?media.filter(m=>m.status==='pending'):path.endsWith('mine')||path.endsWith('recent')?media:galleryEmpty?[]:media.filter(m=>m.status==='approved');reply({media:rows,total:rows.length});return;}
+  if(path.startsWith('/api/gallery')){const rows=path.endsWith('pending')?media.filter(m=>m.status==='pending'):path.endsWith('mine')||path.endsWith('recent')?media:galleryEmpty?[]:media.filter(m=>m.status==='approved');const offset=Number(url.searchParams.get("offset")||0),limit=Number(url.searchParams.get("limit")||100);reply({media:rows.slice(offset,offset+limit),total:rows.length});return;}
   reply({message:`Unhandled UI fixture route: ${path}`},404);
  }catch(error){res.writeHead(500);res.end(String(error));}
 });

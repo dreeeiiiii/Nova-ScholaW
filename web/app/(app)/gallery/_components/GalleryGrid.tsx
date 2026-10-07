@@ -42,7 +42,7 @@ function TileVisual({ m, src, title }: { m: Media; src: string; title: string })
           {title}
         </span>
         <span className="tokens-small mt-1 block" style={{ color: "rgba(255, 255, 255, 0.75)" }}>
-          {m.category_name || "Uncategorized"} · {formatDate(m.created_at)}
+          {m.category_name || "Uncategorized"} · Uploaded {formatDate(m.created_at)}
         </span>
       </span>
     </span>
@@ -55,7 +55,7 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
   if (media.length === 0) {
     return (
       <NstGalleryEmpty
-        message="No images found. Try adjusting filters or share a memory."
+        message="No approved event photos are available yet."
         action={
           <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
             Upload image
@@ -86,7 +86,7 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
                   {title}
                 </span>
                 <span className="tokens-small mt-0.5 block" style={{ color: "var(--color-muted)" }}>
-                  {m.category_name || "Uncategorized"} · {formatDate(m.created_at)}
+                  {m.category_name || "Uncategorized"} · Uploaded {formatDate(m.created_at)}
                 </span>
               </span>
             </button>
