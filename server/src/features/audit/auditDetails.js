@@ -1,4 +1,4 @@
-// Audit summaries deliberately exclude free text, credentials, URLs and request bodies.
+// Audit summaries deliberately exclude arbitrary free text, credentials, URLs and request bodies.
 const enums = {
   role: ['student', 'teacher', 'admin'], type: ['general', 'department', 'class'],
   status: ['draft', 'scheduled', 'published', 'archived', 'pending', 'approved', 'rejected', 'failed', 'partial_failure', 'configuration_blocked', 'accepted', 'skipped', 'mock', 'no_recipients'],
@@ -16,6 +16,7 @@ export function safeAuditDetails(details) {
     else if (ids.has(key) && (value === null || /^\d+$/.test(String(value)) && Number.isSafeInteger(Number(value)))) safe[key] = value === null ? null : Number(value);
     else if (counts.has(key) && Number.isSafeInteger(value) && value >= 0) safe[key] = value;
     else if (['scheduled', 'direct_upload', 'featured'].includes(key) && typeof value === 'boolean') safe[key] = value;
+    else if (key === 'section_name' && typeof value === 'string' && value.length <= 100 && /^[\p{L}\p{N} .()'/&–—-]+$/u.test(value)) safe[key] = value;
     else if (key === 'updated_fields' && Array.isArray(value)) safe[key] = value.filter(v => fields.has(v));
   }
   return Object.keys(safe).length ? safe : null;

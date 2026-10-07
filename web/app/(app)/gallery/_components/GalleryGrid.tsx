@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Images } from "lucide-react";
 import { resolveMediaUrl } from "@/lib/url";
 import Lightbox from "./Lightbox";
-import { EmptyState } from "../../_components/EmptyState";
+import { NstGalleryEmpty } from "@/app/_components/ui/NstGalleryEmpty";
 
 type Media = {
   id: number | string;
@@ -55,8 +54,7 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
 
   if (media.length === 0) {
     return (
-      <EmptyState
-        icon={<Images size={20} strokeWidth={1.5} aria-hidden="true" />}
+      <NstGalleryEmpty
         message="No images found. Try adjusting filters or share a memory."
         action={
           <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">

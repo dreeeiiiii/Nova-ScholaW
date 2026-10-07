@@ -1,3 +1,4 @@
+import { normalizeName } from '../../shared/utils/sectionInput.js';
 import { query } from '../../shared/config/db.js';
 import { nullableId } from '../../shared/utils/academicInput.js';
 import { findDepartmentById, listDepartments as departments } from './departmentModel.js';
@@ -31,7 +32,7 @@ const handlers = (table, singular, required, assignment) => ({
         if (typeof value !== 'string' || !value.trim()) return res.status(400).json({ message: `${field} is required.` });
         const max = field === 'grade_level' ? 20 : field === 'code' ? 30 : table === 'sections' ? 100 : 150;
         if (value.trim().length > max) return res.status(400).json({ message: field + ' is too long.' });
-        fields[field] = value.trim();
+        fields[field] = table === 'sections' ? normalizeName(value) : value.trim();
       }
       if (table === 'courses') fields.description = body.description === undefined ? existing?.description ?? null : body.description;
       if (id && String(department) !== String(existing.department_id)) {

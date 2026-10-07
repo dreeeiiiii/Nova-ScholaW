@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { DM_Sans, Raleway } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const dmSans = localFont({
+  src: "./_fonts/dm-sans-latin.woff2",
   variable: "--font-dm-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "100 1000",
   display: "swap",
 });
 
-const raleway = Raleway({
+const raleway = localFont({
+  src: "./_fonts/raleway-latin.woff2",
   variable: "--font-raleway",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: "100 900",
   display: "swap",
 });
 

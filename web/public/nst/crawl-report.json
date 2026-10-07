@@ -1,0 +1,1202 @@
+{
+  "startedAt": "2026-10-07T16:24:58.596Z",
+  "pagesCrawled": [
+    "https://nst.edu.ph/",
+    "https://nst.edu.ph/",
+    "https://nst.edu.ph/about-us/",
+    "https://nst.edu.ph/admissions/",
+    "https://nst.edu.ph/admissions/registration/",
+    "https://nst.edu.ph/admissions/",
+    "https://nst.edu.ph/academics/",
+    "https://nst.edu.ph/preschool/",
+    "https://nst.edu.ph/junior-high-school-page/",
+    "https://nst.edu.ph/senior-high-school-page/",
+    "https://nst.edu.ph/academics/college-programs/",
+    "https://nst.edu.ph/academics/college-programs/btvted/",
+    "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+    "https://nst.edu.ph/academics/college-programs/bs-information-systems/",
+    "https://nst.edu.ph/academics/college-programs/bs-entrepreneurship/",
+    "https://nst.edu.ph/academics/college-programs/bs-accounting-information-systems/",
+    "https://nst.edu.ph/academics/ctp-program/",
+    "https://nst.edu.ph/gjs/"
+  ],
+  "pageFailures": [],
+  "discovered": 270,
+  "downloaded": 36,
+  "skipped": 233,
+  "failed": 1,
+  "duplicatesRemoved": 152,
+  "skippedSources": [
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/Preschool-Button-600x924.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/Preschool-Button.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-Preschool-Halloween-768x455.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-Preschool-Halloween-1536x910.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-Preschool-Halloween-2048x1213.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-Preschool-Halloween-600x355.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-SHS-Teachers-Day-768x455.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-SHS-Teachers-Day-1536x910.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-SHS-Teachers-Day-2048x1213.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/WP-SHS-Teachers-Day-600x355.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/Teachers-Day-JHS-768x455.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/Teachers-Day-JHS-600x355.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Fem-Double-Thumbs-Up-copy-311x628.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Male-Crazy-Walk-copy02-600x787.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Male-Crazy-Walk-copy02-479x628.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Male-Crazy-Walk-copy02.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/cropped-Nova-Schola-NTC-Batangas-Logos-2-192x192.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/cropped-Nova-Schola-NTC-Batangas-Logos-2-180x180.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/cropped-Nova-Schola-NTC-Batangas-Logos-2-270x270.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/M50-SHS-18-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3455-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/JHS-02-300x169.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_4071-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2583-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9425-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/M100-SHS-25-1119x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/M50-SHS-12-1043x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2679-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/JHS-F05-300x169.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9441-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3328-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2572-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3329-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9178-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2089-662x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2683-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3539-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2819-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/SHS-02-300x211.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/MKTNG-2-300x200.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/JHS-Activity-01-300x169.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3415-1158x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2022-747x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3459-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2076-775x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_8537-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_8443-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2865-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9635-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3884-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/SHS-03-300x211.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2892-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2433-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9194-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2656-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/All-Singers-1116x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9213-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9622-942x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2592-1113x628.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-600x151.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-1024x257.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-768x193.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-1536x386.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-2048x515.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-JHS-162x300.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-SHS-162x300.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-COL-162x300.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-CTP-162x300.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Buwan-ng-Wika-17-600x400.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Buwan-ng-Wika-17-300x200.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Buwan-ng-Wika-17-768x512.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Buwan-ng-Wika-17.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Education19-01-300x199.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Education19-01-768x510.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Education19-01-1536x1020.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Education19-01-2048x1360.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Teachers19-01-600x338.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Teachers19-01-300x169.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Teachers19-01-768x432.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Teachers19-01-1536x864.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Teachers19-01-2048x1152.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-150x150.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-768x768.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-1536x1536.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-600x600.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-300x300.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-100x100.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Quadrangle-Study-LOW-600x374.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Quadrangle-Study-LOW-768x478.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Dance-02-LOW-600x375.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Cardigan-600x355.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Cardigan-768x455.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Foreign-Language-600x355.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Foreign-Language-1024x607.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Foreign-Language-768x455.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Foreign-Language.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Activity-02-LOW-600x387.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Activity-02-LOW-768x495.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-002-600x300.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-002-768x384.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-002.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-01-600x300.webp",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-01-768x384.webp",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-01.webp",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-SHS-Voucher-600x355.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-SHS-Voucher-768x455.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-003-600x350.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-003-1077x628.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-003-768x448.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-003-1200x700.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-003.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/Education19-02-768x510.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/Education19-02-1536x1020.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Graduation-600x398.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Graduation-300x199.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Graduation-1024x678.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Graduation-768x509.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Graduation.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/COL-21-e1621927722378-600x414.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/btvted/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/COL-21-e1621927722378-300x207.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/btvted/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/COL-21-e1621927722378-1024x707.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/btvted/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/COL-21-e1621927722378.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/btvted/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-04-600x337.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-04-300x168.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-04-768x431.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-04.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-03-300x169.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-03-768x432.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-03-1536x865.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-03-2048x1153.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/BSIS-178x300.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-information-systems/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/BS-Entrep-img01-178x300.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-entrepreneurship/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/BS-AIS-178x300.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-accounting-information-systems/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/11/Vectors-AIS2-16-300x225.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-accounting-information-systems/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2021/06/48788739_s-600x400.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/ctp-program/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2021/06/48788739_s-300x200.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/ctp-program/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2021/06/48788739_s-768x512.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/ctp-program/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2021/06/48788739_s-1536x1023.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/ctp-program/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2021/06/48788739_s.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/ctp-program/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-1-600x664.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-1-271x300.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-1-768x850.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-01-600x800.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-01-225x300.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-01-1152x1536.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-01.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-02-600x800.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-02-225x300.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-02-1152x1536.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-02.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Duplicate WordPress crop"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/11/JHS-Menu-02.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/11/SHS-Menu-02.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/11/COL-Menu-02.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/11/TESDA-Menu-02.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/Thumb-Testi-Shania.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/Thumb-Testi-Neil.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/Thumb-Testi-Antonella.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/Thumb-Testi-Kisley.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Fem-Double-Thumbs-Up-copy.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/elementor/thumbs/Nova-Schola-Horizontal-White-Mono-qphmecw5huxa4ibid8ysu9n0e6gp4t3bau7dceatx0.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "http://nst.edu.ph/wp-content/uploads/2025/05/Preschool-Button-408x628.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Duplicate image content"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/MKTNG-2.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/JHS-Class-Night-01-300x200.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Small icon or low-resolution image"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_8537.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_8443.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2865.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9635.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3884.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/All-MnM.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/SHS-03.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2892.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2433.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9194.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2656.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/All-Singers.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9213.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9622.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2592.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/04/Site-TESDA-scaled.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/04/Site-PRESCHOOL-scaled.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/Site-NST-scaled.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/NST-Facade-for-WEB.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/02/Web-World-Landmarks-with-large-sky-copy.jpg",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/plugins/ocean-extra/assets/img/instagram-logo.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/plugins/ocean-extra/assets/img/flickr.png",
+      "sourcePage": "https://nst.edu.ph/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-300x75.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-JHS.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-SHS.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-COL.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Online-Reg-CTP.jpg",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "http://nst.edu.ph/wp-content/uploads/2020/03/Nova-Schola-NTC-Batangas-Logos-7-300x75.png",
+      "sourcePage": "https://nst.edu.ph/admissions/registration/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Buwan-ng-Wika-17-1024x683.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Education19-01-1024x680.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Education19-01-scaled-600x398.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/elementor/thumbs/College-Reg-Page-p7oe0ivkbdy9inykdgvl8s3w3l0wkxbkfb7qq3a2ac.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/Teachers19-01-1024x576.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-628x628.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "http://nst.edu.ph/wp-content/uploads/2025/05/FB-SQ-Pre-Pack-01-628x628.jpg",
+      "sourcePage": "https://nst.edu.ph/preschool/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Quadrangle-Study-LOW.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Dance-02-LOW.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Cardigan.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-JHS-Foreign-Language-300x178.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Activity-02-LOW.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "http://nst.edu.ph/wp-content/uploads/2024/06/JHS-Quadrangle-Study-LOW.jpg",
+      "sourcePage": "https://nst.edu.ph/junior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-002-1060x530.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-01-1060x530.webp",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/FP-SHS-Voucher.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/SHS-003-1060x618.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/Education19-02-946x628.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/07/Education19-02-scaled-600x398.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "http://nst.edu.ph/wp-content/uploads/2024/07/SHS-002-1060x530.jpg",
+      "sourcePage": "https://nst.edu.ph/senior-high-school-page/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/07/Graduation-1536x1018.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/model-btvted-pic.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/model-crim-pic.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/model-bsis-pic.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/model-bsais-pic.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/model-entrep-pic.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "http://nst.edu.ph/wp-content/uploads/2020/07/Graduation-1536x1018.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/COL-21-e1621927722378-768x530.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/btvted/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/elementor/thumbs/Crim-Students-01-pq3b4mn33ieh1ltgdowpan90eo2u7566pkorehcpfu.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-04-1024x575.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-03-1024x577.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/Col-Crim-Lab-03-scaled-600x338.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-criminology/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/BSIS.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-information-systems/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/BS-Entrep-img01.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-entrepreneurship/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/BS-AIS.png",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-accounting-information-systems/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/11/Vectors-AIS2-16.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/college-programs/bs-accounting-information-systems/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2021/06/48788739_s-1024x682.jpg",
+      "sourcePage": "https://nst.edu.ph/academics/ctp-program/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-1.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/elementor/thumbs/GJS-Scholars-03-pp1dhd2pdo4jrz6pf07sglaueyh035wdbyz6cgyl1g.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-01-768x1024.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Curated asset count limit"
+    },
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/GJS-Scholars-02-768x1024.jpg",
+      "sourcePage": "https://nst.edu.ph/gjs/",
+      "reason": "Curated asset count limit"
+    }
+  ],
+  "failures": [
+    {
+      "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/Web-Testi-Kisley-Thumb.jpg",
+      "reason": "HTTP 404"
+    }
+  ]
+}

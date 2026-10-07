@@ -60,3 +60,14 @@ test('multiple Administrators abort migration atomically without deleting accoun
     assert.equal((await db.query("SELECT to_regclass('public.schema_migrations') AS name")).rows[0].name,null);
   }finally{await isolated.cleanup();}
 });
+
+test('normalized-name conflicts abort upgrade without merging sections or history', async () => {
+  const isolated = await isolatedDatabase('section_conflicts');
+  try {
+    await isolated.db.query(await readFile(new URL('../../../DATABASE_SCHEMA.sql', import.meta.url), 'utf8'));
+    await isolated.db.query("INSERT INTO sections(name,grade_level) VALUES('BSIS 1-A','1st Year'),('bsis   1-a','1st Year')");
+    await assert.rejects(migrate(isolated.db), /Equivalent section names exist/);
+    assert.equal((await isolated.db.query('SELECT count(*)::int AS n FROM sections')).rows[0].n, 2);
+    assert.equal((await isolated.db.query("SELECT to_regclass('public.schema_migrations') AS table_name")).rows[0].table_name, null);
+  } finally { await isolated.cleanup(); }
+});

@@ -1,14 +1,16 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
+import { nstImages } from "@/lib/nst-images";
 import { useState } from "react";
-import { GraduationCap, Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { NavDrawer } from "../nav/NavDrawer";
 const links = [{ href: "/announcements", label: "Announcements" }, { href: "/gallery", label: "Gallery" }, { href: "/tv", label: "TV Announcement" }];
 export default function HomeNav() {
   const [open, setOpen] = useState(false);
   return <>
     <header className="public-header"><div className="tokens-container flex items-center justify-between gap-4">
-      <Link href="/" className="wordmark" aria-label="Nova Schola Hub home"><span className="brand-mark"><GraduationCap size={24} aria-hidden="true" /></span><span>Nova Schola<span className="wordmark-sub">Hub · Tanauan</span></span></Link>
+      <Link href="/" className="wordmark" aria-label="Nova Schola Hub home"><Image src={nstImages.mark.src} alt={nstImages.mark.alt} width={44} height={44} sizes="44px" /><span>Nova Schola<span className="wordmark-sub">Hub · Tanauan</span></span></Link>
       <nav className="hidden items-center gap-4 lg:flex" aria-label="Public navigation">{links.map(link => <Link key={link.href} href={link.href} className="nav-text">{link.label}</Link>)}</nav>
       <div className="hidden items-center gap-4 lg:flex"><Link href="/login" className="nav-text">Login</Link><Link href="/register" className="tokens-btn tokens-btn-brand !px-5">Create Account <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
       <button type="button" className="menu-trigger lg:hidden" aria-label="Open menu" aria-expanded={open} aria-controls="public-menu" onClick={() => setOpen(true)}><Menu aria-hidden="true" /></button>

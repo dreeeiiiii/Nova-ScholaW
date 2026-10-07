@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { nstImages } from "@/lib/nst-images";
 
 type AuthShellProps = {
   eyebrow: string;
@@ -7,6 +9,7 @@ type AuthShellProps = {
   indexLabel?: string;
   mobileTitle: string;
   children: React.ReactNode;
+  visual?: "login" | "registration";
 };
 
 function Wordmark({ tone }: { tone: "light" | "dark" }) {
@@ -41,7 +44,8 @@ function Wordmark({ tone }: { tone: "light" | "dark" }) {
  * Mobile: slim brand strip on top, form full-width below.
  * Token-only. Includes the shared mount-rise animation.
  */
-export function AuthShell({ eyebrow, statement, support, indexLabel, mobileTitle, children }: AuthShellProps) {
+export function AuthShell({ eyebrow, statement, support, indexLabel, mobileTitle, children, visual = "login" }: AuthShellProps) {
+  const image = visual === "registration" ? nstImages.learning : nstImages.community;
   return (
     <main id="main-content" tabIndex={-1} className="flex min-h-screen flex-col lg:flex-row" style={{ backgroundColor: "var(--color-background)" }}>
       {/* Mobile slim brand strip */}
@@ -57,7 +61,7 @@ export function AuthShell({ eyebrow, statement, support, indexLabel, mobileTitle
 
       {/* Desktop dark brand panel */}
       <div
-        className="relative hidden flex-col justify-between overflow-hidden p-12 lg:flex lg:w-[45%] lg:p-16"
+        className="relative hidden flex-col justify-between gap-8 overflow-hidden p-12 lg:flex lg:w-[45%] lg:p-16"
         style={{ backgroundColor: "var(--color-dark)", color: "var(--color-surface)" }}
       >
         {indexLabel && (
@@ -72,6 +76,10 @@ export function AuthShell({ eyebrow, statement, support, indexLabel, mobileTitle
         <div className="relative z-10">
           <Wordmark tone="light" />
         </div>
+        <figure className="nst-auth-photo relative z-10">
+          <Image src={image.src} alt={image.alt} sizes="(min-width: 1024px) 40vw, 1px" />
+          <figcaption className="tokens-small mt-3 text-white/70">Your school. Your community.</figcaption>
+        </figure>
         <div className="relative z-10" style={{ maxWidth: "480px" }}>
           <p
             className="tokens-eyebrow"

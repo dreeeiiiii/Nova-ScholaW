@@ -31,8 +31,8 @@ export const countUsers = async options => {
   const {where,params}=filter(options);
   return (await query(`SELECT COUNT(*)::int AS total FROM users u ${where}`,params)).rows[0].total;
 };
-export const createUser = async ({email,password_hash,full_name,role,section_id=null,course_id=null,department_id=null,student_level=null,section_course=null}) =>
-  (await query(`INSERT INTO users(email,password_hash,full_name,role,section_id,course_id,department_id,student_level,section_course)
+export const createUser = async ({email,password_hash,full_name,role,section_id=null,course_id=null,department_id=null,student_level=null,section_course=null}, db={query}) =>
+  (await db.query(`INSERT INTO users(email,password_hash,full_name,role,section_id,course_id,department_id,student_level,section_course)
     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING ${PUBLIC_COLUMNS}`,
   [email,password_hash,full_name,role,section_id,course_id,department_id,student_level,section_course])).rows[0];
 export const updateUser = async (id, fields={}) => {

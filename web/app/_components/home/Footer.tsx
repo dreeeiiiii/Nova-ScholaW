@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { nstImages } from "@/lib/nst-images";
 import { FooterColumn } from "./FooterColumn";
 
 const explore = [{href:"/#how-to-use",label:"How it works"},{href:"/announcements",label:"General Announcements"},{href:"/gallery",label:"Event Gallery"},{href:"/tv",label:"TV Announcement View"}];
@@ -13,7 +15,7 @@ export default function Footer(){
    </div>
    <div className="my-12 h-px w-full md:my-16" style={{backgroundColor:"rgba(255,255,255,0.12)"}} />
    <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-12 md:gap-12">
-    <div className="sm:col-span-2 md:col-span-5"><Link href="/" className="font-heading text-2xl font-extrabold text-white">Nova Schola Hub</Link><p className="mt-6 max-w-xs text-sm leading-relaxed text-white/60">Official announcements and approved event images for Nova Schola Tanauan.</p></div>
+    <div className="sm:col-span-2 md:col-span-5"><Link href="/" className="nst-footer-brand" aria-label="Nova Schola Hub home"><Image src={nstImages.wordmark.src} alt={nstImages.wordmark.alt} width={240} height={60} sizes="240px" /></Link><p className="mt-6 max-w-xs text-sm leading-relaxed text-white/60">Official announcements and approved event images for Nova Schola Tanauan.</p></div>
     <div className="md:col-span-3 md:col-start-7"><FooterColumn title="Explore" links={explore}/></div>
     <div className="md:col-span-3 md:col-start-10"><FooterColumn title="Account" links={accounts}/></div>
    </div>

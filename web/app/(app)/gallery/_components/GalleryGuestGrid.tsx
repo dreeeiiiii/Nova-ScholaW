@@ -1,8 +1,7 @@
 "use client";
 
-import { Images } from "lucide-react";
 import { resolveMediaUrl } from "@/lib/url";
-import { EmptyState } from "../../_components/EmptyState";
+import { NstGalleryEmpty } from "@/app/_components/ui/NstGalleryEmpty";
 
 type Media = {
   id: number | string;
@@ -26,8 +25,7 @@ function formatDate(iso?: string) {
 export default function GalleryGuestGrid({ media }: { media: Media[] }) {
   if (media.length === 0) {
     return (
-      <EmptyState
-        icon={<Images size={20} strokeWidth={1.5} aria-hidden="true" />}
+      <NstGalleryEmpty
         message="No memories yet."
       />
     );

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { nstImages } from "@/lib/nst-images";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { serverFetch } from "@/lib/api";
@@ -80,6 +82,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
+      <div className="nst-dashboard-welcome"><div><p className="eyebrow">Nova Schola Tanauan</p><p className="font-heading font-bold">Learning together. Staying connected.</p></div><Image src={nstImages.welcome.src} alt={nstImages.welcome.alt} sizes="(max-width: 767px) 35vw, 240px" /></div>
       <PageHeader
         eyebrow="Overview"
         title="Dashboard"
