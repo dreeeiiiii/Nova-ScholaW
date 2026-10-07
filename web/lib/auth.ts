@@ -13,6 +13,8 @@ export type CurrentUser = {
   role: "admin" | "teacher" | "student";
   section_id: number | null;
   course_id: number | null;
+  department_id: number | null;
+  department_name?: string | null;
   is_active: boolean;
   section_name?: string | null;
   course_name?: string | null;

@@ -16,17 +16,25 @@ import {
   Users,
   Tags,
   ShieldCheck,
+  UserRound,
 } from "lucide-react";
+import { LogoutButton } from "./LogoutButton";
 import { NavDrawer } from "../../_components/nav/NavDrawer";
+import { matchesNavPath } from "../../_components/nav/activePath";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>> = {
   Dashboard: LayoutDashboard,
   Announcements: Megaphone,
   "Event Gallery": Images,
-  "Upload Media": UploadCloud,
+  "General Announcements": Megaphone,
+  "Upload Event Image": UploadCloud,
+  "Upload Status": Folder,
   "My Uploads": Folder,
-  Moderation: ClipboardList,
-  Users: Users,
+  "Create Class Announcement": Megaphone,
+  "Pending Uploads": ClipboardList,
+  "Department Management": Users,
+  "Event Management": Images,
+  "Account / Change Password": UserRound,
   Categories: Tags,
   "Audit Logs": ShieldCheck,
 };
@@ -36,7 +44,7 @@ type NavItem = {
   label: string;
 };
 
-export function MobileNav({ navItems }: { navItems: NavItem[] }) {
+export function MobileNav({ navItems, user }: { navItems: NavItem[]; user: { full_name: string; role: string } }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -65,6 +73,8 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          aria-controls="app-mobile-menu"
           className="flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors duration-300 motion-reduce:transition-none"
           style={{
             borderRadius: "var(--radius-medium)",
@@ -92,10 +102,12 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
             <X size={20} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
-        <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
+        <p className="mb-6 font-semibold">{user.full_name}<span className="block text-sm capitalize" style={{color:"var(--color-muted)"}}>{user.role} · Nova Schola Tanauan</span></p>
+        <nav id="app-mobile-menu" className="flex flex-col gap-1" aria-label="Mobile navigation">
           {navItems.map((item, i) => {
             const Icon = iconMap[item.label] ?? LayoutDashboard;
-            const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            const hrefPath = item.href.split("?")[0];
+            const active = matchesNavPath(pathname, item.href) && !navItems.some(other => { const otherPath = other.href.split("?")[0]; return otherPath.length > hrefPath.length && matchesNavPath(pathname, other.href); });
             return (
               <Link
                 key={item.href}
@@ -127,6 +139,7 @@ export function MobileNav({ navItems }: { navItems: NavItem[] }) {
             );
           })}
         </nav>
+        <div className="mt-6"><LogoutButton className="w-full" /></div>
       </NavDrawer>
     </>
   );

@@ -1,152 +1,69 @@
 import { signToken } from '../../shared/utils/jwt.js';
 import { comparePassword, hashPassword } from '../../shared/utils/password.js';
-import { getRoleEmailDomain, isRoleEmail, normalizeEmail } from '../../shared/utils/nstEmail.js';
+import { getRoleEmailDomain,isRoleEmail,normalizeEmail } from '../../shared/utils/nstEmail.js';
+import { nullableId,readMembership,validPassword } from '../../shared/utils/academicInput.js';
 import { audit } from '../audit/auditService.js';
-import { findByEmailWithHash, findByEmail, createUser as insertUser, updateLastLogin, findByIdWithJoins, listDistinctSectionCourse } from '../users/userModel.js';
-import { findSectionById } from '../academic/sectionModel.js';
-import { findCourseById } from '../academic/courseModel.js';
+import * as users from '../users/userModel.js';
+import { listDepartments,registrationSections,validateMembership } from '../academic/departmentModel.js';
 
-const GENERIC_LOGIN_ERROR = 'Invalid email or password.';
-const DEACTIVATED_MESSAGE = 'This account has been deactivated. Please contact the administrator.';
-
-export const login = async (req, res, next) => {
+export const login = async (req,res,next) => {
   try {
-    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-    const password = typeof req.body?.password === 'string' ? req.body.password : '';
-
-    if (email === '' || password === '') {
-      return res.status(400).json({ status: 400, message: 'Email and password are required.' });
+    const email=normalizeEmail(req.body?.email),password=req.body?.password;
+    if(!email || typeof password!=='string' || !password) return res.status(400).json({message:'Email and password are required.'});
+    const user=await users.findByEmailWithHash(email);
+    if(!user || !await comparePassword(password,user.password_hash) || !isRoleEmail(email,user.role)) {
+      await audit(req,'auth.login_failure','auth',null,{email});
+      return res.status(401).json({message:'Invalid email or password.'});
     }
-
-    const user = await findByEmailWithHash(email);
-
-    const validPassword = user ? await comparePassword(password, user.password_hash) : false;
-
-    if (!user || !validPassword) {
-      await audit(req, 'auth.login_failure', 'auth', null, { email });
-      return res.status(401).json({ status: 401, message: GENERIC_LOGIN_ERROR });
-    }
-
-    if (!user.is_active) {
-      await audit(req, 'auth.login_failure', 'auth', user.id, { email, reason: 'deactivated' });
-      return res.status(403).json({ status: 403, message: DEACTIVATED_MESSAGE });
-    }
-
-    await updateLastLogin(user.id);
-    await audit(req, 'auth.login_success', 'auth', user.id, { email });
-
-    const token = signToken({ userId: user.id, role: user.role });
-
-    const { password_hash: _hash, ...safeUser } = user;
-    safeUser.last_login_at = new Date().toISOString();
-
-    return res.json({ token, user: safeUser });
-  } catch (err) {
-    return next(err);
-  }
+    if(!user.is_active) return res.status(403).json({message:'This account has been deactivated. Please contact the administrator.'});
+    await users.updateLastLogin(user.id);
+    await audit({...req,user},'auth.login_success','auth',user.id,{email});
+    const token=signToken({userId:user.id,role:user.role,version:user.token_version});
+    const {password_hash:_hash,token_version:_version,...safe}=user;
+    return res.json({token,user:{...safe,last_login_at:new Date().toISOString()}});
+  } catch(error){next(error);}
 };
-
-export const me = async (req, res, next) => {
+export const me = async (req,res,next) => {
+  try {res.json({user:await users.findByIdWithJoins(req.user.id)});} catch(error){next(error);}
+};
+export const logout = (_req,res) => res.json({message:'Logged out. Discard the client token.'});
+export const register = async (req,res,next) => {
   try {
-    const user = await findByIdWithJoins(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ status: 404, message: 'User not found.' });
-    }
-
-    return res.json({ user });
-  } catch (err) {
-    return next(err);
-  }
+    const body=req.body??{},role=body.role??'student';
+    if(!['student','teacher'].includes(role)) return res.status(400).json({message:'Public registration is available only to Students and Teachers.'});
+    const email=normalizeEmail(body.email),full_name=typeof body.full_name==='string'?body.full_name.trim():'';
+    if(!full_name || full_name.length>100) return res.status(400).json({message:'Full name must be between 1 and 100 characters.'});
+    if(!isRoleEmail(email,role)) return res.status(400).json({message:`Use an @${getRoleEmailDomain(role)} email for this role.`});
+    if(!validPassword(body.password)) return res.status(400).json({message:'Password must contain at least 8 characters and no more than 72 UTF-8 bytes.'});
+    const membership=readMembership(body);
+    const error=await validateMembership({role,...membership});
+    if(error) return res.status(400).json({message:error});
+    if(role==='student' && !membership.section_id) return res.status(400).json({message:'Select a section belonging to your department.'});
+    if(await users.findByEmail(email)) return res.status(409).json({message:'Email already registered.'});
+    const user=await users.createUser({email,full_name,role,...membership,password_hash:await hashPassword(body.password)});
+    await audit(req,'users.register','user',user.id,{role,department_id:membership.department_id});
+    return res.status(201).json({message:'Account created. You can now log in.'});
+  } catch(error){if(error.code==='23505')return res.status(409).json({message:'Email already registered.'});next(error);}
 };
-
-export const logout = (_req, res) => {
-  return res.json({
-    message: 'Logged out successfully. Please discard your token on the client.',
-  });
+export const listRegistrationDepartments = async (_req,res,next) => {
+  try {res.json({departments:await listDepartments()});} catch(error){next(error);}
 };
-
-const toNullableId = (raw) => {
-  if (raw === null || raw === undefined || raw === '') return null;
-  const id = Number(raw);
-  return Number.isInteger(id) && id > 0 ? id : null;
-};
-
-export const register = async (req, res, next) => {
+export const listSections = async (req,res,next) => {
   try {
-    const body = req.body ?? {};
-    const email = normalizeEmail(body.email);
-    const password = typeof body.password === 'string' ? body.password : '';
-    const fullName = typeof body.full_name === 'string' ? body.full_name.trim() : '';
-
-    if (fullName === '' || fullName.length > 100) {
-      return res.status(400).json({ status: 400, message: 'Full name must be between 1 and 100 characters.' });
-    }
-    // Self-registration always creates a student, so the student domain applies.
-    if (!isRoleEmail(email, 'student')) {
-      return res.status(400).json({ status: 400, message: `Only @${getRoleEmailDomain('student')} emails can register` });
-    }
-    if (password.length < 8) {
-      return res.status(400).json({ status: 400, message: 'Password must be at least 8 characters long.' });
-    }
-
-    const existing = await findByEmail(email);
-    if (existing) {
-      return res.status(409).json({ status: 409, message: 'Email already registered' });
-    }
-
-    const section_id = toNullableId(body.section_id);
-    const course_id = toNullableId(body.course_id);
-
-    const rawLevel = body.student_level ?? body.studentLevel;
-    const student_level = rawLevel === 'course' || rawLevel === 'section'
-      ? rawLevel
-      : null;
-    const sectionCourse =
-      typeof body.sectionCourse === 'string' ? body.sectionCourse.trim().replace(/\s+/g, ' ').toLowerCase() : '';
-
-    if (section_id !== null) {
-      const section = await findSectionById(section_id);
-      if (!section) {
-        return res.status(400).json({ status: 400, message: `Section with id ${section_id} does not exist.` });
-      }
-    }
-    if (course_id !== null) {
-      const course = await findCourseById(course_id);
-      if (!course) {
-        return res.status(400).json({ status: 400, message: `Course with id ${course_id} does not exist.` });
-      }
-    }
-
-    const password_hash = await hashPassword(password);
-    const user = await insertUser({
-      email,
-      password_hash,
-      full_name: fullName,
-      role: 'student',
-      section_id,
-      course_id,
-      student_level: student_level,
-      section_course: sectionCourse === '' ? null : sectionCourse,
-    });
-
-    await audit(req, 'users.register', 'user', user.id, { email });
-
-    return res.status(201).json({ message: 'Account created. You can now log in.' });
-  } catch (err) {
-    return next(err);
-  }
+    const id=nullableId(req.query.department_id);
+    if(!id)return res.status(400).json({message:'department_id is required.'});
+    res.json({sections:await registrationSections(id)});
+  } catch(error){next(error);}
 };
-
-export const listSections = async (req, res, next) => {
+export const changePassword = async (req,res,next) => {
   try {
-    const level = typeof req.query?.level === 'string' ? req.query.level.trim().toLowerCase() : '';
-    if (level !== 'section' && level !== 'course') {
-      return res.status(400).json({ status: 400, message: 'Query param "level" must be "section" or "course".' });
-    }
-    const sections = await listDistinctSectionCourse(level);
-    return res.json({ sections });
-  } catch (err) {
-    return next(err);
-  }
+    const {current_password,new_password}=req.body??{};
+    if(typeof current_password!=='string' || !validPassword(new_password)) return res.status(400).json({message:'Current password and a valid new password are required.'});
+    const user=await users.findByIdWithHash(req.user.id);
+    if(!user || !await comparePassword(current_password,user.password_hash)) return res.status(400).json({message:'Current password is incorrect.'});
+    if(current_password===new_password)return res.status(400).json({message:'Choose a different new password.'});
+    if(!await users.changePassword(user.id,await hashPassword(new_password),user.token_version)) return res.status(409).json({message:'Password changed concurrently. Sign in again.'});
+    await audit(req,'auth.password_change','user',user.id,null);
+    res.json({message:'Password changed. Sign in again.'});
+  } catch(error){next(error);}
 };

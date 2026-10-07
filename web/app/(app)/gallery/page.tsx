@@ -26,7 +26,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   galleryQuery.set("limit", user ? "20" : "6");
   galleryQuery.set("offset", "0");
 
-  const galleryPath = q ? `/api/gallery/search?${galleryQuery.toString()}` : `/api/gallery?${galleryQuery.toString() ? `?${galleryQuery.toString()}` : ""}`;
+  const galleryPath = q ? `/api/gallery/search?${galleryQuery.toString()}` : `/api/gallery?${galleryQuery.toString()}`;
 
   const [categoriesRes, mediaRes, mineRes] = await Promise.all([
     serverFetch("/api/categories").catch(() => ({ categories: [] })) as Promise<{ categories: Category[] }>,
@@ -97,7 +97,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
       <PageHeader
         eyebrow="Searchable memories"
         title="Event Gallery"
-        description="Browse approved photos and videos from school events. Use search and filters to find memories."
+        description="Browse approved event images from school events. Use search and filters to find memories."
         actions={
           <>
             <Link href="/gallery/mine" className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm">
@@ -106,7 +106,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
             </Link>
             <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
               <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
-              Upload media
+              Upload image
             </Link>
           </>
         }

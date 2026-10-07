@@ -7,21 +7,13 @@ function uniqueTitle(prefix: string) {
 
 const titlesToDelete: string[] = [];
 
-test("teacher-creates-general-announcement", async ({ page }) => {
+test("teacher cannot create General or Department Announcement", async ({ page }) => {
   await loginAs(page, credentials.teacher.email, credentials.teacher.password);
   await page.goto("/announcements/create");
-
-  const title = uniqueTitle("P45_VERIFY_General");
-  await page.getByLabel("Title *").fill(title);
-  await page.getByLabel("Content *").fill("General content from Playwright");
-
-  // General is default, no audience picker
-  await page.getByRole("button", { name: "Publish" }).click();
-
-  await page.waitForURL(/\/announcements/);
-  await expect(page.getByText(title)).toBeVisible();
-
-  titlesToDelete.push(title);
+  await expect(page.getByRole("button",{name:"General",exact:true})).toHaveCount(0);
+  await expect(page.getByRole("button",{name:"Department",exact:true})).toHaveCount(0);
+  const response=await page.request.post("/api/announcements/general",{data:{title:"Forbidden",content:"Forbidden"}});
+  expect(response.status()).toBe(403);
 });
 
 test("teacher-edits-own-announcement", async ({ page }) => {

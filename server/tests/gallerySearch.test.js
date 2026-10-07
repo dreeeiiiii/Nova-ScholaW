@@ -76,12 +76,12 @@ describe('B1.5 GET /api/gallery/search server-side filters', () => {
     };
 
     // Seed 5 matches for q=token, with varying categories/years/types
-    // 2 in catA, 3 in catB; years 2024,2024,2025,2025,2026; types image/image/image/video/video
+    // 2 in catA, 3 in catB; years 2024,2024,2025,2025,2026; types image/image/image/image/image
     await insert({ caption: `${token} Alpha`, category_id: catAId, media_type: 'image', created_at: '2024-01-15T00:00:00Z' });
     await insert({ caption: `${token} Beta`, category_id: catAId, media_type: 'image', created_at: '2024-06-15T00:00:00Z' });
     await insert({ caption: `${token} Gamma`, category_id: catBId, media_type: 'image', created_at: '2025-03-10T00:00:00Z' });
-    await insert({ caption: `${token} Delta`, category_id: catBId, media_type: 'video', created_at: '2025-08-20T00:00:00Z' });
-    await insert({ caption: `${token} Epsilon`, category_id: catBId, media_type: 'video', created_at: '2026-02-01T00:00:00Z' });
+    await insert({ caption: `${token} Delta`, category_id: catBId, media_type: 'image', created_at: '2025-08-20T00:00:00Z' });
+    await insert({ caption: `${token} Epsilon`, category_id: catBId, media_type: 'image', created_at: '2026-02-01T00:00:00Z' });
 
     // One non-matching approved media to ensure not returned
     await query(
@@ -136,12 +136,9 @@ describe('B1.5 GET /api/gallery/search server-side filters', () => {
     assert.ok(body.media.every((m) => m.media_type === 'image'));
   });
 
-  it('q + media_type=video → only videos', async () => {
+  it('video filter is rejected', async () => {
     const res = await getJson(baseUrl, `/api/gallery/search?q=${encodeURIComponent(token)}&media_type=video`);
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.ok(body.media.length === 2);
-    assert.ok(body.media.every((m) => m.media_type === 'video'));
+    assert.equal(res.status, 400);
   });
 
   it('q + media_type=document → 400', async () => {
@@ -158,12 +155,12 @@ describe('B1.5 GET /api/gallery/search server-side filters', () => {
     const body = await res.json();
     assert.equal(body.media.length, 2);
     assert.equal(body.total, 2);
-    // catB + 2025 + video should be 1 (Delta)
-    const res2 = await getJson(baseUrl, `/api/gallery/search?q=${encodeURIComponent(token)}&category_id=${catBId}&year=2025&media_type=video`);
+    // catB + 2025 + image should be 2
+    const res2 = await getJson(baseUrl, `/api/gallery/search?q=${encodeURIComponent(token)}&category_id=${catBId}&year=2025&media_type=image`);
     assert.equal(res2.status, 200);
     const body2 = await res2.json();
-    assert.equal(body2.media.length, 1);
-    assert.equal(body2.total, 1);
+    assert.equal(body2.media.length, 2);
+    assert.equal(body2.total, 2);
   });
 
   it('total reflects filtered set, not all matches (5 matches for q, 2 in catA → total 2)', async () => {

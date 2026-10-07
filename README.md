@@ -1,172 +1,50 @@
 # Nova Schola Hub
 
-School announcements + gallery platform for NST (**PERN stack**): role-based dashboards for
-Admin / Teacher / Student, targeted class announcements, a public gallery with admin moderation,
-a public TV slideshow display, and full audit logging.
+NST announcements and image-only Event Gallery. The revised capstone paper is authoritative; the final verification report is [Batch 3](docs/BATCH3.md). Historical plans in BACKEND.md, DEVELOPMENT_PLAN.md and TASKS.md are explicitly superseded.
 
-## Tech stack
+| Layer | Implementation |
+| --- | --- |
+| Frontend | Next.js 16, React 19, Tailwind CSS 4; App Router and authenticated API proxies |
+| Backend | Node.js, Express 4, PostgreSQL `pg`, bcrypt, JWT |
+| Database | Neon PostgreSQL; additive, checksummed migrations |
+| Email | Backend-only Brevo; mock by default, controlled test override, explicit live activation |
+| Event storage | Existing private Backblaze B2 bucket; JPEG/PNG/WebP, 10 MiB maximum |
+| Hosting | Vercel frontend, Render backend, Neon database |
 
-| Layer | Tech |
-| ----- | ---- |
-| Frontend | Next.js 16 + React 19 + Tailwind CSS 4, lucide-react, App Router |
-| Backend | Node.js 18+ + Express 4, Multer uploads, `pg` (Neon PostgreSQL) |
-| Auth | JWT (`jsonwebtoken`) + bcrypt, NST email-domain validation |
-| Database | PostgreSQL (Neon) — 8 tables, see `DATABASE_SCHEMA.sql` |
-| Deploy | Vercel (web) · Render / Railway (server) · Neon (DB) |
+One centralized Administrator manages College, Senior High School and Junior High School. Students register with @my.nst.edu.ph and Teachers with @tr.nst.edu.ph. There is no public Administrator registration; the authorized Administrator uses @nst.edu.ph.
 
-## Project structure
+General and Department Announcements are Administrator-only. Class Announcements are Teacher-only and target Students, classes or sections. Public homepage and TV show only published, unexpired General Announcements. Department and Class visibility and email recipients follow their audience.
 
-```
-NovaScholaW/
-├── web/               # Next.js frontend (port 3000)
-│   └── app/
-│       ├── (app)/     # Protected app routes (dashboard, announcements, gallery, admin/*)
-│       ├── api/       # Route handlers proxying to backend
-│       └── lib/       # auth, api, config
-├── server/            # Express API (port 5000)
-│   └── src/
-│       ├── routes/    # auth, users, academic, announcements, gallery, categories, dashboard, audit-logs
-│       ├── controllers/
-│       ├── models/    # SQL data-access layer
-│       ├── services/  # auditService, visibilityResolver, scheduler, mediaValidator
-│       ├── middleware/# authenticate, requireRole, upload, rateLimiter, ...
-│       ├── config/    # env, db (pg Pool), constants, multer
-│       ├── db/migrate.js  # applies DATABASE_SCHEMA.sql
-├── scripts/DEPLOY.md  # Vercel + Render + Neon deployment steps
-├── DATABASE_SCHEMA.sql
-└── TASKS.md           # 50-task build plan
-```
+Student/Teacher Event Image uploads await Administrator approval; Administrator direct uploads are approved. Only approved images enter the public gallery. Categories and Audit Logs are Administrator-only. All roles can change passwords using the current password; old tokens are invalidated.
 
-## Prerequisites
+## Local development
 
-- Node.js ≥ 18.8, npm
-- A PostgreSQL database (Neon recommended) + connection string
+Use Node 22 (verified 22.14.0, npm 10.9.2). Install dependencies using `npm ci` in `server` and `web`. Configure private local files using `server/.env.example` and `web/.env.example`; never commit credentials. Backend runs with `npm run dev` in `server`; Next.js runs with `npm run dev` in `web`.
 
-## Setup
+`npm run db:migrate` is a plan only. Use `npm run db:migrate -- --apply` only with an explicitly selected disposable/local database, or later with approved production authorization. The baseline SQL must not be applied directly to an existing database. No department guesses are made for historical users.
 
-### Backend
+## Safe verification
 
-```bash
-cd server
-npm install
-cp .env.example .env   # then fill in DATABASE_URL, JWT_SECRET, CLIENT_ORIGIN, ...
-npm run db:migrate     # applies DATABASE_SCHEMA.sql to DATABASE_URL
-# Create the initial admin user manually via SQL — see scripts/DEPLOY.md#create-admin for the exact INSERT statement.
-npm run dev            # nodemon on http://localhost:5000
+The default backend `npm test` explicitly selects the current safe suites (Batch 1–3, role middleware, password/JWT utilities). Legacy shared-fixture/live-storage tests remain as historical references and are not claimed to pass.
+
+Set `BATCH1_DATABASE_URL` to a localhost test database whose role can CREATE DATABASE. The harness creates and drops a unique disposable database for each suite; it never uses production DATABASE_URL for tests. Set EMAIL_MODE=mock, ANNOUNCEMENT_SCHEDULER_ENABLED=false, and fake B2 configuration for utility tests. Integration image tests replace B2; email tests inject a fake transport.
+
+```powershell
+Set-Location server
+npm test
+Set-Location ..
+node server/tests/batch1/browser.mjs
+node --experimental-test-module-mocks server/tests/batch2/browser.mjs
+Set-Location web
+npm run lint
+npm run typecheck
+npm run build
+Set-Location ..
+git diff --check
 ```
 
-### Frontend
+Browser tests require a current Next.js production build and locally installed Chrome. They run against localhost only with disposable databases and mock email/storage. Do not run older E2E suites against production.
 
-```bash
-cd web
-npm install
-cp .env.example .env.local   # then fill in API_URL if needed (defaults to http://localhost:5000)
-npm run dev            # Next.js on http://localhost:3000
-```
+## Manual production preparation
 
-Open http://localhost:3000/login.
-
-### Environment variables
-
-**Server** (`server/.env`, full list in `server/.env.example`):
-
-| Var | Required | Default / example |
-| --- | -------- | ----------------- |
-| `PORT` | No | `5000` |
-| `NODE_ENV` | No | `development` (`production` enforces all required vars) |
-| `DATABASE_URL` | Yes (prod) | `postgresql://user:pass@host/db?sslmode=require` |
-| `JWT_SECRET` | Yes (prod) | long random string |
-| `JWT_EXPIRES_IN` | No | `8h` |
-| `CLIENT_ORIGIN` | Yes (prod) | `http://localhost:3000` |
-| `UPLOAD_DIR` | Yes (prod) | `uploads` |
-| `NST_ADMIN_EMAIL_DOMAIN` | Yes (prod) | `nst.edu.ph` |
-| `NST_TEACHER_EMAIL_DOMAIN` | Yes (prod) | `tr.nst.edu.ph` |
-| `NST_STUDENT_EMAIL_DOMAIN` | Yes (prod) | `my.nst.edu.ph` |
-| `MAX_IMAGE_SIZE_MB` / `MAX_VIDEO_SIZE_MB` / `MAX_VIDEO_DURATION_SECONDS` | No | `10` / `50` / `120` |
-
-**Web** (`web/.env.local`, see `web/.env.example`):
-
-| Var | Required | Example |
-| --- | -------- | ------- |
-| `API_URL` | No | `http://localhost:5000` (server URL, defaults if unset) |
-
-## Initial admin
-Create the admin user manually via SQL — see
-scripts/DEPLOY.md#create-admin for the exact INSERT statement.
-
-## Migrations
-
-```bash
-cd server
-npm run db:migrate   # node src/db/migrate.js — applies DATABASE_SCHEMA.sql
-# Create the initial admin user manually via SQL — see scripts/DEPLOY.md#create-admin for the exact INSERT statement.
-```
-
-## Tests
-
-```bash
-cd server
-npm test             # node --test, isolated test DB only — never production
-```
-
-**Test database isolation (mandatory).** Suites contain destructive setup
-(blanket `DELETE`s), so they must never touch the production Neon database:
-
-1. Create a dedicated, clearly-named test database, e.g. local PostgreSQL:
-   `createdb novalschola_test` (name must contain `test`; hosted/cloud
-   hosts are rejected).
-2. Copy `server/.env.test.example` to gitignored `server/.env.test` and set
-   `DATABASE_URL_TEST` to it. No real credentials are committed.
-3. Provision the schema: `npm run db:migrate:test` (targets the test DB only).
-4. Run `npm test`.
-
-A fail-closed guard (`server/src/shared/config/testGuard.js`, enforced inside
-`server/src/shared/config/db.js` in every test process) refuses to connect
-unless `NODE_ENV=test`, `DATABASE_URL_TEST` is set, differs from production,
-is not hosted, and names a `*test*` database. Without a configured test DB,
-`npm test` aborts before opening any connection. **Never run the suite
-against the production database.**
-
-```bash
-cd web && npx playwright test  # 13 E2E tests
-```
-
-The suite covers auth, users/roles, announcements (incl. visibility + TV feed),
-gallery upload/moderation/search, categories, audit logging + dashboard stats,
-and schema/utils.
-
-> **E2E fixtures:** Playwright tests use role-specific institutional emails (see `web/e2e/fixtures.ts`: `b22test_admin@nst.edu.ph`, `b22test_teacher@tr.nst.edu.ph`, `b22test_student@my.nst.edu.ph`, etc.).
-
-## Key routes
-
-**Public (no login):** `GET /api/gallery`, `GET /api/gallery/search`, `GET /api/categories`,
-`GET /api/announcements/tv`, `GET /api/health`, pages `/gallery`, `/tv`, `/login`.
-
-**Auth:** `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`.
-
-**Users (admin):** `GET/POST /api/users`, `PUT /api/users/:id`, `PATCH /api/users/:id/status`.
-
-**Announcements:** `POST /api/announcements` (general + class w/ multi-target),
-`GET /api/announcements` (visibility-filtered feed), `PUT/DELETE /:id`,
-`PATCH /:id/status`, `GET /api/announcements/targets/options`.
-
-**Gallery:** `POST /api/gallery` (multipart → `pending`), `GET /api/gallery/mine`,
-`GET /api/gallery/moderation` + `PATCH /:id/approve` / `PATCH /:id/reject` (admin),
-`DELETE /api/gallery/:id`.
-
-**Admin:** `GET /api/audit-logs` (filters: `action`, `entity_type`, `user_id` + pagination),
-`GET /api/dashboard/stats`.
-
-## Deployment notes
-
-Full checklist in [`scripts/DEPLOY.md`](scripts/DEPLOY.md). Summary:
-
-- **Web → Vercel:** root `web`, build `npm run build` → `.next`, set `API_URL`.
-- **Server → Render/Railway:** root `server`, build `npm install`, start `npm start`,
-  health check `/api/health`, set all production env vars.
-- **DB:** Neon (already configured) — no action needed.
-- ⚠️ **Ephemeral disk:** Render free-tier disks wipe `UPLOAD_DIR` on redeploy, so
-  uploaded files can 404 while DB rows survive. Attach a persistent disk or move to
-  object storage for production (details in `scripts/DEPLOY.md`).
-- Graceful shutdown (`SIGTERM`/`SIGINT` → drain → close pg pool) is wired in
-  `server/src/server.js`.
+See [the deployment runbook](scripts/DEPLOY.md) for Render/Vercel variables, backup, schema preflight, migration order and commands, verification SQL, controlled Brevo test and rollback. Nothing deploys automatically. Preserve the existing B2 bucket and credentials. Do not run historical production demo seeds.

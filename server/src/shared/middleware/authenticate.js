@@ -24,7 +24,7 @@ export const authenticate = async (req, res, next) => {
     }
 
     const { rows } = await query(
-      `SELECT id, email, full_name, role, section_id, course_id, is_active
+      `SELECT id, email, full_name, role, section_id, course_id, department_id, token_version, is_active
          FROM users
         WHERE id = $1`,
       [payload.userId ?? payload.sub ?? payload.id]
@@ -36,6 +36,10 @@ export const authenticate = async (req, res, next) => {
     }
     if (!user.is_active) {
       return res.status(403).json({ status: 403, message: 'Account is deactivated.' });
+    }
+
+    if ((payload.version ?? 0) !== user.token_version) {
+      return res.status(401).json({ message: 'Session expired. Sign in again.' });
     }
 
     req.user = user;

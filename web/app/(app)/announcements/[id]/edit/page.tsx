@@ -17,6 +17,8 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
       title: string;
       content: string;
       type: string;
+      department_id?: number | string | null;
+      b2_key?: string | null;
       image_url?: string | null;
       publish_at?: string | null;
       expires_at?: string | null;
@@ -47,7 +49,7 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
   const targets = data.targets ?? [];
 
   // Defense in depth: teacher can only edit own
-  if (user.role === "teacher" && String(announcement.author_id) !== String(user.id)) {
+  if ((user.role === "teacher" && (announcement.type !== "class" || String(announcement.author_id) !== String(user.id))) || (user.role === "admin" && announcement.type === "class")) {
     redirect("/announcements");
   }
   if (user.role === "student") redirect("/announcements");
@@ -67,6 +69,8 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
     title: announcement.title,
     content: announcement.content,
     type: announcement.type,
+    department_id: announcement.department_id,
+    b2_key: announcement.b2_key,
     image_url: announcement.image_url ?? undefined,
     publish_at: announcement.publish_at ?? null,
     expires_at: announcement.expires_at ?? null,
@@ -84,7 +88,7 @@ export default async function EditAnnouncementPage({ params }: { params: Promise
           </Link>
         }
       />
-      <AnnouncementForm mode="edit" initial={initial} />
+      <AnnouncementForm mode="edit" initial={initial} role={user.role} />
     </div>
   );
 }

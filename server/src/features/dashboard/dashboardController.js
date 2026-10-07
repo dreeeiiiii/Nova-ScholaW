@@ -18,7 +18,7 @@ export const getDashboardStats = async (_req, res, next) => {
       if (row.role in byRole) byRole[row.role] = row.count;
     }
 
-    const byType = { general: 0, class: 0 };
+    const byType = { general: 0, department: 0, class: 0 };
     for (const row of announcementRows) {
       if (row.type in byType) byType[row.type] = row.count;
     }
@@ -34,7 +34,7 @@ export const getDashboardStats = async (_req, res, next) => {
         ...byRole,
       },
       announcements: {
-        total: byType.general + byType.class,
+        total: byType.general + byType.department + byType.class,
         ...byType,
       },
       gallery: {

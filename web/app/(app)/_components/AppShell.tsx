@@ -4,9 +4,7 @@ import {
   Images,
   UploadCloud,
   Folder,
-  ClipboardList,
   Users,
-  Tags,
   ShieldCheck,
   GraduationCap,
   UserRound,
@@ -25,13 +23,14 @@ type NavItem = {
 const allNavItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "teacher", "student"] },
   { href: "/announcements", label: "Announcements", icon: Megaphone, roles: ["admin", "teacher", "student"] },
-  { href: "/gallery", label: "Event Gallery", icon: Images, roles: ["admin", "teacher", "student"] },
-  { href: "/gallery/upload", label: "Upload Media", icon: UploadCloud, roles: ["admin", "teacher", "student"] },
-  { href: "/gallery/mine", label: "My Uploads", icon: Folder, roles: ["admin", "teacher", "student"] },
-  { href: "/admin/moderation", label: "Moderation", icon: ClipboardList, roles: ["admin"] },
-  { href: "/admin/users", label: "Users", icon: Users, roles: ["admin"] },
-  { href: "/admin/categories", label: "Categories", icon: Tags, roles: ["admin", "teacher"] },
+  { href: "/announcements/create", label: "Create Class Announcement", icon: Megaphone, roles: ["teacher"] },
+  { href: "/admin/departments", label: "Department Management", icon: Users, roles: ["admin"] },
+  { href: "/admin/events", label: "Event Management", icon: Images, roles: ["admin"] },
+  { href: "/gallery", label: "Event Gallery", icon: Images, roles: ["teacher", "student"] },
+  { href: "/gallery/upload", label: "Upload Event Image", icon: UploadCloud, roles: ["teacher", "student"] },
+  { href: "/gallery/mine", label: "My Uploads", icon: Folder, roles: ["teacher", "student"] },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ShieldCheck, roles: ["admin"] },
+  { href: "/account", label: "Account / Change Password", icon: UserRound, roles: ["admin", "teacher", "student"] },
 ];
 
 type User = {
@@ -40,13 +39,13 @@ type User = {
 };
 
 export default function AppShell({ user, children }: { user: User; children: React.ReactNode }) {
-  const navItems = allNavItems.filter((item) => item.roles.includes(user.role));
+  const navItems = allNavItems.filter((item) => item.roles.includes(user.role)).map(item => user.role === "admin" && item.href === "/announcements" ? {...item,href:"/announcements?type=general",label:"General Announcements"} : item);
 
   return (
     <div className="min-h-screen w-full lg:flex" style={{ backgroundColor: "var(--color-background)" }}>
       <aside
         data-testid="sidebar"
-        className="desktop-sidebar hidden w-72 shrink-0 p-6 lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto"
+        className="desktop-sidebar hidden w-64 shrink-0 p-4 lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto"
         aria-label="Main navigation"
       >
         <div
@@ -70,9 +69,9 @@ export default function AppShell({ user, children }: { user: User; children: Rea
               <GraduationCap size={22} strokeWidth={1.5} />
             </div>
             <div>
-              <h1 className="font-heading text-xl font-extrabold leading-tight" style={{ color: "var(--color-text)" }}>
+              <p className="font-heading text-lg font-extrabold leading-tight" style={{ color: "var(--color-text)" }}>
                 Nova Schola Hub
-              </h1>
+              </p>
               <p className="mt-0.5 text-xs" style={{ color: "var(--color-muted)" }}>
                 Official school connection
               </p>
@@ -115,9 +114,9 @@ export default function AppShell({ user, children }: { user: User; children: Rea
         </div>
       </aside>
 
-      <MobileNav navItems={navItems.map(({ href, label }) => ({ href, label }))} />
+      <MobileNav user={user} navItems={navItems.map(({ href, label }) => ({ href, label }))} />
 
-      <main className="mx-auto w-full max-w-[1550px] overflow-hidden p-4 sm:p-7 lg:p-9">{children}</main>
+      <main id="main-content" tabIndex={-1} className="app-main mx-auto w-full max-w-[1550px]">{children}</main>
     </div>
   );
 }

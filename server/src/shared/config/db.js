@@ -13,11 +13,11 @@ const connectionString =
 
 const pool = new Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl: config.nodeEnv === 'test' ? false : { rejectUnauthorized: false },
 });
 
-pool.on('error', (err) => {
-  console.error('[db] Unexpected error on idle client', err);
+pool.on('error', () => {
+  console.error('[db] Unexpected error on idle client');
 });
 
 export const query = (text, params) => pool.query(text, params);

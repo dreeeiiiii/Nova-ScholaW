@@ -43,7 +43,7 @@ function Wordmark({ tone }: { tone: "light" | "dark" }) {
  */
 export function AuthShell({ eyebrow, statement, support, indexLabel, mobileTitle, children }: AuthShellProps) {
   return (
-    <main className="flex min-h-screen flex-col lg:flex-row" style={{ backgroundColor: "var(--color-background)" }}>
+    <main id="main-content" tabIndex={-1} className="flex min-h-screen flex-col lg:flex-row" style={{ backgroundColor: "var(--color-background)" }}>
       {/* Mobile slim brand strip */}
       <div
         className="flex items-center justify-between px-6 py-4 lg:hidden"

@@ -1,0 +1,45 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { application } from './harness.js';
+
+test('registration, assignment, centralized role, and password security', async t => {
+  const app = await application('auth');
+  t.after(app.cleanup);
+  const departments = (await app.request('/auth/departments')).data.departments;
+  const college = departments.find(d => d.code === 'college').id, shs = departments.find(d => d.code === 'shs').id;
+  const section = (await app.db.query("INSERT INTO sections(name,grade_level,department_id) VALUES('C-1','1st Year',$1) RETURNING id", [college])).rows[0].id;
+  const admin = await app.seed('admin@nst.edu.ph','admin'), legacy = await app.seed('legacy@my.nst.edu.ph','student');
+  const adminToken = await app.login(admin.email);
+  const { register: registerHandler } = await import('../../src/features/auth/authController.js');
+  const register = async body => {
+    let status = 200, data;
+    const response = { status(code) { status = code; return this; }, json(value) { data = value; return this; } };
+    await registerHandler({body:{full_name:'Test User',password:'Initial-test-password',department_id:college,...body}},response,e=>{throw e;});
+    return {status,data};
+  };
+  assert.equal((await register({email:'new@my.nst.edu.ph',role:'admin'})).status,400);
+  assert.equal((await register({email:'new@my.nst.edu.ph',role:'teacher'})).status,400);
+  assert.equal((await register({email:'new@my.nst.edu.ph',role:'student',department_id:shs,section_id:section})).status,400);
+  assert.equal((await register({email:'new@my.nst.edu.ph',role:'student'})).status,400);
+  assert.equal((await register({email:'new@my.nst.edu.ph',role:'student',section_id:section})).status,201);
+  assert.equal((await register({email:'new@my.nst.edu.ph',role:'student',section_id:section})).status,409);
+  assert.equal((await app.request('/auth/register',{method:'POST',body:{email:'teacher@tr.nst.edu.ph',role:'teacher',full_name:'Teacher',password:'Initial-test-password',department_id:college}})).status,201);
+  assert.equal((await register({email:'a@evil@my.nst.edu.ph',role:'student',section_id:section})).status,400);
+  assert.equal((await app.request('/users',{token:adminToken,method:'POST',body:{role:'admin',email:'extra@nst.edu.ph'}})).status,400);
+  assert.equal((await app.request('/users/'+legacy.id,{token:adminToken,method:'PUT',body:{role:'admin'}})).status,400);
+  const edited = await app.request('/users/'+legacy.id,{token:adminToken,method:'PUT',body:{full_name:'Legacy retained'}});
+  assert.equal(edited.status,200); assert.equal(edited.data.user.department_id,null); assert.equal(edited.data.user.password_hash,undefined);
+  assert.equal((await app.request('/sections',{token:adminToken,method:'POST',body:{name:'SHS-1',grade_level:'Grade 11',department_id:shs}})).status,201);
+  assert.equal((await app.request('/sections',{token:adminToken,method:'POST',body:{name:'No dept',grade_level:'Grade 11'}})).status,400);
+  const token = await app.login('new@my.nst.edu.ph');
+  const me = await app.request('/auth/me',{token}); assert.equal(me.status,200); assert.equal(me.data.user.password_hash,undefined);
+  assert.equal((await app.request('/users',{token})).status,403);
+  assert.equal((await app.request('/categories',{token:await app.login('teacher@tr.nst.edu.ph'),method:'POST',body:{name:'Blocked'}})).status,403);
+  assert.equal((await app.request('/auth/change-password',{token,method:'POST',body:{current_password:'wrong',new_password:'Changed-test-password'}})).status,400);
+  assert.equal((await app.request('/auth/change-password',{token,method:'POST',body:{current_password:'Initial-test-password',new_password:'Changed-test-password'}})).status,200);
+  assert.equal((await app.request('/auth/me',{token})).status,401);
+  assert.equal((await app.request('/auth/login',{method:'POST',body:{email:'new@my.nst.edu.ph',password:'Initial-test-password'}})).status,401);
+  assert.equal((await app.request('/auth/login',{method:'POST',body:{email:'new@my.nst.edu.ph',password:'Changed-test-password'}})).status,200);
+  const logs = (await app.db.query('SELECT details::text FROM audit_logs')).rows.map(r=>r.details??'').join('');
+  assert.ok(!logs.includes('Initial-test-password')&&!logs.includes('Changed-test-password'));
+});

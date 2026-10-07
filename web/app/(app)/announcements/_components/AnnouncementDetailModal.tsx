@@ -125,13 +125,13 @@ export default function AnnouncementDetailModal({
                   borderRadius: "var(--radius-pill)",
                   padding: "2px var(--space-3)",
                   fontWeight: 700,
-                  fontSize: "0.6875rem",
+                  fontSize: "var(--text-small)",
                   letterSpacing: "0.08em",
                   backgroundColor: data.announcement.type === "general" ? "var(--color-info-bg)" : "var(--color-primary-soft)",
                   color: data.announcement.type === "general" ? "var(--color-info)" : "var(--color-primary-ink)",
                 }}
               >
-                {data.announcement.type === "general" ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
+                {data.announcement.type === "general" ? "GENERAL · PUBLIC" : data.announcement.type === "department" ? "DEPARTMENT · PRIVATE" : "CLASS · PRIVATE"}
               </span>
             )}
             <h2 className="tokens-heading-3 mt-3" style={{ color: "var(--color-text)" }}>
@@ -177,7 +177,7 @@ export default function AnnouncementDetailModal({
             )}
 
             {data.targets.length === 0 && data.announcement.type === "class" && (
-              <p className="tokens-small mt-5" style={{ color: "var(--color-muted)" }}>No audience targets.</p>
+              <p className="tokens-small mt-5" style={{ color: "var(--color-muted)" }}>Visible to intended Students.</p>
             )}
 
             <div className="tokens-small mt-5" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-3)", color: "var(--color-muted)" }}>

@@ -45,7 +45,7 @@ function StatusBadge({ status }: { status: string }) {
         borderRadius: "var(--radius-pill)",
         padding: "2px var(--space-3)",
         fontWeight: 700,
-        fontSize: "0.6875rem",
+        fontSize: "var(--text-small)",
         letterSpacing: "0.08em",
         textTransform: "uppercase",
         backgroundColor: palette.bg,
@@ -94,7 +94,7 @@ export default function MyUploadsClient({ media, error }: { media: Media[]; erro
           action={
             <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
               <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
-              Upload media
+              Upload image
             </Link>
           }
         />
@@ -127,7 +127,7 @@ export default function MyUploadsClient({ media, error }: { media: Media[]; erro
         actions={
           <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
             <Plus size={16} strokeWidth={1.5} aria-hidden="true" />
-            Upload media
+            Upload image
           </Link>
         }
       />
@@ -145,8 +145,7 @@ export default function MyUploadsClient({ media, error }: { media: Media[]; erro
               return (
                 <li
                   key={String(m.id)}
-                  className="flex min-h-[44px] gap-4"
-                  style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+                  className="hub-card mb-4 flex min-h-[44px] gap-4"
                 >
                   <button
                     type="button"
@@ -155,18 +154,16 @@ export default function MyUploadsClient({ media, error }: { media: Media[]; erro
                     className="block h-20 w-20 shrink-0 overflow-hidden"
                     style={{ backgroundColor: "var(--color-background-deep)" }}
                   >
-                    {m.media_type === "video" ? (
-                      <video src={src} preload="metadata" className="h-full w-full object-cover" />
-                    ) : (
+
                       <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
-                    )}
+
                   </button>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <button
                         type="button"
                         onClick={() => setSelected(m)}
-                        className="truncate text-left text-sm font-bold"
+                        className="min-h-11 text-left text-base font-bold"
                         style={{ color: "var(--color-text)", maxWidth: "100%" }}
                       >
                         {title}

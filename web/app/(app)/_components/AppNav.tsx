@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { matchesNavPath } from "../../_components/nav/activePath";
 import {
   LayoutDashboard,
   Megaphone,
@@ -12,16 +13,22 @@ import {
   Users,
   Tags,
   ShieldCheck,
+  UserRound,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>> = {
   Dashboard: LayoutDashboard,
   Announcements: Megaphone,
   "Event Gallery": Images,
-  "Upload Media": UploadCloud,
+  "General Announcements": Megaphone,
+  "Upload Event Image": UploadCloud,
+  "Upload Status": Folder,
   "My Uploads": Folder,
-  Moderation: ClipboardList,
-  Users: Users,
+  "Create Class Announcement": Megaphone,
+  "Pending Uploads": ClipboardList,
+  "Department Management": Users,
+  "Event Management": Images,
+  "Account / Change Password": UserRound,
   Categories: Tags,
   "Audit Logs": ShieldCheck,
 };
@@ -31,9 +38,7 @@ type NavItem = {
   label: string;
 };
 
-function isActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(href + "/");
-}
+const isActive = matchesNavPath;
 
 /**
  * Desktop sidebar nav — editorial minimal.
@@ -47,7 +52,7 @@ export default function AppNav({ navItems }: { navItems: NavItem[] }) {
     <nav data-testid="sidebar-nav" className="flex flex-col gap-1" aria-label="School hub sections">
       {navItems.map((item) => {
         const Icon = iconMap[item.label] ?? LayoutDashboard;
-        const active = isActive(pathname, item.href);
+        const active = isActive(pathname, item.href) && !navItems.some(other => other.href !== item.href && other.href.split("?")[0].length > item.href.split("?")[0].length && isActive(pathname, other.href));
         return (
           <Link
             key={item.href}

@@ -5,18 +5,17 @@ const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   const allowedImageMimes = ['image/jpeg', 'image/png', 'image/webp'];
-  const allowedVideoMimes = ['video/mp4'];
-  if ([...allowedImageMimes, ...allowedVideoMimes].includes(file.mimetype)) {
+  if (allowedImageMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, WebP images and MP4 videos are allowed.'));
+    cb(new Error('Invalid file type. Only JPEG, PNG, WebP images are allowed.'));
   }
 };
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 export const uploadMedia = upload.single('file');

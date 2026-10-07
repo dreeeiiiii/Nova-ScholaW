@@ -20,24 +20,35 @@ type AuditLog = {
 const ACTION_OPTIONS = [
   "auth.login_success",
   "auth.login_failure",
-  "announcements.create",
-  "announcements.update",
-  "announcements.delete",
+  "auth.password_change",
+  "announcement.create",
+  "announcement.publish",
+  "announcement.update",
+  "announcement.archive",
   "gallery.upload",
   "gallery.approve",
   "gallery.reject",
   "gallery.category_update",
   "gallery.feature",
-  "categories.create",
-  "categories.update",
-  "categories.delete",
-  "users.create",
-  "users.update",
-  "users.activate",
-  "users.deactivate",
+  "gallery.withdraw",
+  "category.create",
+  "category.update",
+  "category.delete",
+  "users.register",
+  "user.create",
+  "user.update",
+  "user.activate",
+  "user.deactivate",
+  "section.create",
+  "section.update",
+  "section.delete",
+  "course.create",
+  "course.update",
+  "course.delete",
+  "email.delivery_failure",
 ] as const;
 
-const ENTITY_OPTIONS = ["announcement", "gallery_media", "user", "category"] as const;
+const ENTITY_OPTIONS = ["announcement", "gallery_media", "user", "category", "section", "course", "auth"] as const;
 
 function formatTime(iso: string) {
   try {
@@ -84,6 +95,7 @@ function FilterBar({
       <label className="w-full flex-1">
         <span className="label-token">Action</span>
         <select
+          aria-label="Action"
           value={action ?? ""}
           onChange={(e) => onActionChange(e.target.value)}
           className="input-token"
@@ -99,6 +111,7 @@ function FilterBar({
       <label className="w-full flex-1">
         <span className="label-token">Entity type</span>
         <select
+          aria-label="Entity type"
           value={entityType ?? ""}
           onChange={(e) => onEntityChange(e.target.value)}
           className="input-token"
@@ -219,7 +232,8 @@ export default function AuditLogTable({
       </p>
 
       {/* Table (horizontal scroll on small screens) */}
-      <div className="overflow-x-auto" style={{ marginTop: "var(--space-4)" }}>
+      <p className="tokens-small mt-4 md:hidden" style={{color:"var(--color-muted)"}}>Scroll horizontally to view all audit details.</p>
+      <div tabIndex={0} role="region" aria-label="Audit log table" className="overflow-x-auto" style={{ marginTop: "var(--space-4)" }}>
         <table className="table-token min-w-[760px]">
           <thead>
             <tr>
@@ -252,7 +266,7 @@ export default function AuditLogTable({
                         borderRadius: "var(--radius-pill)",
                         padding: "2px var(--space-3)",
                         fontWeight: 700,
-                        fontSize: "0.6875rem",
+                        fontSize: "var(--text-small)",
                         backgroundColor: "var(--color-primary-soft)",
                         color: "var(--color-primary-ink)",
                         whiteSpace: "nowrap",

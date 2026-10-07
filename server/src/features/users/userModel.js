@@ -1,234 +1,56 @@
 import { query } from '../../shared/config/db.js';
 
-const SAFE_COLUMNS = `
-  id, email, password_hash, full_name, role, section_id, course_id,
-  is_active, last_login_at, created_at, updated_at
-`;
+const PUBLIC_COLUMNS = 'id, email, full_name, role, section_id, course_id, department_id, student_level, section_course, is_active, last_login_at, created_at, updated_at';
+const editable = ['full_name', 'role', 'section_id', 'course_id', 'department_id'];
+export const findById = async id => (await query(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE id=$1`, [id])).rows[0] ?? null;
+export const findByEmail = async email => (await query(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE email=$1`, [email])).rows[0] ?? null;
+export const findByEmailWithHash = async email => (await query(`SELECT ${PUBLIC_COLUMNS}, password_hash, token_version FROM users WHERE email=$1`, [email])).rows[0] ?? null;
+export const findByIdWithHash = async id => (await query('SELECT id,password_hash,token_version FROM users WHERE id=$1', [id])).rows[0] ?? null;
+export const findByIdWithJoins = async id => (await query(
+  `SELECT u.id,u.email,u.full_name,u.role,u.section_id,u.course_id,u.department_id,u.is_active,u.last_login_at,u.created_at,
+    s.name AS section_name,c.name AS course_name,d.name AS department_name
+    FROM users u LEFT JOIN sections s ON s.id=u.section_id LEFT JOIN courses c ON c.id=u.course_id
+    LEFT JOIN departments d ON d.id=u.department_id WHERE u.id=$1`, [id]
+)).rows[0] ?? null;
 
-const PUBLIC_COLUMNS = `
-  id, email, full_name, role, section_id, course_id,
-  is_active, last_login_at, created_at, updated_at
-`;
-
-const UPDATABLE_FIELDS = ['full_name', 'role', 'section_id', 'course_id'];
-
-export const listDistinctSectionCourse = async (level) => {
-  if (level !== 'section' && level !== 'course') {
-    return [];
-  }
-
-  const sectionQuery = `
-    SELECT value FROM (
-      SELECT DISTINCT LOWER(TRIM(name)) AS value
-        FROM sections
-       WHERE name IS NOT NULL AND TRIM(name) <> ''
-      UNION
-      SELECT DISTINCT LOWER(TRIM(s.name)) AS value
-        FROM users u
-        JOIN sections s ON s.id = u.section_id
-       WHERE u.section_id IS NOT NULL
-         AND s.name IS NOT NULL AND TRIM(s.name) <> ''
-      UNION
-      SELECT DISTINCT LOWER(TRIM(section_course)) AS value
-        FROM users
-       WHERE student_level = 'section'
-         AND section_course IS NOT NULL AND TRIM(section_course) <> ''
-    ) AS combined
-    ORDER BY value ASC`;
-
-  const courseQuery = `
-    SELECT value FROM (
-      SELECT DISTINCT LOWER(TRIM(name)) AS value
-        FROM courses
-       WHERE name IS NOT NULL AND TRIM(name) <> ''
-      UNION
-      SELECT DISTINCT LOWER(TRIM(c.name)) AS value
-        FROM users u
-        JOIN courses c ON c.id = u.course_id
-       WHERE u.course_id IS NOT NULL
-         AND c.name IS NOT NULL AND TRIM(c.name) <> ''
-      UNION
-      SELECT DISTINCT LOWER(TRIM(section_course)) AS value
-        FROM users
-       WHERE student_level = 'course'
-         AND section_course IS NOT NULL AND TRIM(section_course) <> ''
-    ) AS combined
-    ORDER BY value ASC`;
-
-  const { rows } = await query(level === 'section' ? sectionQuery : courseQuery);
-  return rows.map((r) => r.value);
+const filter = ({role,search,department_id}={}) => {
+  const conditions=[], params=[];
+  if(role){params.push(role);conditions.push(`u.role=$${params.length}`);}
+  if(department_id){params.push(department_id);conditions.push(`u.department_id=$${params.length}`);}
+  if(search){params.push('%'+search+'%');conditions.push(`(u.email ILIKE $${params.length} OR u.full_name ILIKE $${params.length})`);}
+  return {where:conditions.length?'WHERE '+conditions.join(' AND '):'',params};
 };
-
-export const findById = async (id) => {
-  const { rows } = await query(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE id = $1`, [id]);
-  return rows[0] ?? null;
+export const listUsers = async (options={}) => {
+  const {where,params}=filter(options); params.push(options.limit??50, options.offset??0);
+  return (await query(`SELECT u.id,u.email,u.full_name,u.role,u.section_id,u.course_id,u.department_id,u.is_active,u.last_login_at,u.created_at,u.updated_at,
+    s.name AS section_name,c.name AS course_name,d.name AS department_name
+    FROM users u LEFT JOIN sections s ON s.id=u.section_id LEFT JOIN courses c ON c.id=u.course_id LEFT JOIN departments d ON d.id=u.department_id
+    ${where} ORDER BY u.created_at DESC LIMIT $${params.length-1} OFFSET $${params.length}`,params)).rows;
 };
-
-export const findByIdWithJoins = async (id) => {
-  const { rows } = await query(
-    `SELECT u.id, u.email, u.full_name, u.role, u.section_id, u.course_id,
-            u.is_active, u.last_login_at, u.created_at,
-            s.name AS section_name,
-            c.name AS course_name
-       FROM users u
-       LEFT JOIN sections s ON s.id = u.section_id
-       LEFT JOIN courses c ON c.id = u.course_id
-      WHERE u.id = $1`,
-    [id]
-  );
-  return rows[0] ?? null;
+export const countUsers = async options => {
+  const {where,params}=filter(options);
+  return (await query(`SELECT COUNT(*)::int AS total FROM users u ${where}`,params)).rows[0].total;
 };
-
-export const findByEmail = async (email) => {
-  const { rows } = await query(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE email = $1`, [email]);
-  return rows[0] ?? null;
-};
-
-export const findByEmailWithHash = async (email) => {
-  const { rows } = await query(`SELECT ${SAFE_COLUMNS} FROM users WHERE email = $1`, [email]);
-  return rows[0] ?? null;
-};
-
-const buildFilter = ({ role, search }) => {
-  const conditions = [];
-  const params = [];
-
-  if (role) {
-    params.push(role);
-    conditions.push(`u.role = $${params.length}`);
-  }
-
-  if (search) {
-    params.push(`%${search}%`);
-    conditions.push(
-      `(u.email ILIKE $${params.length} OR u.full_name ILIKE $${params.length})`
-    );
-  }
-
-  return { where: conditions.length ? `WHERE ${conditions.join(' AND ')}` : '', params };
-};
-
-export const listUsers = async ({ role, search, limit = 50, offset = 0 } = {}) => {
-  const { where, params } = buildFilter({ role, search });
-
-  params.push(limit);
-  const limitParam = params.length;
-  params.push(offset);
-  const offsetParam = params.length;
-
-  const { rows } = await query(
-    `SELECT u.id, u.email, u.full_name, u.role, u.section_id, u.course_id,
-            u.is_active, u.last_login_at, u.created_at, u.updated_at,
-            s.name AS section_name,
-            c.name AS course_name
-       FROM users u
-       LEFT JOIN sections s ON s.id = u.section_id
-       LEFT JOIN courses c ON c.id = u.course_id
-       ${where}
-       ORDER BY u.created_at DESC
-       LIMIT $${limitParam} OFFSET $${offsetParam}`,
-    params
-  );
-  return rows;
-};
-
-export const countUsers = async ({ role, search } = {}) => {
-  const { where, params } = buildFilter({ role, search });
-
-  const { rows } = await query(
-    `SELECT COUNT(*)::int AS total
-       FROM users u
-       ${where}`,
-    params
-  );
-  return rows[0].total;
-};
-
-export const createUser = async ({
-  email,
-  password_hash,
-  full_name,
-  role,
-  section_id = null,
-  course_id = null,
-  student_level = null,
-  section_course = null,
-}) => {
-  const { rows } = await query(
-    `INSERT INTO users (email, password_hash, full_name, role, section_id, course_id, student_level, section_course)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-     RETURNING id, email, full_name, role, section_id, course_id, student_level, section_course,
-               is_active, last_login_at, created_at, updated_at`,
-    [email, password_hash, full_name, role, section_id, course_id, student_level, section_course]
-  );
-  return rows[0];
-};
-
-export const updateUser = async (id, fields = {}) => {
-  const sets = [];
-  const params = [];
-
-  for (const field of UPDATABLE_FIELDS) {
-    if (fields[field] !== undefined) {
-      params.push(fields[field]);
-      sets.push(`${field} = $${params.length}`);
-    }
-  }
-
-  if (sets.length === 0) return findById(id);
-
+export const createUser = async ({email,password_hash,full_name,role,section_id=null,course_id=null,department_id=null,student_level=null,section_course=null}) =>
+  (await query(`INSERT INTO users(email,password_hash,full_name,role,section_id,course_id,department_id,student_level,section_course)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING ${PUBLIC_COLUMNS}`,
+  [email,password_hash,full_name,role,section_id,course_id,department_id,student_level,section_course])).rows[0];
+export const updateUser = async (id, fields={}) => {
+  const params=[],sets=[];
+  for(const field of editable) if(fields[field]!==undefined){params.push(fields[field]);sets.push(`${field}=$${params.length}`);}
+  if(!sets.length)return findById(id);
   params.push(id);
-  const { rows } = await query(
-    `UPDATE users
-        SET ${sets.join(', ')}, updated_at = NOW()
-      WHERE id = $${params.length}
-      RETURNING id, email, full_name, role, section_id, course_id,
-                is_active, last_login_at, created_at, updated_at`,
-    params
-  );
-  return rows[0] ?? null;
+  return (await query(`UPDATE users SET ${sets.join(',')},updated_at=NOW() WHERE id=$${params.length} RETURNING ${PUBLIC_COLUMNS}`,params)).rows[0]??null;
 };
-
-export const deactivateUser = async (id) => {
-  const { rows } = await query(
-    `UPDATE users
-        SET is_active = FALSE, updated_at = NOW()
-      WHERE id = $1
-      RETURNING id, email, full_name, role, section_id, course_id,
-                is_active, last_login_at, created_at, updated_at`,
-    [id]
-  );
-  return rows[0] ?? null;
-};
-
-export const activateUser = async (id) => {
-  const { rows } = await query(
-    `UPDATE users
-        SET is_active = TRUE, updated_at = NOW()
-      WHERE id = $1
-      RETURNING id, email, full_name, role, section_id, course_id,
-                is_active, last_login_at, created_at, updated_at`,
-    [id]
-  );
-  return rows[0] ?? null;
-};
-
-export const updateLastLogin = async (id) => {
-  await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [id]);
-};
-
-export const searchStudents = async ({ q, limit = 20 } = {}) => {
-  const pattern = `%${q}%`;
-  const limitNum = Math.min(Math.max(Number(limit) || 20, 1), 50);
-  const { rows } = await query(
-    `SELECT id, full_name, email, section_id, course_id
-        FROM users
-       WHERE role = 'student'
-         AND is_active = TRUE
-         AND (full_name ILIKE $1 OR email ILIKE $1)
-       ORDER BY full_name ASC
-       LIMIT $2`,
-    [pattern, limitNum]
-  );
-  return rows;
-};
+const setActive = async (id,active) => (await query(`UPDATE users SET is_active=$2,token_version=CASE WHEN $2 THEN token_version ELSE token_version+1 END,updated_at=NOW() WHERE id=$1 RETURNING ${PUBLIC_COLUMNS}`,[id,active])).rows[0]??null;
+export const activateUser = id => setActive(id,true);
+export const deactivateUser = id => setActive(id,false);
+export const updateLastLogin = id => query('UPDATE users SET last_login_at=NOW() WHERE id=$1',[id]);
+export const changePassword = async (id, hash, version) => (await query(
+  'UPDATE users SET password_hash=$2,token_version=token_version+1,updated_at=NOW() WHERE id=$1 AND token_version=$3 RETURNING id',
+  [id,hash,version]
+)).rows[0]??null;
+export const searchStudents = async ({q,limit=20}) => (await query(
+  "SELECT id,full_name,email,section_id,course_id,department_id FROM users WHERE role='student' AND is_active=TRUE AND (full_name ILIKE $1 OR email ILIKE $1) ORDER BY full_name LIMIT $2",
+  ['%'+q+'%',Math.min(Math.max(Number(limit)||20,1),50)]
+)).rows;

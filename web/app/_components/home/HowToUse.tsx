@@ -6,9 +6,9 @@ const steps = [
     title: "Students",
     expandedBullets: true,
     bullets: [
-      "See general and class-targeted announcements",
+      "View General, applicable Department and Class Announcements",
       "Browse and search the event gallery",
-      "Upload photos and videos for review",
+      "Upload event images for review",
       "Track your upload status and rejection reasons",
     ],
   },
@@ -17,8 +17,8 @@ const steps = [
     title: "Teachers",
     expandedBullets: true,
     bullets: [
-      "Everything students can do",
-      "Create general or class-targeted announcements",
+      "View General and applicable Department Announcements",
+      "Create Class Announcements for intended Students",
       "Attach images to announcements",
       "Target specific sections, courses, or students",
     ],

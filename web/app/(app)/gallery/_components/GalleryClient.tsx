@@ -49,7 +49,6 @@ export default function GalleryClient({
   const [isPending, startTransition] = useTransition();
   const [optimisticCategory, setOptimisticCategory] = useState<string | null>(null);
   const [optimisticYear, setOptimisticYear] = useState<string | null>(null);
-  const [optimisticMediaType, setOptimisticMediaType] = useState<string | null>(null);
   const searchParamsRef = useRef(searchParams);
   useEffect(() => {
     searchParamsRef.current = searchParams;
@@ -65,7 +64,6 @@ export default function GalleryClient({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing prop/timer sync; behavior preserved intentionally.
     setOptimisticCategory(null);
     setOptimisticYear(null);
-    setOptimisticMediaType(null);
   }, [initialCategory, initialYear, initialMediaType]);
 
   useEffect(() => {
@@ -93,7 +91,6 @@ export default function GalleryClient({
     if (current === value) return;
     if (key === "category_id") setOptimisticCategory(value || null);
     if (key === "year") setOptimisticYear(value || null);
-    if (key === "media_type") setOptimisticMediaType(value || null);
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());
       if (value) params.set(key, value);
@@ -108,7 +105,6 @@ export default function GalleryClient({
 
   const activeCategory = optimisticCategory ?? initialCategory;
   const activeYear = optimisticYear ?? initialYear;
-  const activeMediaType = optimisticMediaType ?? initialMediaType;
 
   return (
     <div>
@@ -195,37 +191,7 @@ export default function GalleryClient({
               </option>
             ))}
           </select>
-          <div
-            className="flex gap-6"
-            role="tablist"
-            aria-label="Filter by media type"
-            style={{ borderBottom: "1px solid var(--color-line)" }}
-          >
-            {[
-              { v: "", label: "All" },
-              { v: "image", label: "Image" },
-              { v: "video", label: "Video" },
-            ].map((opt) => {
-              const active = activeMediaType === opt.v;
-              return (
-                <button
-                  key={opt.v || "all"}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => updateParam("media_type", opt.v)}
-                  className="inline-flex min-h-[44px] items-center text-sm font-bold transition-colors duration-200 motion-reduce:transition-none"
-                  style={{
-                    color: active ? "var(--color-text)" : "var(--color-muted)",
-                    boxShadow: active ? "inset 0 -2px 0 var(--color-primary)" : "none",
-                    paddingInline: "2px",
-                  }}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
+
         </div>
       </div>
 

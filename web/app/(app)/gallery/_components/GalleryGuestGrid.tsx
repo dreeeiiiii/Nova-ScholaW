@@ -41,14 +41,12 @@ export default function GalleryGuestGrid({ media }: { media: Media[] }) {
         return (
           <figure key={String(m.id)} className="block" style={{ borderRadius: "var(--radius-small)", overflow: "hidden" }}>
             <span className="relative block aspect-[4/3] overflow-hidden" style={{ backgroundColor: "var(--color-background-deep)" }}>
-              {m.media_type === "video" ? (
-                <video src={src} preload="metadata" className="h-full w-full object-cover" />
-              ) : (
+
                 <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
-              )}
+
             </span>
             <figcaption style={{ paddingBlock: "var(--space-2)" }}>
-              <span className="block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>
+              <span className="block text-base font-bold" style={{ color: "var(--color-text)" }}>
                 {title}
               </span>
               <span className="tokens-small mt-0.5 block" style={{ color: "var(--color-muted)" }}>

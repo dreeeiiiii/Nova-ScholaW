@@ -10,6 +10,9 @@ type Announcement = {
   content: string;
   image_url?: string | null;
   created_at: string;
+  type?: string;
+  publish_at?: string | null;
+  expires_at?: string | null;
 };
 
 function trimContent(text: string, max = 250): string {
@@ -27,9 +30,12 @@ export default function TvSlideshow({
   initialAnnouncements: Announcement[];
   animate: boolean;
 }) {
-  const [announcements, setAnnouncements] = useState<Announcement[]>(initialAnnouncements);
+  const [rows, setAnnouncements] = useState<Announcement[]>(initialAnnouncements);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [time, setTime] = useState<Date | null>(null);
+  const announcements = rows.filter(a => a.type === "general" &&
+    (!time || ((!a.publish_at || Date.parse(a.publish_at) <= time.getTime()) &&
+    (!a.expires_at || Date.parse(a.expires_at) > time.getTime()))));
   const [prefersReduced, setPrefersReduced] = useState(false);
   const [visible, setVisible] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -53,16 +59,16 @@ export default function TvSlideshow({
     return () => clearInterval(t);
   }, []);
 
-  // Poll 60s
+  // Poll without caching; local clock removes expired content between refreshes.
   useEffect(() => {
     const id = setInterval(async () => {
       try {
-        const res = await fetch("/api/announcements/tv");
+        const res = await fetch("/api/announcements/tv", { cache: "no-store" });
         if (!res.ok) return;
         const data = await res.json();
         setAnnouncements(data.announcements ?? []);
       } catch {}
-    }, 60000);
+    }, 30000);
     return () => clearInterval(id);
   }, []);
 
@@ -129,11 +135,11 @@ export default function TvSlideshow({
   if (announcements.length === 0) {
     return (
       <div
-        className="relative flex min-h-screen w-full flex-col overflow-hidden"
+        className="tv-screen relative flex min-h-screen w-full flex-col"
         style={{ backgroundColor: "var(--color-dark)", color: "var(--color-surface)" }}
       >
         {/* Brand strip */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8">
+        <div className="tv-brand relative z-10 flex flex-wrap items-center justify-between gap-4 px-6 py-6 sm:px-12">
           <div className="flex items-center gap-3">
             <div
               className="flex h-10 w-10 items-center justify-center text-sm font-extrabold"
@@ -169,7 +175,7 @@ export default function TvSlideshow({
 
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col overflow-hidden"
+      className="tv-screen relative flex min-h-screen w-full flex-col"
       style={{ backgroundColor: "var(--color-dark)", color: "var(--color-surface)" }}
     >
       {/* Full-bleed image + flat legibility overlay */}
@@ -179,18 +185,18 @@ export default function TvSlideshow({
             src={imageSrc}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="tv-image absolute inset-0 h-full w-full object-cover"
           />
           <div
             aria-hidden="true"
             className="absolute inset-0"
-            style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 62%, transparent)" }}
+            style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 88%, transparent)" }}
           />
         </>
       )}
 
       {/* Brand strip */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8">
+      <div className="tv-brand relative z-10 flex flex-wrap items-center justify-between gap-4 px-6 py-6 sm:px-12">
         <div className="flex items-center gap-3">
           <div
             className="flex h-10 w-10 items-center justify-center text-sm font-extrabold"
@@ -213,11 +219,11 @@ export default function TvSlideshow({
       </div>
 
       {/* Slide */}
-      <div className="relative z-10 flex flex-1 items-end px-6 pb-10 sm:px-12 sm:pb-14">
+      <div className="tv-slide relative z-10 flex flex-1 items-center px-6 py-10 sm:px-12 sm:py-14">
         <div
           key={shouldAnimate ? currentIndex : `no-anim-${currentIndex}`}
           className={shouldAnimate ? "transition-all" : ""}
-          style={{ ...slideStyle, maxWidth: "1100px" }}
+          style={{ ...slideStyle, maxWidth: "1500px" }}
         >
           <p
             className="tokens-eyebrow"
@@ -236,7 +242,7 @@ export default function TvSlideshow({
               fontWeight: "var(--weight-display)",
               letterSpacing: "var(--tracking-display)",
               lineHeight: 1.02,
-              fontSize: "clamp(2.5rem, 6vw, 5rem)",
+              fontSize: "clamp(2.5rem, 5.5vw, 7rem)",
               marginTop: "var(--space-4)",
             }}
           >
@@ -246,7 +252,7 @@ export default function TvSlideshow({
             className="break-words"
             style={{
               color: "rgba(255, 255, 255, 0.82)",
-              fontSize: "clamp(1.125rem, 2.2vw, 1.5rem)",
+              fontSize: "clamp(1.25rem, 2.2vw, 2.75rem)",
               lineHeight: 1.6,
               marginTop: "var(--space-4)",
               maxWidth: "60ch",

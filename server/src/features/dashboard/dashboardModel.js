@@ -11,7 +11,7 @@ export const getAnnouncementsByType = async () => {
 };
 
 export const getGalleryByStatus = async () => {
-  const { rows } = await query(`SELECT status, COUNT(*)::int AS count FROM gallery_media GROUP BY status`);
+  const { rows } = await query(`SELECT status, COUNT(*)::int AS count FROM gallery_media WHERE media_type = 'image' GROUP BY status`);
   return rows;
 };
 

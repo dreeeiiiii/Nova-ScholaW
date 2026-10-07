@@ -35,12 +35,11 @@ export default function AnnouncementCard({
   const isGeneral = announcement.type === "general";
   const canModify =
     !!currentUser &&
-    (currentUser.role === "admin" || String(announcement.author_id) === String(currentUser.id));
+    ((currentUser.role === "admin" && announcement.type !== "class") || (currentUser.role === "teacher" && announcement.type === "class" && String(announcement.author_id) === String(currentUser.id)));
 
   return (
     <li
-      className="flex min-h-[44px] flex-col gap-2"
-      style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+      className="announcement-card flex min-h-[44px] flex-col gap-3"
     >
       <span className="flex flex-wrap items-center gap-3">
         <span
@@ -49,15 +48,15 @@ export default function AnnouncementCard({
             borderRadius: "var(--radius-pill)",
             padding: "2px var(--space-3)",
             fontWeight: 700,
-            fontSize: "0.6875rem",
+            fontSize: "var(--text-small)",
             letterSpacing: "0.08em",
             backgroundColor: isGeneral ? "var(--color-info-bg)" : "var(--color-primary-soft)",
             color: isGeneral ? "var(--color-info)" : "var(--color-primary-ink)",
           }}
         >
-          {isGeneral ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
+          {isGeneral ? "GENERAL · PUBLIC" : announcement.type === "department" ? "DEPARTMENT · PRIVATE" : "CLASS · PRIVATE"}
         </span>
-        {isGeneral && (announcement.show_on_tv ?? true) && (
+        {isGeneral && (
           <span
             title="Shows on TV display"
             className="inline-flex items-center gap-1"
@@ -95,9 +94,9 @@ export default function AnnouncementCard({
           style={{ borderRadius: "var(--radius-small)" }}
         />
       )}
-      <span className="font-heading text-base font-bold" style={{ color: "var(--color-text)" }}>
+      <h2 className="announcement-title font-heading font-bold" style={{ color: "var(--color-text)" }}>
         {announcement.title}
-      </span>
+      </h2>
       <span className="tokens-small line-clamp-3" style={{ color: "var(--color-muted)" }}>
         {announcement.content}
       </span>
@@ -125,7 +124,7 @@ export default function AnnouncementCard({
               className="inline-flex min-h-[44px] items-center text-sm font-semibold"
               style={{ color: "var(--color-danger)" }}
             >
-              Delete
+              Archive
             </button>
           </>
         )}

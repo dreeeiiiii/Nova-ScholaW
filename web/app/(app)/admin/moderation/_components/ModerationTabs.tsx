@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Dialog } from "../../../../_components/ui/Dialog";
 import { Images as ImagesIcon } from "lucide-react";
 import ModerationQueue from "./ModerationQueue";
 import { EmptyState } from "../../../_components/EmptyState";
@@ -36,7 +37,7 @@ export default function ModerationTabs({
   initialPending: Media[];
   pendingError: string | null;
 }) {
-  const [activeTab, setActiveTab] = useState<"pending" | "recent">("pending");
+  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected" | "recent">("pending");
   const [recentMedia, setRecentMedia] = useState<Media[]>([]);
   const [recentLoading, setRecentLoading] = useState(false);
   const [recentError, setRecentError] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export default function ModerationTabs({
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (activeTab !== "recent") return;
+    if (activeTab === "pending") return;
     let cancelled = false;
     async function loadRecent() {
       setRecentLoading(true);
@@ -75,13 +76,13 @@ export default function ModerationTabs({
       const res = await fetch(`/api/gallery/${m.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to delete");
+        throw new Error(data.message || "Failed to withdraw");
       }
       setRecentMedia((prev) => prev.filter((x) => String(x.id) !== String(m.id)));
       setConfirmDelete(null);
     } catch (e) {
       // For now, just close and maybe show error - we'll use recentError
-      setRecentError(e instanceof Error ? e.message : "Failed to delete");
+      setRecentError(e instanceof Error ? e.message : "Failed to withdraw");
     } finally {
       setDeleting(null);
     }
@@ -90,14 +91,15 @@ export default function ModerationTabs({
   return (
     <div>
       <div
-        className="flex gap-6"
-        role="tablist"
+        className="flex flex-wrap gap-x-6 gap-y-2"
         aria-label="Moderation views"
         style={{ borderBottom: "1px solid var(--color-line)" }}
       >
         {(
           [
             { key: "pending", label: "Pending" },
+            { key: "approved", label: "Approved" },
+            { key: "rejected", label: "Rejected" },
             { key: "recent", label: "Recently uploaded" },
           ] as const
         ).map((tab) => {
@@ -106,8 +108,7 @@ export default function ModerationTabs({
             <button
               key={tab.key}
               type="button"
-              role="tab"
-              aria-selected={isActive}
+              aria-pressed={isActive}
               onClick={() => setActiveTab(tab.key)}
               className="inline-flex min-h-[44px] items-center text-sm font-bold transition-colors duration-200 motion-reduce:transition-none"
               style={{
@@ -125,7 +126,7 @@ export default function ModerationTabs({
       <div style={{ marginTop: "var(--space-6)" }}>
         {activeTab === "pending" && <ModerationQueue initialMedia={initialPending} error={pendingError} />}
 
-        {activeTab === "recent" && (
+        {activeTab !== "pending" && (
           <div>
             {recentLoading && <p className="tokens-small" style={{ color: "var(--color-muted)" }}>Loading recent uploads…</p>}
             {recentError && (
@@ -142,15 +143,15 @@ export default function ModerationTabs({
                 {recentError}
               </div>
             )}
-            {!recentLoading && !recentError && recentMedia.length === 0 && (
+            {!recentLoading && !recentError && recentMedia.filter(m => activeTab === "recent" || m.status === activeTab).length === 0 && (
               <EmptyState
                 icon={<ImagesIcon size={20} strokeWidth={1.5} aria-hidden="true" />}
-                message="No recent uploads."
+                message={activeTab === "recent" ? "No recent uploads." : `No ${activeTab} images in recent uploads.`}
               />
             )}
             {!recentLoading && recentMedia.length > 0 && (
               <ul style={{ borderTop: "1px solid var(--color-line)" }}>
-                {recentMedia.map((m) => {
+                {recentMedia.filter(m => activeTab === "recent" || m.status === activeTab).map((m) => {
                   const src = resolveMediaUrl(m.file_url);
                   const title = m.caption?.trim() || m.original_filename || "Untitled upload";
                   const uploader = m.uploader_email || m.uploader_name || "Unknown";
@@ -161,11 +162,9 @@ export default function ModerationTabs({
                       style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
                     >
                       <span className="block h-20 w-20 shrink-0 overflow-hidden" style={{ backgroundColor: "var(--color-background-deep)" }}>
-                        {m.media_type === "video" ? (
-                          <video src={src} preload="metadata" className="h-full w-full object-cover" />
-                        ) : (
+
                           <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
-                        )}
+
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>{title}</span>
@@ -183,7 +182,7 @@ export default function ModerationTabs({
                             className="inline-flex min-h-[44px] items-center text-sm font-semibold disabled:opacity-60"
                             style={{ color: "var(--color-danger)" }}
                           >
-                            Delete
+                            Withdraw
                           </button>
                         </span>
                       </span>
@@ -193,21 +192,13 @@ export default function ModerationTabs({
               </ul>
             )}
             {confirmDelete && (
-              <div
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) setConfirmDelete(null);
-                }}
-              >
+              <Dialog label="Withdraw image" onClose={() => setConfirmDelete(null)}>
                 <div
-                  role="dialog"
-                  aria-modal="true"
                   className="w-full max-w-md p-6"
                   style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}
                 >
-                  <h2 className="font-heading font-bold" style={{ color: "var(--color-text)", borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>Delete this upload?</h2>
-                  <p className="tokens-small mt-4" style={{ color: "var(--color-muted)" }}>This will permanently delete the media. This cannot be undone.</p>
+                  <h2 className="font-heading font-bold" style={{ color: "var(--color-text)", borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>Withdraw this image?</h2>
+                  <p className="tokens-small mt-4" style={{ color: "var(--color-muted)" }}>This removes the image from public display. Its historical record and stored image are preserved.</p>
                   <div className="mt-6 flex justify-end gap-3" style={{ borderTop: "1px solid var(--color-line)", paddingTop: "var(--space-4)" }}>
                     <button
                       type="button"
@@ -223,11 +214,11 @@ export default function ModerationTabs({
                       className="tokens-btn !min-h-[44px] !px-5 !py-2 text-sm font-bold disabled:opacity-60"
                       style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
                     >
-                      {deleting === String(confirmDelete.id) ? "Deleting…" : "Delete"}
+                      {deleting === String(confirmDelete.id) ? "Deleting…" : "Withdraw"}
                     </button>
                   </div>
                 </div>
-              </div>
+              </Dialog>
             )}
           </div>
         )}

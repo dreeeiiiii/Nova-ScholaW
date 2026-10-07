@@ -45,7 +45,7 @@ function RoleBadge({ role }: { role: User["role"] }) {
         borderRadius: "var(--radius-pill)",
         padding: "2px var(--space-3)",
         fontWeight: 700,
-        fontSize: "0.6875rem",
+        fontSize: "var(--text-small)",
         letterSpacing: "0.08em",
         textTransform: "uppercase",
         backgroundColor: palette.bg,
@@ -65,7 +65,7 @@ function StatusBadge({ active }: { active: boolean }) {
         borderRadius: "var(--radius-pill)",
         padding: "2px var(--space-3)",
         fontWeight: 700,
-        fontSize: "0.6875rem",
+        fontSize: "var(--text-small)",
         letterSpacing: "0.08em",
         textTransform: "uppercase",
         backgroundColor: active ? "var(--color-success-bg)" : "var(--color-warning-bg)",
@@ -78,6 +78,7 @@ function StatusBadge({ active }: { active: boolean }) {
 }
 
 export default function UserManagement({
+  departmentId,
   initialUsers,
   initialTotal,
   sections,
@@ -85,6 +86,7 @@ export default function UserManagement({
   role,
   search,
 }: {
+  departmentId?: string;
   initialUsers: User[];
   initialTotal: number;
   sections: Section[];
@@ -124,6 +126,7 @@ export default function UserManagement({
     if (searchInput === current) return;
     const t = setTimeout(() => {
       const params = new URLSearchParams();
+      if(departmentId)params.set("department_id",departmentId);
       if (role) params.set("role", role);
       const trimmed = searchInput.trim();
       if (trimmed) params.set("search", trimmed);
@@ -136,6 +139,7 @@ export default function UserManagement({
 
   function handleRoleChange(value: string) {
     const params = new URLSearchParams();
+      if(departmentId)params.set("department_id",departmentId);
     if (value) params.set("role", value);
     // Use current searchInput if user has typed, otherwise fallback to prop
     const effectiveSearch = searchInput.trim() ? searchInput.trim() : search ?? "";
@@ -152,6 +156,7 @@ export default function UserManagement({
     setLoadError(null);
     try {
       const params = new URLSearchParams();
+      if(departmentId)params.set("department_id",departmentId);
       params.set("limit", "20");
       params.set("offset", String(users.length));
       if (role) params.set("role", role);
@@ -265,7 +270,8 @@ export default function UserManagement({
           />
         </div>
       ) : (
-        <div className="overflow-x-auto" style={{ marginTop: "var(--space-4)" }}>
+        <div><p className="tokens-small mt-4 md:hidden" style={{color:"var(--color-muted)"}}>Scroll horizontally to view account details and actions.</p>
+        <div tabIndex={0} role="region" aria-label="User management table" className="overflow-x-auto" style={{ marginTop: "var(--space-4)" }}>
           <table className="table-token min-w-[720px]">
             <thead>
               <tr>
@@ -322,6 +328,7 @@ export default function UserManagement({
             </tbody>
           </table>
         </div>
+      </div>
       )}
 
       {loadError && <p className="tokens-small mt-4 font-medium" style={{ color: "var(--color-danger)" }}>{loadError}</p>}

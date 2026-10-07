@@ -11,15 +11,15 @@ type User = {
   section_id: number | null;
   course_id: number | null;
   is_active: boolean;
+  department_id?: number | string | null;
   section_name?: string | null;
   course_name?: string | null;
 };
 
-type Section = { id: number | string; name: string };
-type Course = { id: number | string; name: string };
+type Section = { id: number | string; name: string; department_id?: number | string | null };
+type Course = { id: number | string; name: string; department_id?: number | string | null };
 
-// Institutional email domain required per role (mirrors the backend
-// NST_*_EMAIL_DOMAIN configuration).
+// Official institutional email domains required by the revised paper.
 const ROLE_EMAIL_DOMAINS: Record<User["role"], string> = {
   admin: "nst.edu.ph",
   teacher: "tr.nst.edu.ph",
@@ -47,8 +47,10 @@ export default function UserFormModal({
   const [role, setRole] = useState<User["role"]>(initial?.role ?? "student");
   const [sectionId, setSectionId] = useState<string>(initial?.section_id != null ? String(initial.section_id) : "");
   const [courseId, setCourseId] = useState<string>(initial?.course_id != null ? String(initial.course_id) : "");
-  const [isActive, setIsActive] = useState(initial?.is_active ?? true);
+  const [departmentId, setDepartmentId] = useState(String(initial?.department_id ?? ""));
+  const [departments, setDepartments] = useState<{id: string; name: string}[]>([]);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => { fetch("/api/auth/departments").then(r => r.json()).then(d => setDepartments(d.departments ?? [])).catch(() => setError("Cannot load departments.")); }, []);
   const [submitting, setSubmitting] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -106,9 +108,6 @@ export default function UserFormModal({
         setError("Password must be at least 8 characters");
         return;
       }
-    } else if (password && password.length > 0 && password.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
     }
 
     setSubmitting(true);
@@ -117,8 +116,8 @@ export default function UserFormModal({
         full_name: fullName.trim(),
         email: email.trim(),
         role,
-        is_active: isActive,
       };
+      if (role !== "admin" && departmentId) payload.department_id = Number(departmentId);
       if (role === "student") {
         payload.section_id = sectionId ? Number(sectionId) : null;
         payload.course_id = courseId ? Number(courseId) : null;
@@ -127,8 +126,6 @@ export default function UserFormModal({
         payload.course_id = null;
       }
       if (mode === "create") {
-        payload.password = password;
-      } else if (password) {
         payload.password = password;
       }
 
@@ -227,31 +224,23 @@ export default function UserFormModal({
               />
               <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>Min 8 characters</span>
             </label>
-          ) : (
-            <label className="block text-sm">
-              <span className="label-token">Password (leave blank to keep)</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-token"
-                placeholder="New password"
-              />
-            </label>
-          )}
+          ) : null}
 
           <label className="block text-sm">
             <span className="label-token">Role *</span>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value as User["role"])}
+              disabled={initial?.role === "admin"}
+              onChange={(e) => { setRole(e.target.value as User["role"]); setSectionId(""); setCourseId(""); }}
               className="input-token"
             >
-              <option value="admin">admin</option>
+              {initial?.role === "admin" && <option value="admin">Administrator</option>}
               <option value="teacher">teacher</option>
               <option value="student">student</option>
             </select>
           </label>
+
+          {role !== "admin" && <label className="block text-sm"><span className="label-token">Department</span><select aria-label="Department" className="input-token" value={departmentId} required={mode === "create"} onChange={e => { setDepartmentId(e.target.value); setSectionId(""); setCourseId(""); }}><option value="">Unassigned — requires Administrator review</option>{departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
 
           {role === "student" && (
             <>
@@ -263,7 +252,7 @@ export default function UserFormModal({
                   className="input-token"
                 >
                   <option value="">No section</option>
-                  {sections.map((s) => (
+                  {sections.filter(s => String(s.department_id) === departmentId || String(s.id) === sectionId).map((s) => (
                     <option key={String(s.id)} value={String(s.id)}>
                       {s.name}
                     </option>
@@ -279,7 +268,7 @@ export default function UserFormModal({
                   className="input-token"
                 >
                   <option value="">No course</option>
-                  {courses.map((c) => (
+                  {courses.filter(c => String(c.department_id) === departmentId || String(c.id) === courseId).map((c) => (
                     <option key={String(c.id)} value={String(c.id)}>
                       {c.name}
                     </option>
@@ -289,10 +278,7 @@ export default function UserFormModal({
             </>
           )}
 
-          <label className="flex min-h-[44px] items-center gap-3 text-sm">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="h-4 w-4" style={{ accentColor: "var(--color-primary)" }} />
-            <span className="label-token" style={{ marginBottom: 0 }}>Active</span>
-          </label>
+
 
           {error && <p className="tokens-small font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-2) var(--space-3)" }}>{error}</p>}
 

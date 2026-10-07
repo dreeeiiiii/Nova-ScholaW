@@ -1,3 +1,6 @@
+-- Legacy baseline snapshot. Do not apply this file to an existing database.
+-- Fresh installs and upgrades use server/src/shared/db/migrate.js plus ordered
+-- migrations in server/src/shared/db/migrations/. See docs/BATCH1.md.
 -- ============================================================================
 -- Nova Schola Hub — PostgreSQL Database Schema
 -- Nova Schola Tanauan — Digital Bulletin Board & Event Gallery System
@@ -42,18 +45,13 @@ CREATE TABLE courses (
 );
 
 -- ============================================================================
--- 3. users — admin / teacher / student accounts (created by Admin only)
+-- 3. users — centralized Administrator plus Student/Teacher accounts
 -- ============================================================================
 CREATE TABLE users (
     id              BIGSERIAL   PRIMARY KEY,
     email           VARCHAR(255) NOT NULL UNIQUE,
-    -- Nightly dev note: the exact school address is unknown at planning time.
-    -- Enforce the real NST domain in the app layer (configurable) AND uncomment
-    -- the email domain pattern here once the domain is finalized, e.g.:
-    --   email VARCHAR(255) NOT NULL UNIQUE
-    --     CONSTRAINT users_email_format CHECK (
-    --       email ~ '^[A-Za-z0-9._%+-]+@<nst-domain>$'
-    --     ),
+    -- Role-specific NST domains are enforced by authentication/account APIs.
+    -- The baseline's broad format check preserves historical addresses.
     password_hash   VARCHAR(255) NOT NULL,                    -- bcrypt
     full_name       VARCHAR(150) NOT NULL,
     role            VARCHAR(20)  NOT NULL CHECK (role IN ('admin', 'teacher', 'student')),
@@ -76,7 +74,7 @@ CREATE INDEX idx_users_section_id  ON users (section_id);
 CREATE INDEX idx_users_course_id   ON users (course_id);
 
 -- ============================================================================
--- 4. announcements — general (public) and class (targeted) announcements
+-- 4. legacy announcements — General and Class; migration 004 adds Department
 -- ============================================================================
 CREATE TABLE announcements (
     id                    BIGSERIAL PRIMARY KEY,
@@ -149,18 +147,18 @@ CREATE TABLE categories (
 );
 
 -- ============================================================================
--- 7. gallery_media — photos & videos with admin approval workflow
+-- 7. gallery_media — retained historical format metadata; current workflow is image-only
 -- ============================================================================
 CREATE TABLE gallery_media (
     id                    BIGSERIAL PRIMARY KEY,
     uploader_id           BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     category_id           BIGINT      REFERENCES categories(id) ON DELETE SET NULL,
-    media_type            VARCHAR(10) NOT NULL CHECK (media_type IN ('image', 'video')),
+    media_type            VARCHAR(10) NOT NULL CHECK (media_type IN ('image', 'video')), -- historical compatibility; APIs reject new non-image uploads
     file_url              VARCHAR(500) NOT NULL,                     -- legacy URL; refreshed to a presigned B2 URL at read time when b2_key is set
     b2_key                TEXT,                                        -- Backblaze B2 object key for new uploads (e.g. 'gallery/<ts>-<rand>-<file>')
     original_filename     VARCHAR(255) NOT NULL,
     caption            TEXT,
-    duration_seconds   INTEGER     CHECK (duration_seconds > 0),   -- videos only
+    duration_seconds   INTEGER     CHECK (duration_seconds > 0),   -- retained legacy metadata; unused by the current image workflow
     status             VARCHAR(10) NOT NULL DEFAULT 'pending'
                        CHECK (status IN ('pending', 'approved', 'rejected')),
     reviewed_by        BIGINT      REFERENCES users(id) ON DELETE SET NULL,  -- admin

@@ -22,8 +22,8 @@ export default async function UploadPage() {
     <div className="mx-auto max-w-3xl">
       <PageHeader
         eyebrow="Contribute responsibly"
-        title="Upload event media"
-        description="Share a school-event memory for admin review and category approval."
+        title="Upload Event Image"
+        description={user.role === "admin" ? "Upload a JPEG, PNG, or WebP event image directly to the public gallery." : "Upload a JPEG, PNG, or WebP event image for Administrator review."}
         actions={
           <Link href="/gallery" className="tokens-btn tokens-btn-secondary !min-h-[44px] !px-5 !py-2 text-sm">
             &larr; Back to gallery
@@ -31,7 +31,7 @@ export default async function UploadPage() {
         }
       />
 
-      <UploadForm categories={categories} />
+      <UploadForm categories={categories} administrator={user.role === "admin"} />
     </div>
   );
 }

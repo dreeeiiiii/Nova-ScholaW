@@ -18,13 +18,13 @@ function TypeBadge({ type }: { type: string }) {
         borderRadius: "var(--radius-pill)",
         padding: "2px var(--space-3)",
         fontWeight: 700,
-        fontSize: "0.6875rem",
+        fontSize: "var(--text-small)",
         letterSpacing: "0.08em",
         backgroundColor: isGeneral ? "var(--color-info-bg)" : "var(--color-primary-soft)",
         color: isGeneral ? "var(--color-info)" : "var(--color-primary-ink)",
       }}
     >
-      {isGeneral ? "GENERAL · PUBLIC" : "CLASS · PRIVATE"}
+      {isGeneral ? "GENERAL · PUBLIC" : type === "department" ? "DEPARTMENT · PRIVATE" : "CLASS · PRIVATE"}
     </span>
   );
 }
@@ -114,8 +114,8 @@ export default async function AnnouncementsPage({
 
   const sp = await searchParams;
   const rawType = sp?.type;
-  const type: "all" | "general" | "class" =
-    rawType === "general" || rawType === "class" ? rawType : "all";
+  const type: "all" | "general" | "department" | "class" =
+    rawType === "general" || rawType === "department" || rawType === "class" ? rawType : "all";
   const rawQ = typeof sp?.q === "string" ? sp.q.trim() : "";
   const q = rawQ || undefined;
 
@@ -149,7 +149,7 @@ export default async function AnnouncementsPage({
       <PageHeader
         eyebrow="Official updates"
         title="Announcements"
-        description="School-wide and class-targeted updates, newest first."
+        description="General, Department, and Class Announcements, newest first."
         actions={
           canPublish ? (
             <Link href="/announcements/create" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">

@@ -1,413 +1,140 @@
-import * as announcementRepo from './announcementModel.js';
+import { deliverPublication } from './announcementEmail.js';
+import * as repo from './announcementModel.js';
 import { audit } from '../audit/auditService.js';
-import { parseId } from '../../shared/utils/parseId.js';
-import { readNonEmpty, readOptionalString, readOptionalDate } from '../../shared/utils/normalize.js';
+import { nullableId } from '../../shared/utils/academicInput.js';
+import { findDepartmentById } from '../academic/departmentModel.js';
 import * as b2 from '../../shared/config/b2.js';
 
-const ANNOUNCEMENT_B2_PREFIX = 'announcements/';
-
-// B2 keys are shaped 'announcements/<timestamp>-<random>-<safe-filename>'.
-// Anything else in b2_key is a legacy Cloudinary public ID — serve the
-// stored image_url as-is and skip B2 deletes for those rows.
-const isAnnouncementB2Key = (key) => typeof key === 'string' && key.startsWith(ANNOUNCEMENT_B2_PREFIX);
-
-const attachAnnouncementImageUrl = async (row) => {
-  if (!row || !isAnnouncementB2Key(row.b2_key)) return row;
-  try {
-    row.image_url = await b2.getPresignedUrl(row.b2_key);
-  } catch (e) {
-    console.error('Failed to presign B2 URL', e.message || e);
+const fail = message => { const e=new Error(message);e.status=400;throw e; };
+const idFrom = value => { const id=nullableId(value);if(!id)fail('Invalid announcement id.');return id; };
+const types=['general','department','class'],statuses=['draft','scheduled','published','archived'];
+const targetsFrom = (body,existing=[]) => {
+  const result={};
+  for(const [key,type,column] of [['section_ids','section','section_id'],['course_ids','course','course_id'],['student_ids','student','student_id']]){
+    const input=body[key]===undefined?existing.filter(t=>t.target_type===type).map(t=>t[column]):body[key];
+    if(!Array.isArray(input))fail(key+' must be an array.');
+    result[key]=[...new Set(input.map(value=>{const id=nullableId(value);if(!id)fail('Invalid target id.');return id;}))];
   }
+  if(!Object.values(result).some(ids=>ids.length))fail('Select at least one intended Student, class, or section.');
+  return result;
+};
+const date = value => {
+  if(value===null||value==='')return null;
+  if(typeof value!=='string'||!Number.isFinite(Date.parse(value)))fail('Invalid announcement date.');
+  return new Date(value).toISOString();
+};
+async function readFields(body,type,existing) {
+  if(body.type!==undefined && body.type!==type)fail('Announcement type cannot be changed.');
+  const fields={show_on_tv:type==='general'};
+  for(const key of ['title','content']){
+    const value=body[key]??existing?.[key];
+    if(typeof value!=='string'||!value.trim()||(key==='title'&&value.trim().length>255))fail('Valid title and content are required.');
+    fields[key]=value.trim();
+  }
+  for(const key of ['image_url','b2_key']){
+    if(Object.hasOwn(body,key)){
+      if(body[key]!==null && typeof body[key]!=='string')fail('Invalid image reference.');
+      fields[key]=body[key]||null;
+      if(key==='b2_key'&&fields[key]&&!fields[key].startsWith('announcements/')&&fields[key]!==existing?.b2_key)fail('Invalid announcement storage key.');
+    }
+  }
+  for(const key of ['publish_at','expires_at'])fields[key]=body[key]===undefined?existing?.[key]??null:date(body[key]);
+  const future=fields.publish_at && new Date(fields.publish_at)>new Date();
+  const status=body.status??(existing?.status==='draft'||existing?.status==='archived'?existing.status:future?'scheduled':'published');
+  if(!statuses.includes(status))fail('Invalid status.');
+  if(status==='scheduled'&&!fields.publish_at)fail('Scheduled announcements require a publication date.');
+  fields.status=status==='published'&&future?'scheduled':status;
+  if(fields.expires_at && (fields.publish_at || !existing || Object.hasOwn(body,'expires_at')) && new Date(fields.expires_at)<=new Date(fields.publish_at??Date.now()))fail('Expiry must be after publication.');
+  if(type==='department'){
+    fields.department_id=body.department_id===undefined?existing?.department_id:nullableId(body.department_id);
+    if(!fields.department_id||!await findDepartmentById(fields.department_id))fail('Select exactly one valid department.');
+  } else {
+    if(body.department_id!==undefined&&body.department_id!==null)fail('Only Department Announcements have a department.');
+    fields.department_id=null;
+  }
+  if(type!=='class'&&['student_ids','section_ids','course_ids'].some(key=>body[key]!==undefined))fail('General and Department Announcements do not accept manual targets.');
+  return fields;
+}
+const attach = async row => {
+  if(row?.b2_key?.startsWith('announcements/'))row.image_url=await b2.getPresignedUrl(row.b2_key);
   return row;
 };
-
-const attachAnnouncementImageUrls = (rows) => Promise.all((rows ?? []).map(attachAnnouncementImageUrl));
-
-// New clients send b2_key; accept the legacy cloudinary_public_id alias so
-// old rows/clients keep working during the migration window.
-const readB2Key = (body) => readOptionalString(body?.b2_key) ?? readOptionalString(body?.cloudinary_public_id);
-
-const parseArrayOfIds = (value, label) => {
-  if (!Array.isArray(value)) return null;
-  const ids = value
-    .map((v) => Number(v))
-    .filter((v) => Number.isInteger(v) && v > 0);
-  if (ids.length === 0) return [];
-  return ids;
+const create = type => async(req,res,next)=>{
+  try{
+    const fields=await readFields(req.body??{},type);
+    const targets=type==='class'?targetsFrom(req.body??{}):undefined;
+    if(targets){const error=await repo.validateTargets(targets);if(error)fail(error);}
+    const announcement=await repo.saveAnnouncement({fields:{...fields,type,author_id:req.user.id},targets});
+    await audit(req,'announcement.create','announcement',announcement.id,{type,status:announcement.status,department_id:announcement.department_id});
+    if(announcement.status==='published'){await audit(req,'announcement.publish','announcement',announcement.id,{type});await deliverPublication(announcement.id);}
+    res.status(201).json({announcement:await attach(announcement),targets:type==='class'?await repo.getTargets(announcement.id):[]});
+  }catch(e){next(e);}
 };
-
-const canUserSeeAnnouncement = (user, announcement, targets = []) => {
-  if (user.role === 'admin' || user.role === 'teacher') return true;
-  if (announcement.type === 'general') return true;
-  if (announcement.type === 'class') {
-    return targets.some(
-      (t) =>
-        (t.target_type === 'section' && t.section_id === user.section_id) ||
-        (t.target_type === 'course' && t.course_id === user.course_id) ||
-        (t.target_type === 'student' && t.student_id === user.id)
-    );
-  }
-  return false;
+export const createGeneralAnnouncement=create('general'),createDepartmentAnnouncement=create('department'),createClassAnnouncement=create('class');
+export const listAnnouncements=async(req,res,next)=>{
+  try{
+    if(req.query.type!==undefined&&!types.includes(req.query.type))fail('Invalid type.');
+    if(req.query.status!==undefined&&!statuses.includes(req.query.status))fail('Invalid status.');
+    const upcoming=req.query.upcoming==='true';
+    if(upcoming&&req.query.status!==undefined)fail('Upcoming cannot be combined with status.');
+    const options={user:req.user,type:req.query.type,status:req.query.status,upcoming,
+      q:typeof req.query.q==='string'?req.query.q.trim():undefined,
+      limit:Math.min(Math.max(parseInt(req.query.limit,10)||50,1),100),offset:Math.max(parseInt(req.query.offset,10)||0,0)};
+    const [rows,total]=await Promise.all([repo.listAnnouncements(options),repo.countAnnouncements(options)]);
+    res.json({announcements:await Promise.all(rows.map(attach)),total});
+  }catch(e){next(e);}
 };
-
-const canUserModifyAnnouncement = (user, announcement) => {
-  if (user.role === 'admin') return true;
-  if (user.role === 'teacher' && announcement.author_id === user.id) return true;
-  return false;
+export const getAnnouncement=async(req,res,next)=>{
+  try{
+    const id=idFrom(req.params.id),announcement=await repo.findVisibleById(id,req.user);
+    if(!announcement)return res.status(404).json({message:'Announcement not found.'});
+    // Students receive the content, never the other recipients' personal information.
+    const targets=req.user.role==='student'||announcement.type!=='class'?[]:await repo.getTargets(id);
+    res.json({announcement:await attach(announcement),targets});
+  }catch(e){next(e);}
 };
-
-export const createGeneralAnnouncement = async (req, res, next) => {
-  try {
-    const title = readNonEmpty(req.body?.title, 'title');
-    const content = readNonEmpty(req.body?.content, 'content');
-    const image_url = readOptionalString(req.body?.image_url);
-    const b2_key = readB2Key(req.body);
-    const publish_at = readOptionalDate(req.body?.publish_at);
-    const expires_at = readOptionalDate(req.body?.expires_at);
-    const rawShowOnTv = req.body?.show_on_tv;
-    const show_on_tv = rawShowOnTv === undefined ? true : Boolean(rawShowOnTv);
-
-    if (title === null || content === null) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Title and content are required.',
-      });
-    }
-
-    const now = new Date();
-    const status = publish_at && new Date(publish_at) > now ? 'scheduled' : 'published';
-
-    const announcement = await announcementRepo.createAnnouncement({
-      author_id: req.user.id,
-      type: 'general',
-      title,
-      content,
-      image_url,
-      b2_key,
-      show_on_tv,
-      status,
-      publish_at,
-      expires_at,
-    });
-
-    await audit(req, 'announcement.create', 'announcement', announcement.id, { type: 'general', title });
-
-    return res.status(201).json({ announcement });
-  } catch (err) {
-    return next(err);
-  }
+export const updateAnnouncement=async(req,res,next)=>{
+  try{
+    const id=idFrom(req.params.id),existing=await repo.findById(id);
+    if(!existing)return res.status(404).json({message:'Announcement not found.'});
+    if(!repo.canModify(req.user,existing))return res.status(403).json({message:'You cannot edit this announcement.'});
+    const fields=await readFields(req.body??{},existing.type,existing);
+    if(fields.status==='scheduled' && existing.type!=='class' && String(existing.author_id)!==String(req.user.id))fail('Historical General announcements require immediate Administrator review/publication; original authorship is preserved.');
+    const hasTargets=['section_ids','course_ids','student_ids'].some(key=>Object.hasOwn(req.body??{},key));
+    const targets=existing.type==='class'&&hasTargets?targetsFrom(req.body,await repo.getTargets(id)):undefined;
+    if(targets){const error=await repo.validateTargets(targets);if(error)fail(error);}
+    const announcement=await repo.saveAnnouncement({id,fields,targets});
+    await audit(req,'announcement.update','announcement',id,{updated_fields:Object.keys(fields)});
+    if(existing.status!=='published'&&announcement.status==='published'){await audit(req,'announcement.publish','announcement',id,{type:announcement.type});await deliverPublication(id);}
+    res.json({announcement:await attach(announcement),targets:existing.type==='class'?await repo.getTargets(id):[]});
+  }catch(e){next(e);}
 };
-
-export const createClassAnnouncement = async (req, res, next) => {
-  try {
-    const title = readNonEmpty(req.body?.title, 'title');
-    const content = readNonEmpty(req.body?.content, 'content');
-    const image_url = readOptionalString(req.body?.image_url);
-    const b2_key = readB2Key(req.body);
-    const publish_at = readOptionalDate(req.body?.publish_at);
-    const expires_at = readOptionalDate(req.body?.expires_at);
-
-    const section_ids = parseArrayOfIds(req.body?.section_ids, 'section_ids') ?? [];
-    const course_ids = parseArrayOfIds(req.body?.course_ids, 'course_ids') ?? [];
-    const student_ids = parseArrayOfIds(req.body?.student_ids, 'student_ids') ?? [];
-
-    if (title === null || content === null) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Title and content are required.',
-      });
-    }
-
-    const totalTargets = section_ids.length + course_ids.length + student_ids.length;
-    if (totalTargets === 0) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Class announcement must have at least one target (section_ids, course_ids, or student_ids).',
-      });
-    }
-
-    const now = new Date();
-    const status = publish_at && new Date(publish_at) > now ? 'scheduled' : 'published';
-
-    const { announcement, targets } = await announcementRepo.createClassWithTargets({
-      author_id: req.user.id,
-      title,
-      content,
-      image_url,
-      b2_key,
-      status,
-      publish_at,
-      expires_at,
-      section_ids,
-      course_ids,
-      student_ids,
-    });
-
-    await audit(req, 'announcement.create', 'announcement', announcement.id, {
-      type: 'class',
-      title,
-      targets: { section_ids, course_ids, student_ids },
-    });
-
-    return res.status(201).json({ announcement, targets });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const listAnnouncements = async (req, res, next) => {
-  try {
-    const statusRaw = req.query.status;
-    const status = statusRaw === 'draft' || statusRaw === 'scheduled' || statusRaw === 'published' || statusRaw === 'archived'
-      ? statusRaw
-      : undefined;
-    const upcomingRaw = req.query.upcoming;
-    const isUpcoming = upcomingRaw === 'true';
-    const rawQ = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-    const q = rawQ === '' ? undefined : rawQ;
-
-    if (isUpcoming && status !== undefined) {
-      return res.status(400).json({ status: 400, message: '?upcoming=true cannot be combined with ?status.' });
-    }
-
-    if (isUpcoming) {
-      const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
-      const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
-      let announcements;
-      let total;
-      if (req.user.role === 'student') {
-        announcements = await announcementRepo.listUpcomingForStudent({
-          userId: req.user.id,
-          section_id: req.user.section_id,
-          course_id: req.user.course_id,
-          limit,
-          offset,
-        });
-        total = await announcementRepo.countUpcomingForStudent({
-          userId: req.user.id,
-          section_id: req.user.section_id,
-          course_id: req.user.course_id,
-        });
-      } else {
-        announcements = await announcementRepo.listUpcoming({ limit, offset });
-        total = await announcementRepo.countUpcoming();
-      }
-      await attachAnnouncementImageUrls(announcements);
-      return res.json({ announcements, total });
-    }
-
-    const type = req.query.type === 'general' || req.query.type === 'class' ? req.query.type : undefined;
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
-    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
-
-    let announcements;
-    let total;
-
-    if (req.user.role === 'student') {
-      announcements = await announcementRepo.listForStudent({
-        userId: req.user.id,
-        section_id: req.user.section_id,
-        course_id: req.user.course_id,
-        limit,
-        offset,
-        q,
-      });
-      total = announcements.length;
-    } else {
-      announcements = await announcementRepo.listAnnouncements({ type, author_id: undefined, status, limit, offset, q });
-      total = await announcementRepo.countAnnouncements({ type, author_id: undefined, status, q });
-    }
-
-    await attachAnnouncementImageUrls(announcements);
-    return res.json({ announcements, total });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const getAnnouncement = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid announcement id.' });
-    }
-
-    const announcement = await announcementRepo.findById(id);
-    if (!announcement) {
-      return res.status(404).json({ status: 404, message: 'Announcement not found.' });
-    }
-
-    const targets = await announcementRepo.getTargets(id);
-
-    if (!canUserSeeAnnouncement(req.user, announcement, targets)) {
-      return res.status(403).json({ status: 403, message: 'You do not have permission to view this announcement.' });
-    }
-
-    await attachAnnouncementImageUrl(announcement);
-    return res.json({ announcement, targets });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const updateAnnouncement = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid announcement id.' });
-    }
-
-    const existing = await announcementRepo.findById(id);
-    if (!existing) {
-      return res.status(404).json({ status: 404, message: 'Announcement not found.' });
-    }
-
-    if (!canUserModifyAnnouncement(req.user, existing)) {
-      return res.status(403).json({ status: 403, message: 'You do not have permission to edit this announcement.' });
-    }
-
-    const title = readOptionalString(req.body?.title);
-    const content = readOptionalString(req.body?.content);
-    const image_url = readOptionalString(req.body?.image_url);
-    const b2_key = readB2Key(req.body);
-    const status = req.body?.status === 'draft' || req.body?.status === 'scheduled' || req.body?.status === 'published' || req.body?.status === 'archived'
-      ? req.body.status
-      : undefined;
-    const publish_at = readOptionalDate(req.body?.publish_at);
-    const expires_at = readOptionalDate(req.body?.expires_at);
-    const hasShowOnTv = Object.prototype.hasOwnProperty.call(req.body, 'show_on_tv');
-    const rawShowOnTv = req.body?.show_on_tv;
-    let show_on_tv;
-    if (existing.type === 'class') {
-      show_on_tv = false;
-    } else if (hasShowOnTv) {
-      show_on_tv = Boolean(rawShowOnTv);
-    }
-
-    const section_ids = parseArrayOfIds(req.body?.section_ids, 'section_ids');
-    const course_ids = parseArrayOfIds(req.body?.course_ids, 'course_ids');
-    const student_ids = parseArrayOfIds(req.body?.student_ids, 'student_ids');
-
-    const hasTargetUpdates = section_ids !== null || course_ids !== null || student_ids !== null;
-
-    const fields = {};
-    if (title !== null) fields.title = title;
-    if (content !== null) fields.content = content;
-    if (image_url !== null) fields.image_url = image_url;
-    if (b2_key !== null) fields.b2_key = b2_key;
-    if (show_on_tv !== undefined) fields.show_on_tv = show_on_tv;
-    if (status !== undefined) fields.status = status;
-    if (publish_at !== null) fields.publish_at = publish_at;
-    if (expires_at !== null) fields.expires_at = expires_at;
-
-    let announcement;
-    let targets = [];
-
-    if (hasTargetUpdates) {
-      if (existing.type === 'class') {
-        const totalTargets = (section_ids?.length ?? 0) + (course_ids?.length ?? 0) + (student_ids?.length ?? 0);
-        if (totalTargets === 0) {
-          return res.status(400).json({
-            status: 400,
-            message: 'Class announcement must have at least one target (section_ids, course_ids, or student_ids).',
-          });
-        }
-      }
-
-      const result = await announcementRepo.updateWithTargets(id, {
-        fields,
-        section_ids: existing.type === 'class' ? section_ids : [],
-        course_ids: existing.type === 'class' ? course_ids : [],
-        student_ids: existing.type === 'class' ? student_ids : [],
-      });
-      announcement = result.announcement;
-      targets = result.targets;
-    } else {
-      announcement = await announcementRepo.updateAnnouncement(id, fields);
-    }
-
-    if (!targets.length && existing.type === 'class') {
-      targets = await announcementRepo.getTargets(id);
-    }
-
-    await audit(req, 'announcement.update', 'announcement', id, { updated_fields: Object.keys(fields) });
-
-    await attachAnnouncementImageUrl(announcement);
-    return res.json({ announcement, targets });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const tvAnnouncements = async (req, res, next) => {
-  try {
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
-    const { rows } = await announcementRepo.findPublishedGeneral({ limit });
-    // findPublishedGeneral selects image_url but not b2_key; resolve keys for presigning.
-    const sanitized = await Promise.all(rows.map(async ({ id, title, content, image_url, created_at }) => {
-      const full = await announcementRepo.findById(id);
-      if (full && isAnnouncementB2Key(full.b2_key)) {
-        try {
-          image_url = await b2.getPresignedUrl(full.b2_key);
-        } catch (e) {
-          console.error('Failed to presign B2 URL', e.message || e);
-        }
-      }
-      return { id, title, content, image_url, created_at };
+export const tvAnnouncements=async(req,res,next)=>{
+  try{
+    const limit=Math.min(Math.max(parseInt(req.query.limit,10)||20,1),100);
+    const rows=await repo.listAnnouncements({type:'general',limit});
+    const announcements=await Promise.all(rows.map(async row=>{
+      await attach(row);
+      const {id,type,title,content,image_url,created_at,publish_at,expires_at}=row;
+      return {id,type,title,content,image_url,created_at,publish_at,expires_at};
     }));
-    return res.json({ announcements: sanitized });
-  } catch (err) {
-    return next(err);
-  }
+    res.json({announcements});
+  }catch(e){next(e);}
 };
-
-export const uploadAnnouncementImage = async (req, res, next) => {
-  try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ status: 400, message: 'No image file provided.' });
-    }
-    const { key } = await b2.uploadBuffer(file.buffer, {
-      folder: 'announcements',
-      contentType: file.mimetype,
-      filename: file.originalname,
-    });
-    const image_url = await b2.getPresignedUrl(key);
-    // Response field names preserved: image_url stays image_url; storage id is now b2_key.
-    return res.status(201).json({ image_url, b2_key: key });
-  } catch (err) {
-    return next(err);
-  }
+export const deleteAnnouncement=async(req,res,next)=>{
+  try{
+    const id=idFrom(req.params.id),existing=await repo.findById(id);
+    if(!existing)return res.status(404).json({message:'Announcement not found.'});
+    if(!repo.canModify(req.user,existing))return res.status(403).json({message:'You cannot archive this announcement.'});
+    await repo.saveAnnouncement({id,fields:{status:'archived'}});
+    await audit(req,'announcement.archive','announcement',id,{type:existing.type});
+    res.json({message:'Announcement archived. Historical content and targets are preserved.'});
+  }catch(e){next(e);}
 };
-
-export const deleteAnnouncement = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid announcement id.' });
-    }
-
-    const existing = await announcementRepo.findById(id);
-    if (!existing) {
-      return res.status(404).json({ status: 404, message: 'Announcement not found.' });
-    }
-
-    if (!canUserModifyAnnouncement(req.user, existing)) {
-      return res.status(403).json({ status: 403, message: 'You do not have permission to delete this announcement.' });
-    }
-
-    if (existing.b2_key && isAnnouncementB2Key(existing.b2_key)) {
-      try {
-        await b2.deleteObject(existing.b2_key);
-      } catch (e) {
-        console.error('Failed to delete B2 object', e.message || e);
-      }
-    }
-
-    await announcementRepo.deleteAnnouncement(id);
-    await audit(req, 'announcement.delete', 'announcement', id, { title: existing.title, type: existing.type });
-    return res.json({ message: 'Announcement deleted.' });
-  } catch (err) {
-    return next(err);
-  }
+export const uploadAnnouncementImage=async(req,res,next)=>{
+  try{
+    if(!req.file)return res.status(400).json({message:'No image file provided.'});
+    const {key}=await b2.uploadBuffer(req.file.buffer,{folder:'announcements',contentType:req.file.mimetype,filename:req.file.originalname});
+    res.status(201).json({image_url:await b2.getPresignedUrl(key),b2_key:key});
+  }catch(e){next(e);}
 };

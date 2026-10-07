@@ -156,8 +156,9 @@ export default function AudiencePicker({
       </div>
 
       <div style={{ marginTop: "var(--space-4)" }}>
-        <p className="label-token">Students</p>
+        <label htmlFor="audience-student-search" className="label-token">Students</label>
         <input
+          id="audience-student-search"
           type="search"
           value={studentQuery}
           onChange={(e) => setStudentQuery(e.target.value)}
@@ -175,7 +176,7 @@ export default function AudiencePicker({
                 <button
                   type="button"
                   onClick={() => addStudent(s)}
-                  className="tokens-btn tokens-btn-primary !min-h-[36px] !px-4 !py-1 text-xs"
+                  className="tokens-btn tokens-btn-primary !min-h-[44px] !px-4 !py-2 text-sm"
                 >
                   Add
                 </button>

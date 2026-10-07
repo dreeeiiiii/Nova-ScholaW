@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { CircleCheckBig, X } from "lucide-react";
 
-export default function ReviewModal({ onClose }: { onClose?: () => void }) {
+export default function ReviewModal({ onClose, approved = false }: { onClose?: () => void; approved?: boolean }) {
   const router = useRouter();
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -88,7 +88,7 @@ export default function ReviewModal({ onClose }: { onClose?: () => void }) {
         </div>
         <h2 className="mt-4 font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Upload successful</h2>
         <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
-          Upload successful. Your photo or video will appear in the gallery after admin review.
+          {approved ? "Upload successful. Your image is available in the public gallery." : "Upload successful. Your image is pending Administrator review."}
         </p>
         <div style={{ borderTop: "1px solid var(--color-line)", marginTop: "var(--space-6)", paddingTop: "var(--space-4)" }}>
           <button

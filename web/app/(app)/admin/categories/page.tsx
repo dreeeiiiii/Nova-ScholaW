@@ -9,7 +9,7 @@ type Category = { id: number | string; name: string; created_at?: string };
 export default async function CategoriesPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "admin" && user.role !== "teacher") redirect("/dashboard");
+  if (user.role !== "admin") redirect("/dashboard");
 
   let categories: Category[] = [];
   let error: string | null = null;

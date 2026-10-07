@@ -1,3 +1,4 @@
+<!-- Historical visual prototype; revised capstone paper and current application are authoritative. -->
 <!doctype html>
 <html lang="en">
   <head>
@@ -1679,7 +1680,7 @@
                       font-style: normal;
                       font-size: 16px;
                     "
-                    >MP4 VIDEO</span
+                    >WEBP IMAGE</span
                   ><span
                     data-template-id="media-two-category"
                     class="canva-tag text-xs"
@@ -1954,15 +1955,15 @@
                       font-style: normal;
                       font-size: 16px;
                     "
-                    >JPEG, PNG, WebP, MP4 · Images max 10 MB · Videos max 50 MB
-                    and 2 minutes</span
+                    >JPEG, PNG, WebP - Maximum 10 MB per image
+                  </span
                   ></span
                 ></label
               ><input
                 id="media-file"
                 class="sr-only"
                 type="file"
-                accept=".jpeg,.jpg,.png,.webp,.mp4"
+                accept=".jpeg,.jpg,.png,.webp"
               />
               <p
                 data-template-id="review-note"
@@ -2764,7 +2765,7 @@
           .addEventListener("submit", (e) => {
             e.preventDefault();
             if (!document.getElementById("media-file").files.length) {
-              showToast("Choose a JPEG, PNG, WebP, or MP4 sample file first.");
+              showToast("Choose a JPEG, PNG, or WebP sample file first.");
               return;
             }
             document.getElementById("review-modal").classList.add("open");

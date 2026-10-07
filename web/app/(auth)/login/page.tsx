@@ -173,7 +173,7 @@ function LoginForm() {
             &larr; Back to home
           </Link>
           <p className="text-sm" style={{ color: "var(--color-muted)" }}>
-            New student?{" "}
+            New to the hub?{" "}
             <Link
               href="/register"
               className="font-semibold transition-colors duration-200 motion-reduce:transition-none"

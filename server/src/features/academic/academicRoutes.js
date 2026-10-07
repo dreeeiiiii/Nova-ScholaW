@@ -3,6 +3,7 @@ import { Router } from 'express';
 import authenticate from '../../shared/middleware/authenticate.js';
 import requireRole from '../../shared/middleware/requireRole.js';
 import {
+  listDepartments,
   listSections,
   createSection,
   updateSection,
@@ -15,6 +16,7 @@ import {
 
 const router = Router();
 const adminOnly = [authenticate, requireRole('admin')];
+router.get('/departments', authenticate, listDepartments);
 
 router.get('/sections', authenticate, listSections);
 router.post('/sections', adminOnly, createSection);

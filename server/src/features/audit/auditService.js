@@ -1,4 +1,5 @@
 import { query } from '../../shared/config/db.js';
+import { safeAuditDetails } from './auditDetails.js';
 
 /**
  * Write an audit log row. Must NEVER block the main request:
@@ -28,13 +29,13 @@ export const logAction = async ({ userId = null, action, entityType, entityId = 
         action,
         entityType,
         entityId ?? null,
-        details === null || details === undefined ? null : JSON.stringify(details),
+        JSON.stringify(safeAuditDetails(details)),
         ipAddress ?? null,
       ]
     );
     return rows[0] ?? null;
   } catch (err) {
-    console.error('[audit] failed to write audit log:', err.message);
+    console.error('[audit] failed to write audit log');
     return null;
   }
 };
@@ -59,7 +60,7 @@ export const audit = async (req, action, entityType, entityId = null, details = 
       ipAddress: getIp(req),
     });
   } catch (err) {
-    console.error('[audit] audit helper failed:', err?.message ?? err);
+    console.error('[audit] audit helper failed');
     return null;
   }
 };

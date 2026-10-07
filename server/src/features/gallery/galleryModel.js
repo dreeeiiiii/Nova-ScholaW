@@ -44,7 +44,7 @@ export const listPending = async () => {
     `SELECT ${GM_WITH_JOINS_COLUMNS}
        FROM gallery_media gm
        ${MEDIA_JOINS}
-      WHERE gm.status = 'pending'
+      WHERE gm.status = 'pending' AND gm.media_type = 'image'
       ORDER BY gm.created_at DESC`
   );
   return rows;
@@ -54,7 +54,7 @@ export const approve = async (id, reviewerId) => {
   const { rows } = await query(
     `UPDATE gallery_media
        SET status = 'approved', reviewed_by = $1, reviewed_at = NOW(), updated_at = NOW()
-     WHERE id = $2
+     WHERE id = $2 AND status = 'pending' AND media_type = 'image'
      RETURNING ${MEDIA_COLUMNS}`,
     [reviewerId, id]
   );
@@ -65,7 +65,7 @@ export const reject = async (id, reviewerId, rejection_reason) => {
   const { rows } = await query(
     `UPDATE gallery_media
        SET status = 'rejected', reviewed_by = $1, reviewed_at = NOW(), rejection_reason = $2, updated_at = NOW()
-     WHERE id = $3
+     WHERE id = $3 AND status = 'pending' AND media_type = 'image'
      RETURNING ${MEDIA_COLUMNS}`,
     [reviewerId, rejection_reason, id]
   );
@@ -76,7 +76,7 @@ export const listByUploader = async (uploaderId) => {
   const { rows } = await query(
     `SELECT ${GM_COLUMNS}
        FROM gallery_media gm
-      WHERE gm.uploader_id = $1
+      WHERE gm.uploader_id = $1 AND gm.media_type = 'image'
       ORDER BY gm.created_at DESC`,
     [uploaderId]
   );
@@ -84,7 +84,7 @@ export const listByUploader = async (uploaderId) => {
 };
 
 export const browse = async ({ category_id, year, month, media_type, featured, limit = 20, offset = 0 } = {}) => {
-  const conditions = [`gm.status = 'approved'`];
+  const conditions = [`gm.status = 'approved'`, `gm.media_type = 'image'`];
   const params = [];
   let paramIndex = 1;
 
@@ -108,8 +108,8 @@ export const browse = async ({ category_id, year, month, media_type, featured, l
     conditions.push(`gm.featured = true`);
   }
 
-  const limitNum = Math.min(Number(limit) || 20, 100);
-  const offsetNum = Number(offset) || 0;
+  const limitNum = Math.min(Math.max(Number(limit) || 20, 1), 100);
+  const offsetNum = Math.max(Number(offset) || 0, 0);
 
   params.push(limitNum);
   const limitParam = params.length;
@@ -143,7 +143,7 @@ export const findApprovedById = async (id) => {
     `SELECT ${GM_WITH_JOINS_COLUMNS}
        FROM gallery_media gm
        ${MEDIA_JOINS}
-      WHERE gm.id = $1 AND gm.status = 'approved'`,
+      WHERE gm.id = $1 AND gm.status = 'approved' AND gm.media_type = 'image'`,
     [id]
   );
   return rows[0] ?? null;
@@ -152,7 +152,7 @@ export const findApprovedById = async (id) => {
 export const search = async ({ q, category_id, year, media_type, limit = 20, offset = 0 } = {}) => {
 
   const pattern = `%${q}%`;
-  const conditions = [`gm.status = 'approved'`, `(gm.caption ILIKE $1 OR gm.original_filename ILIKE $1 OR c.name ILIKE $1)`];
+  const conditions = [`gm.status = 'approved'`, `gm.media_type = 'image'`, `(gm.caption ILIKE $1 OR gm.original_filename ILIKE $1 OR c.name ILIKE $1)`];
   const params = [pattern];
   let paramIndex = 2;
 
@@ -169,7 +169,7 @@ export const search = async ({ q, category_id, year, media_type, limit = 20, off
     conditions.push(`gm.media_type = $${paramIndex++}`);
   }
 
-  const limitNum = Math.min(Number(limit) || 20, 100);
+  const limitNum = Math.min(Math.max(Number(limit) || 20, 1), 100);
   const offsetNum = Math.max(Number(offset) || 0, 0);
 
   params.push(limitNum);
@@ -222,10 +222,8 @@ export const updateCategory = async (id, categoryId) => {
   return rows[0] ?? null;
 };
 
-export const deleteMedia = async (id) => {
-  const { rows } = await query(`DELETE FROM gallery_media WHERE id = $1 RETURNING *`, [id]);
-  return rows[0] ?? null;
-};
+export const withdrawMedia = async id => (await query(
+  "UPDATE gallery_media SET status='rejected',rejection_reason='Withdrawn from gallery',updated_at=NOW() WHERE id=$1 RETURNING *",[id])).rows[0]??null;
 
 export const listRecent = async ({ limit = 50 } = {}) => {
   const limitNum = Math.min(Math.max(Number(limit) || 50, 1), 100);
@@ -233,7 +231,7 @@ export const listRecent = async ({ limit = 50 } = {}) => {
     `SELECT ${GM_WITH_JOINS_COLUMNS}
        FROM gallery_media gm
        ${MEDIA_JOINS}
-      WHERE gm.status = 'approved'
+      WHERE gm.status = 'approved' AND gm.media_type = 'image'
         AND gm.created_at >= NOW() - INTERVAL '7 days'
       ORDER BY gm.created_at DESC
       LIMIT $1`,
@@ -254,6 +252,6 @@ export default {
   search,
   setFeatured,
   updateCategory,
-  deleteMedia,
+  withdrawMedia,
   listRecent,
 };

@@ -39,7 +39,7 @@ export default async function ModerationPage() {
     <div>
       <PageHeader
         eyebrow="Workspace"
-        title="Admin Moderation"
+        title="Pending Uploads"
         description="Review pending uploads before they go public."
         actions={
           <span
@@ -52,7 +52,7 @@ export default async function ModerationPage() {
               fontWeight: 700,
             }}
           >
-            Admin view · Prototype
+            Administrator
           </span>
         }
       />
@@ -68,7 +68,7 @@ export default async function ModerationPage() {
       >
         <ShieldCheck size={20} strokeWidth={1.5} aria-hidden="true" className="shrink-0" style={{ color: "var(--color-warning)" }} />
         <p className="text-sm font-semibold" style={{ color: "var(--color-warning)" }}>
-          All announcements, uploads, approvals, and rejections are logged in this capstone prototype.
+          Review the image and its details before making a decision. Approvals and rejections are recorded in Audit Logs.
         </p>
       </div>
 

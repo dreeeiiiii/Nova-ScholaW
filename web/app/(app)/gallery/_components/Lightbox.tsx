@@ -91,11 +91,9 @@ export default function Lightbox({ media, onClose }: { media: Media | null; onCl
           </button>
         </div>
 
-        {media.media_type === "video" ? (
-          <video src={src} controls className="max-h-[70vh] w-full bg-black" />
-        ) : (
+
           <img src={src} alt={title} className="max-h-[70vh] w-full object-contain" />
-        )}
+
 
         {media.caption && <p className="mt-4 text-sm leading-relaxed" style={{ color: "rgba(255, 255, 255, 0.8)" }}>{media.caption}</p>}
       </div>

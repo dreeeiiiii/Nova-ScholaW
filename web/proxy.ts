@@ -6,6 +6,7 @@ import type { NextRequest } from "next/server";
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/account/:path*",
     "/admin/:path*",
     "/gallery/upload",
     "/gallery/mine",

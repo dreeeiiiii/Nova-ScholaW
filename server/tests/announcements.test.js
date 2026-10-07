@@ -248,22 +248,9 @@ describe("announcement endpoints", () => {
     generalAnnouncementId = body.announcement.id;
   });
 
-  it("teacher creates general announcement → 201", async () => {
-    const res = await postJson(
-      baseUrl,
-      "/api/announcements/general",
-      {
-        title: "Teacher General Announcement",
-        content: "This is a general announcement from teacher.",
-      },
-      teacherToken,
-    );
-    assert.equal(res.status, 201);
-    const body = await res.json();
-    assert.ok(body.announcement);
-    assert.equal(body.announcement.type, "general");
-    assert.equal(body.announcement.author_id, teacherId);
-    assert.equal(body.announcement.status, "published");
+  it("teacher cannot create General Announcement", async () => {
+    const res = await postJson(baseUrl, "/api/announcements/general", {title:"Forbidden General",content:"Forbidden"}, teacherToken);
+    assert.equal(res.status,403);
   });
 
   it("teacher creates class announcement with section_ids + course_ids + student_ids → 201 with correct targets", async () => {
@@ -338,8 +325,8 @@ describe("announcement endpoints", () => {
       "Should see general announcement from admin",
     );
     assert.ok(
-      titles.includes("Teacher General Announcement"),
-      "Should see general announcement from teacher",
+      !titles.includes("Forbidden General"),
+      "Forbidden General must not be published",
     );
     assert.ok(
       titles.includes("Class Announcement"),
@@ -358,7 +345,7 @@ describe("announcement endpoints", () => {
     assert.ok(body.announcements);
     const titles = body.announcements.map((a) => a.title);
     assert.ok(titles.includes("Admin General Announcement"));
-    assert.ok(titles.includes("Teacher General Announcement"));
+    assert.ok(!titles.includes("Forbidden General"));
     assert.ok(titles.includes("Class Announcement"));
     assert.ok(titles.includes("Other Class Announcement"));
   });

@@ -1,253 +1,62 @@
-import * as userRepo from './userModel.js';
-import * as sectionRepo from '../academic/sectionModel.js';
-import * as courseRepo from '../academic/courseModel.js';
+import * as users from './userModel.js';
 import { hashPassword } from '../../shared/utils/password.js';
-import { getRoleEmailDomain, isRoleEmail, normalizeEmail } from '../../shared/utils/nstEmail.js';
-import { audit } from '../audit/auditService.js';
+import { isRoleEmail,normalizeEmail } from '../../shared/utils/nstEmail.js';
+import { readMembership,nullableId,validPassword } from '../../shared/utils/academicInput.js';
+import { validateMembership } from '../academic/departmentModel.js';
 import { parseId } from '../../shared/utils/parseId.js';
-import { normalizeLimit, normalizeOffset } from '../../shared/utils/normalize.js';
+import { normalizeLimit,normalizeOffset } from '../../shared/utils/normalize.js';
+import { audit } from '../audit/auditService.js';
 
-const ROLE_LIST = ['admin', 'teacher', 'student'];
-
-const sanitizeUser = (user) => {
-  if (!user) return user;
-  const { password_hash: _hash, ...safe } = user;
-  return safe;
-};
-
-const toNullableId = (raw) => {
-  if (raw === null || raw === undefined || raw === '') return null;
-  const id = Number(raw);
-  return Number.isInteger(id) && id > 0 ? id : null;
-};
-
-const normalizeSearch = (raw) => {
-  const search = typeof raw === 'string' ? raw.trim() : '';
-  return search === '' ? undefined : search;
-};
-
-const verifyAcademicRefs = async ({ section_id, course_id }) => {
-  if (section_id !== null) {
-    const section = await sectionRepo.findSectionById(section_id);
-    if (!section) return `Section with id ${section_id} does not exist.`;
-  }
-  if (course_id !== null) {
-    const course = await courseRepo.findCourseById(course_id);
-    if (!course) return `Course with id ${course_id} does not exist.`;
-  }
-  return null;
-};
-
-const readRole = (body) => (body && ROLE_LIST.includes(body.role) ? body.role : null);
-const readFullName = (body) =>
-  typeof body?.full_name === 'string' && body.full_name.trim() !== ''
-    ? body.full_name.trim()
-    : null;
-
-export const searchStudents = async (req, res, next) => {
-  try {
-    const qRaw = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-    if (qRaw === '') {
-      return res.status(400).json({ status: 400, message: 'q query parameter is required.' });
-    }
-    const limitRaw = req.query.limit;
-    const limitNum = Math.min(Math.max(Number(limitRaw) || 20, 1), 50);
-    if (!Number.isFinite(Number(limitRaw)) && limitRaw !== undefined) {
-      // still clamp via Number conversion; no extra validation needed
-    }
-    const students = await userRepo.searchStudents({ q: qRaw, limit: limitNum });
-    return res.json({ students });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const listUsers = async (req, res, next) => {
-  try {
-    const role = ROLE_LIST.includes(req.query.role) ? req.query.role : undefined;
-    const search = normalizeSearch(req.query.search);
-
-    const users = await userRepo.listUsers({
-      role,
-      search,
-      limit: normalizeLimit(req.query.limit),
-      offset: normalizeOffset(req.query.offset),
-    });
-    const total = await userRepo.countUsers({ role, search });
-
-    return res.json({ users: users.map(sanitizeUser), total });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const getUser = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid user id.' });
-    }
-
-    const user = await userRepo.findById(id);
-    if (!user) {
-      return res.status(404).json({ status: 404, message: 'User not found.' });
-    }
-
-    return res.json({ user: sanitizeUser(user) });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const createUser = async (req, res, next) => {
-  try {
-    const body = req.body ?? {};
-    const email = normalizeEmail(body.email);
-    const password = typeof body.password === 'string' ? body.password : '';
-    const role = readRole(body);
-    const fullName = readFullName(body);
-
-    if (email === '') {
-      return res.status(400).json({ status: 400, message: 'Email is required.' });
-    }
-    if (role === null) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Role must be one of: admin, teacher, student.',
-      });
-    }
-    if (!isRoleEmail(email, role)) {
-      return res.status(400).json({
-        status: 400,
-        message: `Email must end with @${getRoleEmailDomain(role)} for role ${role}.`,
-      });
-    }
-    if (password === '' || password.length < 8) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Password must be at least 8 characters long.',
-      });
-    }
-    if (fullName === null) {
-      return res.status(400).json({ status: 400, message: 'Full name is required.' });
-    }
-
-    const existing = await userRepo.findByEmail(email);
-    if (existing) {
-      return res.status(409).json({ status: 409, message: 'A user with this email already exists.' });
-    }
-
-    const section_id = role === 'student' ? toNullableId(body.section_id) : null;
-    const course_id = role === 'student' ? toNullableId(body.course_id) : null;
-
-    const refError = await verifyAcademicRefs({ section_id, course_id });
-    if (refError) {
-      return res.status(400).json({ status: 400, message: refError });
-    }
-
-    const password_hash = await hashPassword(password);
-    const user = await userRepo.createUser({
-      email,
-      password_hash,
-      full_name: fullName,
-      role,
-      section_id,
-      course_id,
-    });
-
-    await audit(req, 'user.create', 'user', user.id, { email, role, full_name: fullName });
-
-    return res.status(201).json({
-      message: 'User created successfully.',
-      user: sanitizeUser(user),
-    });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const updateUser = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid user id.' });
-    }
-
-    const existing = await userRepo.findById(id);
-    if (!existing) {
-      return res.status(404).json({ status: 404, message: 'User not found.' });
-    }
-
-    const body = req.body ?? {};
-    const fields = {};
-
-    const fullName = readFullName(body);
-    if (fullName !== null) fields.full_name = fullName;
-
-    const role = readRole(body);
-    if (role !== null) fields.role = role;
-
-    if (body.section_id !== undefined) fields.section_id = toNullableId(body.section_id);
-    if (body.course_id !== undefined) fields.course_id = toNullableId(body.course_id);
-
-    const refError = await verifyAcademicRefs({
-      section_id: toNullableId(fields.section_id),
-      course_id: toNullableId(fields.course_id),
-    });
-    if (refError) {
-      return res.status(400).json({ status: 400, message: refError });
-    }
-
-    const user = await userRepo.updateUser(id, fields);
-    await audit(req, 'user.update', 'user', id, { updated_fields: Object.keys(fields) });
-    return res.json({ user: sanitizeUser(user) });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const deactivateUser = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid user id.' });
-    }
-    if (id === req.user.id) {
-      return res.status(400).json({
-        status: 400,
-        message: 'You cannot deactivate your own account.',
-      });
-    }
-
-    const existing = await userRepo.findById(id);
-    if (!existing) {
-      return res.status(404).json({ status: 404, message: 'User not found.' });
-    }
-
-    const user = await userRepo.deactivateUser(id);
-    await audit(req, 'user.deactivate', 'user', id, null);
-    return res.json({ message: 'User deactivated.', user: sanitizeUser(user) });
-  } catch (err) {
-    return next(err);
-  }
-};
-
-export const activateUser = async (req, res, next) => {
-  try {
-    const id = parseId(req.params.id);
-    if (id === null) {
-      return res.status(400).json({ status: 400, message: 'Invalid user id.' });
-    }
-
-    const existing = await userRepo.findById(id);
-    if (!existing) {
-      return res.status(404).json({ status: 404, message: 'User not found.' });
-    }
-
-    const user = await userRepo.activateUser(id);
-    await audit(req, 'user.activate', 'user', id, null);
-    return res.json({ message: 'User activated.', user: sanitizeUser(user) });
-  } catch (err) {
-    return next(err);
-  }
-};
+export const listUsers=async(req,res,next)=>{try{
+  const role=['admin','teacher','student'].includes(req.query.role)?req.query.role:undefined;
+  const options={role,search:typeof req.query.search==='string'?req.query.search.trim():undefined,department_id:nullableId(req.query.department_id),limit:normalizeLimit(req.query.limit),offset:normalizeOffset(req.query.offset)};
+  res.json({users:await users.listUsers(options),total:await users.countUsers(options)});
+}catch(error){next(error);}};
+export const searchStudents=async(req,res,next)=>{try{
+  const q=typeof req.query.q==='string'?req.query.q.trim():'';
+  if(!q)return res.status(400).json({message:'q is required.'});
+  res.json({students:await users.searchStudents({q,limit:req.query.limit})});
+}catch(error){next(error);}};
+export const getUser=async(req,res,next)=>{try{
+  const id=parseId(req.params.id);if(id===null)return res.status(400).json({message:'Invalid user id.'});
+  const user=await users.findById(id);if(!user)return res.status(404).json({message:'User not found.'});
+  res.json({user});
+}catch(error){next(error);}};
+export const createUser=async(req,res,next)=>{try{
+  const body=req.body??{},role=body.role,email=normalizeEmail(body.email),full_name=typeof body.full_name==='string'?body.full_name.trim():'';
+  if(!['student','teacher'].includes(role))return res.status(400).json({message:'Only Student and Teacher accounts can be created here.'});
+  if(!full_name || full_name.length>150 || !isRoleEmail(email,role) || !validPassword(body.password)) return res.status(400).json({message:'Valid name, official role email, and password are required.'});
+  const membership=readMembership(body),error=await validateMembership({role,...membership});
+  if(error)return res.status(400).json({message:error});
+  if(await users.findByEmail(email))return res.status(409).json({message:'Email already exists.'});
+  const user=await users.createUser({email,full_name,role,...membership,password_hash:await hashPassword(body.password)});
+  await audit(req,'user.create','user',user.id,{role,...membership});
+  res.status(201).json({user});
+}catch(error){if(error.code==='23505')return res.status(409).json({message:'Account already exists.'});next(error);}};
+export const updateUser=async(req,res,next)=>{try{
+  const id=parseId(req.params.id);if(id===null)return res.status(400).json({message:'Invalid user id.'});
+  const existing=await users.findById(id);if(!existing)return res.status(404).json({message:'User not found.'});
+  const body=req.body??{},role=body.role??existing.role;
+  if(!['admin','student','teacher'].includes(role))return res.status(400).json({message:'Invalid role.'});
+  if((existing.role==='admin' && role!=='admin') || (existing.role!=='admin' && role==='admin'))return res.status(400).json({message:'The centralized Administrator role cannot be granted or removed here.'});
+  if(!isRoleEmail(existing.email,role))return res.status(400).json({message:'Email domain does not match the role.'});
+  if(body.password!==undefined || body.email!==undefined && normalizeEmail(body.email)!==existing.email) return res.status(400).json({message:'Use Account to change passwords. Email changes are not supported.'});
+  const membership=readMembership(body,existing);
+  const error=await validateMembership({role,...membership},{allowUnassigned:!existing.department_id && body.department_id===undefined && String(membership.section_id)===String(existing.section_id) && String(membership.course_id)===String(existing.course_id)});
+  if(error)return res.status(400).json({message:error});
+  const fields={role,...membership};
+  if(body.full_name!==undefined){if(typeof body.full_name!=='string'||!body.full_name.trim()||body.full_name.trim().length>150)return res.status(400).json({message:'Invalid name.'});fields.full_name=body.full_name.trim();}
+  const user=await users.updateUser(id,fields);await audit(req,'user.update','user',id,{
+    role, updated_fields:Object.keys(fields), ...membership,
+    previous_department_id:existing.department_id, previous_section_id:existing.section_id, previous_course_id:existing.course_id,
+  });res.json({user});
+}catch(error){next(error);}};
+const setStatus=active=>async(req,res,next)=>{try{
+  const id=parseId(req.params.id);if(id===null)return res.status(400).json({message:'Invalid user id.'});
+  const existing=await users.findById(id);if(!existing)return res.status(404).json({message:'User not found.'});
+  if(existing.role==='admin')return res.status(400).json({message:'The centralized Administrator cannot be deactivated here.'});
+  const user=await(active?users.activateUser(id):users.deactivateUser(id));
+  await audit(req,active?'user.activate':'user.deactivate','user',id,null);res.json({user});
+}catch(error){next(error);}};
+export const activateUser=setStatus(true);
+export const deactivateUser=setStatus(false);

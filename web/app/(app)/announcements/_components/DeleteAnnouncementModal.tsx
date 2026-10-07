@@ -61,13 +61,13 @@ export default function DeleteAnnouncementModal({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.message || "Failed to delete");
+        setError(data.message || "Failed to archive");
         return;
       }
       onDeleted();
       onClose();
     } catch {
-      setError("Failed to delete");
+      setError("Failed to archive");
     } finally {
       setPending(false);
     }
@@ -82,12 +82,12 @@ export default function DeleteAnnouncementModal({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Delete announcement"
+      aria-label="Archive announcement"
       style={{ backgroundColor: "color-mix(in srgb, var(--color-dark) 40%, transparent)" }}
     >
       <div className="w-full max-w-md p-6" style={{ backgroundColor: "var(--color-surface)", borderRadius: "var(--radius-large)" }}>
         <div className="mb-4 flex items-start justify-between gap-4" style={{ borderBottom: "1px solid var(--color-line)", paddingBottom: "var(--space-4)" }}>
-          <h2 className="font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Delete announcement</h2>
+          <h2 className="font-heading text-lg font-bold" style={{ color: "var(--color-text)" }}>Archive announcement</h2>
           <button
             type="button"
             onClick={onClose}
@@ -100,7 +100,7 @@ export default function DeleteAnnouncementModal({
         </div>
 
         <p className="text-sm" style={{ color: "var(--color-text)" }}>
-          Delete announcement &apos;{announcementTitle}&apos;? This cannot be undone.
+          Archive announcement &apos;{announcementTitle}&apos;? It will be hidden; historical content and targets are kept.
         </p>
 
         {error && <p className="mt-3 tokens-small font-medium" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-2) var(--space-3)" }}>{error}</p>}
@@ -122,7 +122,7 @@ export default function DeleteAnnouncementModal({
             className="tokens-btn !min-h-[44px] !px-5 !py-2 text-sm font-bold disabled:opacity-60"
             style={{ backgroundColor: "var(--color-danger)", color: "var(--color-surface)" }}
           >
-            {pending ? "Deleting..." : "Delete"}
+            {pending ? "Archiving..." : "Archive"}
           </button>
         </div>
       </div>

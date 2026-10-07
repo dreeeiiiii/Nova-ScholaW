@@ -18,17 +18,13 @@ const attachGalleryFileUrl = async (row) => {
   try {
     row.file_url = await b2.getPresignedUrl(row.b2_key);
   } catch (e) {
-    console.error('Failed to presign B2 URL', e.message || e);
+    console.error('[gallery] Failed to presign B2 URL');
   }
   return row;
 };
 
 const attachGalleryFileUrls = (rows) => Promise.all((rows ?? []).map(attachGalleryFileUrl));
 
-const determineMediaType = (file) => {
-  if (file.mimetype === 'video/mp4') return 'video';
-  return 'image';
-};
 
 export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async (req, res, next) => {
   try {
@@ -44,12 +40,15 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     if (!categoryId) {
       return res.status(400).json({ status: 400, message: 'category_id is required.' });
     }
-    if (!title || title.trim() === '') {
+    if (typeof title !== 'string' || title.trim() === '' || title.trim().length > 255) {
       return res.status(400).json({ status: 400, message: 'title is required.' });
     }
+    if(typeof description !== 'string') return res.status(400).json({message:'Invalid description.'});
     const caption = description.trim() !== '' ? description.trim() : title.trim();
 
-    const mediaType = determineMediaType(file);
+    const mediaType = 'image';
+    const validCategory = parseId(categoryId);
+    if (!validCategory || !await findCategoryById(validCategory)) return res.status(400).json({message:'Select an existing category.'});
     await validateUploadedFile(file, mediaType);
 
     const { key } = await b2.uploadBuffer(file.buffer, {
@@ -62,10 +61,8 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
     const file_url = await b2.getPresignedUrl(key);
 
     try {
-      // New uploads always enter the moderation queue as pending. Only an
-      // admin approve/reject action moves them out (never auto-approved, so
-      // uploads cannot bypass admin review).
-      const status = 'pending';
+      // Administrator uploads are reviewed directly; member uploads remain pending.
+      const status = req.user.role === 'admin' ? 'approved' : 'pending';
       const media = await galleryModel.insertMedia({
         uploader_id: req.user.id,
         category_id: categoryId,
@@ -75,14 +72,16 @@ export const uploadMediaHandler = [uploadMedia, handleGalleryUploadError, async 
         original_filename: file.originalname,
         caption,
         status,
-        reviewed_by: null,
-        reviewed_at: null,
+        reviewed_by: status === 'approved' ? req.user.id : null,
+        reviewed_at: status === 'approved' ? new Date() : null,
         rejection_reason: null,
         featured: false,
       });
 
       await audit(req, 'gallery.upload', 'gallery_media', media.id, {
         media_type: mediaType,
+        status,
+        direct_upload: req.user.role === 'admin',
         category_id: categoryId,
         original_filename: file.originalname,
       });
@@ -120,16 +119,17 @@ export const approveMedia = async (req, res, next) => {
     }
 
     const existing = await galleryModel.findById(id);
-    if (!existing) {
+    if (!existing || existing.media_type !== 'image') {
       return res.status(404).json({ status: 404, message: 'Media not found.' });
     }
 
-    if (existing.status !== 'pending') {
+    if (existing.status !== 'pending' || existing.media_type !== 'image') {
       return res.status(400).json({ status: 400, message: 'Media is not pending approval.' });
     }
 
     const media = await galleryModel.approve(id, req.user.id);
 
+    if (!media) return res.status(409).json({message:'Upload already reviewed.'});
     await audit(req, 'gallery.approve', 'gallery_media', id, null);
 
     await attachGalleryFileUrl(media);
@@ -147,21 +147,22 @@ export const rejectMedia = async (req, res, next) => {
     }
 
     const { rejection_reason } = req.body || {};
-    if (!rejection_reason || rejection_reason.trim() === '') {
+    if (typeof rejection_reason !== 'string' || rejection_reason.trim() === '') {
       return res.status(400).json({ status: 400, message: 'rejection_reason is required.' });
     }
 
     const existing = await galleryModel.findById(id);
-    if (!existing) {
+    if (!existing || existing.media_type !== 'image') {
       return res.status(404).json({ status: 404, message: 'Media not found.' });
     }
 
-    if (existing.status !== 'pending') {
+    if (existing.status !== 'pending' || existing.media_type !== 'image') {
       return res.status(400).json({ status: 400, message: 'Media is not pending approval.' });
     }
 
     const media = await galleryModel.reject(id, req.user.id, rejection_reason);
 
+    if (!media) return res.status(409).json({message:'Upload already reviewed.'});
     await audit(req, 'gallery.reject', 'gallery_media', id, { rejection_reason });
 
     await attachGalleryFileUrl(media);
@@ -195,6 +196,7 @@ export const listRecentMedia = async (req, res, next) => {
 export const browseGallery = async (req, res, next) => {
   try {
     const { category_id, year, month, media_type, limit = 20, offset = 0 } = req.query;
+    if (media_type && media_type !== 'image') return res.status(400).json({message:'Only image media_type is supported.'});
     const featured = req.query.featured === 'true' ? true : undefined;
 
     const { media, total } = await galleryModel.browse({ category_id, year, month, media_type, featured, limit, offset });
@@ -219,7 +221,7 @@ export const featureMedia = async (req, res, next) => {
     }
 
     const existing = await galleryModel.findById(id);
-    if (!existing) {
+    if (!existing || existing.media_type !== 'image') {
       return res.status(404).json({ status: 404, message: 'Media not found.' });
     }
 
@@ -261,11 +263,11 @@ export const reassignCategory = async (req, res, next) => {
     }
 
     const existing = await galleryModel.findById(id);
-    if (!existing) {
+    if (!existing || existing.media_type !== 'image') {
       return res.status(404).json({ status: 404, message: 'Media not found.' });
     }
 
-    if (existing.status !== 'pending') {
+    if (existing.status !== 'pending' || existing.media_type !== 'image') {
       return res.status(400).json({ status: 400, message: 'Only pending media can have its category reassigned.' });
     }
 
@@ -288,25 +290,18 @@ export const deleteGalleryMedia = async (req, res, next) => {
     }
 
     const existing = await galleryModel.findById(id);
-    if (!existing) {
+    if (!existing || existing.media_type !== 'image') {
       return res.status(404).json({ status: 404, message: 'Media not found.' });
     }
 
     if (req.user.role !== 'admin' && String(existing.uploader_id) !== String(req.user.id)) {
-      return res.status(403).json({ status: 403, message: 'You do not have permission to delete this media.' });
+      return res.status(403).json({ status: 403, message: 'You do not have permission to withdraw this image.' });
     }
 
-    if (existing.b2_key && isGalleryB2Key(existing.b2_key)) {
-      try {
-        await b2.deleteObject(existing.b2_key);
-      } catch (e) {
-        console.error('Failed to delete B2 object', e.message || e);
-      }
-    }
-
-    await galleryModel.deleteMedia(id);
-    await audit(req, 'gallery.delete', 'gallery_media', id, null);
-    return res.json({ message: 'Media deleted.' });
+    // Withdraw from public display while preserving the record and B2 object.
+    await galleryModel.withdrawMedia(id);
+    await audit(req, 'gallery.withdraw', 'gallery_media', id, null);
+    return res.json({ message: 'Image withdrawn. Historical record and storage are preserved.' });
   } catch (err) {
     return next(err);
   }
@@ -358,8 +353,8 @@ export const searchGallery = async (req, res, next) => {
 
     let media_type;
     if (rawMediaType !== undefined && rawMediaType !== '') {
-      if (rawMediaType !== 'image' && rawMediaType !== 'video') {
-        return res.status(400).json({ status: 400, message: 'Invalid media_type. Must be image or video.' });
+      if (rawMediaType !== 'image') {
+        return res.status(400).json({ status: 400, message: 'Invalid media_type. Must be image.' });
       }
       media_type = rawMediaType;
     }

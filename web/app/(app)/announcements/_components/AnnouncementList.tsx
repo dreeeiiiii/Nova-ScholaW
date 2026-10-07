@@ -22,7 +22,7 @@ type Announcement = {
 type Props = {
   announcements: Announcement[];
   total: number;
-  initialType: "all" | "general" | "class";
+  initialType: "all" | "general" | "department" | "class";
   initialQ: string;
   currentUser?: { id: number | string; role: string } | null;
 };
@@ -30,6 +30,7 @@ type Props = {
 const TABS = [
   { key: "all", label: "All" },
   { key: "general", label: "General" },
+  { key: "department", label: "Department" },
   { key: "class", label: "Class" },
 ] as const;
 
@@ -40,7 +41,7 @@ export default function AnnouncementList({ announcements, total, initialType, in
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number | string; title: string } | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [optimisticType, setOptimisticType] = useState<"all" | "general" | "class" | null>(null);
+  const [optimisticType, setOptimisticType] = useState<"all" | "general" | "department" | "class" | null>(null);
 
   // Keep local q in sync when URL changes (e.g., back/forward)
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function AnnouncementList({ announcements, total, initialType, in
     };
   }, [q, router, searchParams, initialType]);
 
-  function onTypeClick(next: "all" | "general" | "class") {
+  function onTypeClick(next: "all" | "general" | "department" | "class") {
     setOptimisticType(next);
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());

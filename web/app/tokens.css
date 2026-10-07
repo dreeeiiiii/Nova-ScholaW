@@ -16,6 +16,9 @@
  */
 
 :root {
+  --control-height: 48px;
+  --color-overlay: rgba(20, 18, 31, .55);
+  --color-on-dark-muted: #c6c2d2;
   /* ---------- Colors ---------- */
   /* Primary — evolved violet (accessible successor to legacy #A78BFA) */
   --color-primary: #5b3df5;
@@ -44,8 +47,8 @@
   /* Text */
   --color-text: #1c1a26;
   --color-text-strong: #14121f;
-  --color-muted: #6b6880;
-  --color-muted-soft: #8f8ba3;
+  --color-muted: #625e72;
+  --color-muted-soft: #746f84;
   --color-line: rgba(28, 26, 38, 0.12);
   --color-line-strong: rgba(28, 26, 38, 0.22);
 
@@ -63,9 +66,9 @@
   --font-heading: var(--font-raleway), "Raleway", sans-serif;
   --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
 
-  --text-display: clamp(3.5rem, 10vw, 9rem);
+  --text-display: clamp(3.25rem, 7.6vw, 7.5rem);
   --text-h1: clamp(2.75rem, 6vw, 5.5rem);
-  --text-h2: clamp(2rem, 4.5vw, 3.75rem);
+  --text-h2: clamp(2rem, 4vw, 3.5rem);
   --text-h3: clamp(1.5rem, 3vw, 2.25rem);
   --text-h4: 1.375rem;
   --text-h5: 1.125rem;
@@ -105,7 +108,7 @@
   --space-32: 128px;
 
   /* Section rhythm (Filta-style generous whitespace) */
-  --section-space: var(--space-24);
+  --section-space: var(--space-16);
   --section-space-sm: var(--space-16);
   --section-space-lg: var(--space-32);
 }
@@ -147,7 +150,7 @@
   --radius-medium: 16px;
   --radius-large: 28px;
   --radius-pill: 9999px;
-  --radius-card: var(--radius-large);
+  --radius-card: 20px;
   --radius-input: var(--radius-small);
   --radius-btn: var(--radius-pill);
 }

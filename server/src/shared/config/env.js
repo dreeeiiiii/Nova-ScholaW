@@ -1,5 +1,4 @@
 import { randomBytes } from 'node:crypto';
-import path from 'node:path';
 import 'dotenv/config';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
@@ -24,7 +23,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 }
 
 if (isProduction) {
-  ['DATABASE_URL', 'JWT_SECRET', 'CLIENT_ORIGIN', 'UPLOAD_DIR', 'NST_EMAIL_DOMAIN'].forEach(requireEnv);
+  ['DATABASE_URL', 'JWT_SECRET', 'CLIENT_ORIGIN'].forEach(requireEnv);
 }
 
 const b2BucketName = requireEnv('B2_BUCKET_NAME');
@@ -68,9 +67,6 @@ const jwtSecret =
 const adminEmailDomain = resolveDomain('NST_ADMIN_EMAIL_DOMAIN', null, 'nst.edu.ph');
 const teacherEmailDomain = resolveDomain('NST_TEACHER_EMAIL_DOMAIN', null, 'tr.nst.edu.ph');
 const studentEmailDomain = resolveDomain('NST_STUDENT_EMAIL_DOMAIN', 'NST_EMAIL_DOMAIN', 'my.nst.edu.ph');
-// Legacy single-domain alias — always mirrors the student domain.
-// Prefer the role-specific domains above.
-const nstEmailDomain = process.env.NST_EMAIL_DOMAIN ?? studentEmailDomain;
 
 const config = Object.freeze({
   nodeEnv,
@@ -78,16 +74,18 @@ const config = Object.freeze({
   port,
   jwtSecret,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
+  announcementSchedulerEnabled: process.env.ANNOUNCEMENT_SCHEDULER_ENABLED === 'true',
   databaseUrl: optional('DATABASE_URL', 'database features disabled until server/.env is configured'),
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
-  uploadDir: path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
-  nstEmailDomain,
+  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
   adminEmailDomain,
   teacherEmailDomain,
   studentEmailDomain,
-  maxImageSizeMb: Number(process.env.MAX_IMAGE_SIZE_MB || 10),
-  maxVideoSizeMb: Number(process.env.MAX_VIDEO_SIZE_MB || 50),
-  maxVideoDurationSeconds: Number(process.env.MAX_VIDEO_DURATION_SECONDS || 120),
+  emailMode: process.env.EMAIL_MODE || 'mock',
+  brevoApiKey: process.env.BREVO_API_KEY || '',
+  emailSender: process.env.EMAIL_SENDER_ADDRESS || '',
+  emailSenderName: process.env.EMAIL_SENDER_NAME || 'Nova Schola Hub',
+  emailEnabledAt: process.env.EMAIL_ENABLED_AT || '',
+  emailTestRecipient: process.env.EMAIL_TEST_RECIPIENT || '',
   b2BucketName,
   b2BucketId,
   b2Endpoint,

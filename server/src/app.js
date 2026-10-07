@@ -38,11 +38,11 @@ const createApp = () => {
       await checkConnection();
     } catch (err) {
       database = 'disconnected';
-      console.error('[health] database check failed:', err.message);
+      console.error('[health] database check failed');
     }
 
-    res.json({
-      status: 'ok',
+    res.status(database === 'connected' ? 200 : 503).json({
+      status: database === 'connected' ? 'ok' : 'unavailable',
       service: 'novaschola-server',
       environment: config.nodeEnv,
       database,

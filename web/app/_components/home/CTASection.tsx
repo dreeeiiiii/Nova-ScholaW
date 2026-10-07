@@ -31,8 +31,8 @@ export default function CTASection() {
                 className="tokens-body-lg"
                 style={{ color: "rgba(255, 255, 255, 0.65)", marginTop: "var(--space-6)", textWrap: "pretty" }}
               >
-                Set up your school&rsquo;s announcement hub in minutes. Free for educational
-                institutions.
+                Use your official NST email to create a Student or Teacher account
+                and stay informed about your school community.
               </p>
             </div>
           </RevealOnScroll>
@@ -40,7 +40,7 @@ export default function CTASection() {
           <RevealOnScroll direction="up" delay={80} className="lg:col-span-4">
             <div className="flex flex-col items-start gap-4 lg:items-end">
               <Link href="/register" className="tokens-btn tokens-btn-accent group">
-                Create your hub
+                Create an account
                 <span
                   aria-hidden="true"
                   className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"

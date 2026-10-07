@@ -50,7 +50,7 @@ export default async function DashboardPage() {
     user.role === "admin"
       ? (serverFetch("/api/dashboard/stats").catch(() => null) as Promise<{
           users: { total: number; admin: number; teacher: number; student: number };
-          announcements: { total: number; general: number; class: number };
+          announcements: { total: number; general: number; department: number; class: number };
           gallery: { total: number; pending: number; approved: number; rejected: number };
         } | null>)
       : Promise.resolve(null),
@@ -68,13 +68,13 @@ export default async function DashboardPage() {
   const statItems = isAdmin
     ? [
         { index: "01", label: "Announcements", value: stats?.announcements.total ?? latest.length },
-        { index: "02", label: "Upcoming events", value: upcomingResult.total ?? upcoming.length },
+        { index: "02", label: "Upcoming Announcements", value: upcomingResult.total ?? upcoming.length },
         { index: "03", label: "Gallery memories", value: stats?.gallery.approved ?? featured.length },
         { index: "04", label: "Pending uploads", value: stats?.gallery.pending ?? 0 },
       ]
     : [
         { index: "01", label: "Announcements", value: latestResult.total ?? latest.length },
-        { index: "02", label: "Upcoming events", value: upcomingResult.total ?? upcoming.length },
+        { index: "02", label: "Upcoming Announcements", value: upcomingResult.total ?? upcoming.length },
         { index: "03", label: "Featured memories", value: featuredResult.total ?? featured.length },
       ];
 
@@ -107,13 +107,21 @@ export default async function DashboardPage() {
         }
       />
 
+      <details className="dashboard-actions mb-8"><summary className="flex min-h-12 items-center justify-between font-bold">Quick actions <span aria-hidden="true">+</span></summary><nav aria-label="Dashboard actions" className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <Link className="tokens-btn tokens-btn-secondary" href="/announcements?type=general">General Announcements</Link>
+        {isAdmin?<><Link className="tokens-btn tokens-btn-secondary" href="/admin/departments">Department Management</Link><Link className="tokens-btn tokens-btn-secondary" href="/admin/events">Event Management</Link><Link className="tokens-btn tokens-btn-secondary" href="/admin/audit-logs">Audit Logs</Link></>:<><Link className="tokens-btn tokens-btn-secondary" href="/announcements?type=department">Department Announcements</Link><Link className="tokens-btn tokens-btn-secondary" href="/announcements?type=class">Class Announcements</Link>{user.role==="teacher"&&<Link className="tokens-btn tokens-btn-primary" href="/announcements/create">Create Class Announcement</Link>}</>}
+        <Link className="tokens-btn tokens-btn-secondary" href="/gallery">Event Gallery</Link>
+        <Link className="tokens-btn tokens-btn-secondary" href="/gallery/upload">Upload Event Image</Link>
+        <Link className="tokens-btn tokens-btn-secondary" href="/gallery/mine">Upload Status</Link>
+        <Link className="tokens-btn tokens-btn-secondary" href="/account">Account / Change Password</Link>
+      </nav></details>
       {/* Stats */}
       <section aria-label="At a glance" style={{ marginBottom: "var(--space-12)" }}>
         <Statistics items={statItems} columns={isAdmin ? 4 : 3} />
       </section>
 
-      {/* Two-column: Latest Announcements + Upcoming Events */}
-      <div className="grid gap-12 xl:grid-cols-2" style={{ marginBottom: "var(--space-12)" }}>
+      {/* Latest and upcoming announcements */}
+      <div className="dashboard-feed grid gap-8 xl:grid-cols-2" style={{ marginBottom: "var(--space-12)" }}>
         <section aria-labelledby="latest-heading">
           <div className="mb-4 flex items-center justify-between">
             <h2 id="latest-heading" className="tokens-heading-3" style={{ color: "var(--color-text)" }}>
@@ -155,13 +163,13 @@ export default async function DashboardPage() {
                         borderRadius: "var(--radius-pill)",
                         padding: "2px var(--space-3)",
                         fontWeight: 700,
-                        fontSize: "0.6875rem",
+                        fontSize: "var(--text-small)",
                         letterSpacing: "0.08em",
                         backgroundColor: a.type === "general" ? "var(--color-info-bg)" : "var(--color-primary-soft)",
                         color: a.type === "general" ? "var(--color-info)" : "var(--color-primary-ink)",
                       }}
                     >
-                      {a.type === "general" ? "GENERAL" : "CLASS"}
+                      {a.type === "general" ? "GENERAL" : a.type === "department" ? "DEPARTMENT" : "CLASS"}
                     </span>
                     {(a.created_at || a.publish_at) && (
                       <span className="tokens-small" style={{ color: "var(--color-muted)" }}>
@@ -169,7 +177,7 @@ export default async function DashboardPage() {
                       </span>
                     )}
                   </span>
-                  <span className="font-heading text-base font-bold" style={{ color: "var(--color-text)" }}>
+                  <span className="font-heading text-xl font-bold" style={{ color: "var(--color-text)" }}>
                     {a.title}
                   </span>
                   <span className="tokens-small line-clamp-2" style={{ color: "var(--color-muted)" }}>
@@ -183,12 +191,12 @@ export default async function DashboardPage() {
 
         <section aria-labelledby="upcoming-heading">
           <h2 id="upcoming-heading" className="tokens-heading-3 mb-4" style={{ color: "var(--color-text)" }}>
-            Upcoming events
+            Upcoming Announcements
           </h2>
           {upcoming.length === 0 ? (
             <EmptyState
               icon={<CalendarDays size={20} strokeWidth={1.5} aria-hidden="true" />}
-              message="No scheduled events."
+              message="No scheduled announcements."
             />
           ) : (
             <ul style={{ borderTop: "1px solid var(--color-line)" }}>
@@ -251,11 +259,9 @@ export default async function DashboardPage() {
               const alt = m.caption || "Featured gallery image";
               return (
                 <div key={String(m.id)} className="overflow-hidden" style={{ borderRadius: "var(--radius-medium)" }}>
-                  {m.media_type === "video" ? (
-                    <video src={src} preload="metadata" className="h-40 w-full object-cover md:h-56" />
-                  ) : (
+
                     <img src={src} alt={alt} loading="lazy" className="h-40 w-full object-cover md:h-56" />
-                  )}
+
                 </div>
               );
             })}

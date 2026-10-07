@@ -1,0 +1,7 @@
+.batch1-validation/
+
+# Local browser validation artifacts
+/web/ui-test-results/
+/web/ui-retest-results/
+/web/dialog-test-results/
+/web/live-test-results/

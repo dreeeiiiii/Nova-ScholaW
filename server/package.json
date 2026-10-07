@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Nova Schola Hub API server",
   "engines": {
-    "node": ">=18.8.0"
+    "node": "22.x"
   },
   "main": "src/server.js",
   "scripts": {
@@ -14,7 +14,8 @@
     "db:migrate": "node src/shared/db/migrate.js",
     "db:migrate:test": "cross-env NODE_ENV=test node src/shared/db/migrate.js",
     "seed:production": "node scripts/seed-production.js",
-    "test": "cross-env NODE_ENV=test node --test --test-concurrency=1"
+    "test": "cross-env NODE_ENV=test node --import ./tests/safe-network.js --experimental-test-module-mocks --test --test-concurrency=1 tests/requireRole.test.js tests/utils.test.js tests/batch1/*.test.js tests/batch2/*.test.js tests/batch3/*.test.js",
+    "test:batch2": "node --experimental-test-module-mocks --test tests/batch2/email.test.js tests/batch2/integration.test.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.616.0",

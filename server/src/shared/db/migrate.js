@@ -1,84 +1,62 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import config from '../config/env.js';
-import { getClient, closePool } from '../config/db.js';
+const directory = path.dirname(fileURLToPath(import.meta.url));
+const baselinePath = path.resolve(directory, '../../../../DATABASE_SCHEMA.sql');
+const migrationDirectory = path.join(directory, 'migrations');
+const expectedTables = ['users', 'sections', 'courses', 'announcements', 'announcement_targets', 'categories', 'gallery_media', 'audit_logs'];
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const schemaPath = path.join(__dirname, '../../../../DATABASE_SCHEMA.sql');
-
-const run = async () => {
-  // In NODE_ENV=test the pool (via db.js + testGuard) targets DATABASE_URL_TEST;
-  // the production DATABASE_URL is not required in that mode.
-  if (!config.databaseUrl && config.nodeEnv !== 'test') {
-    throw new Error('DATABASE_URL is not set. Configure server/.env before migrating.');
-  }
-  if (config.nodeEnv === 'test' && !process.env.DATABASE_URL_TEST) {
-    throw new Error('DATABASE_URL_TEST is not set. Configure server/.env.test before migrating the test database.');
-  }
-
-  console.log(`[migrate] Reading schema from ${schemaPath}`);
-  const sql = await readFile(schemaPath, 'utf8');
-
-  const client = await getClient();
+export async function migrate(client) {
+  await client.query('BEGIN');
   try {
-    // NOTE: parser splits on ';' — does not handle ';' inside
-    // strings, dollar-quoted functions, or comments. Acceptable for
-    // the current schema. If future migrations need those, switch
-    // to a proper SQL splitter (pg-query-parser or similar).
-    const statements = sql
-      .split(';')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-
-    let applied = 0;
-    let skipped = 0;
-    await client.query('BEGIN');
-    for (const raw of statements) {
-      // Skip pure comment blocks or empty
-      const trimmed = raw.trim();
-      if (!trimmed) continue;
-      // If statement is only comments/whitespace, skip
-      const withoutComments = trimmed
-        .split('\n')
-        .filter((line) => !line.trim().startsWith('--'))
-        .join('\n')
-        .trim();
-      if (!withoutComments) continue;
-
-      await client.query('SAVEPOINT s');
-      try {
-        await client.query(raw);
-        await client.query('RELEASE SAVEPOINT s');
-        applied++;
-      } catch (err) {
-        const code = err.code;
-        if (['42P07', '42710', '42P06', '42P16'].includes(code)) {
-          await client.query('ROLLBACK TO SAVEPOINT s');
-          const short = trimmed.split('\n')[0].slice(0, 80).trim();
-          console.log(`[migrate] Skipped (already exists): ${short}`);
-          skipped++;
-          continue;
-        }
-        await client.query('ROLLBACK');
-        throw err;
+    await client.query("SET LOCAL lock_timeout = '5s'");
+    await client.query("SET LOCAL statement_timeout = '60s'");
+    await client.query('SELECT pg_advisory_xact_lock(642031)');
+    const { rows } = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
+    const names = new Set(rows.map(row => row.tablename));
+    if (names.size === 0) {
+      await client.query(await readFile(baselinePath, 'utf8'));
+    } else if (!expectedTables.every(name => names.has(name))) {
+      throw new Error('Incomplete existing schema; review manually before migrating.');
+    }
+    await client.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
+      version TEXT PRIMARY KEY, checksum TEXT NOT NULL, applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    const files = (await readdir(migrationDirectory)).filter(name => /^\d+.*\.sql$/.test(name)).sort();
+    for (const version of files) {
+      const sql = await readFile(path.join(migrationDirectory, version), 'utf8');
+      const checksum = createHash('sha256').update(sql.replace(/\r\n/g, '\n')).digest('hex');
+      const existing = await client.query('SELECT checksum FROM schema_migrations WHERE version = $1', [version]);
+      if (existing.rows.length) {
+        if (existing.rows[0].checksum !== checksum) throw new Error(`Previously applied migration changed: ${version}`);
+        continue;
       }
+      await client.query(sql);
+      await client.query('INSERT INTO schema_migrations (version, checksum) VALUES ($1, $2)', [version, checksum]);
     }
     await client.query('COMMIT');
-    console.log(`[migrate] Done. Applied ${applied}, skipped ${skipped} already-exists statements.`);
-  } catch (err) {
-    throw err;
-  } finally {
-    client.release();
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
   }
-};
+}
 
-run()
-  .then(() => closePool())
-  .then(() => process.exit(0))
-  .catch(async (err) => {
-    console.error('[migrate] Failed:', err.message);
-    await closePool().catch(() => {});
-    process.exit(1);
-  });
+async function main() {
+  if (!process.argv.includes('--apply')) {
+    console.log('Plan only: baseline on empty database, then ' + (await readdir(migrationDirectory)).sort().join(', '));
+    console.log('No database connection opened. Use --apply only for an explicitly approved database.');
+    return;
+  }
+  const { getClient, closePool } = await import('../config/db.js');
+  try {
+    const client = await getClient();
+    try { await migrate(client); } finally { client.release(); }
+    console.log('Migrations applied. Existing department assignments were not inferred.');
+  } finally { await closePool(); }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(error => { console.error('[migrate]', error.message); process.exitCode = 1; });
+}

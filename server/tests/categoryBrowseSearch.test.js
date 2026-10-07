@@ -152,18 +152,9 @@ describe("category CRUD endpoints", () => {
     assert.equal(res.status, 400);
   });
 
-  it("POST /api/categories — teacher can create → 201", async () => {
-    const res = await postJson(baseUrl, "/api/categories", { name: "Teacher Category", description: "By teacher" }, teacherToken);
-    assert.equal(res.status, 201);
-    const data = await res.json();
-    assert.ok(data.category);
-    assert.ok(data.category.id);
-    assert.equal(data.category.name, "Teacher Category");
-
-    const list = await getJson(baseUrl, "/api/categories", null);
-    assert.equal(list.status, 200);
-    const listData = await list.json();
-    assert.ok(listData.categories.some((c) => c.name === "Teacher Category"));
+  it("POST /api/categories teacher cannot create", async () => {
+    const res=await postJson(baseUrl,"/api/categories",{name:"Teacher Category"},teacherToken);
+    assert.equal(res.status,403);
   });
 
   it("POST /api/categories — student tries to create → 403", async () => {
@@ -182,14 +173,11 @@ describe("category CRUD endpoints", () => {
     assert.equal(data.category.name, "Updated Cat Name");
   });
 
-  it("PUT /api/categories/:id — teacher can update → 200", async () => {
-    const res = await postJson(baseUrl, "/api/categories", { name: "Teacher Update Test" }, adminToken);
-    const catId = (await res.json()).category.id;
-
-    const upd = await putJson(baseUrl, `/api/categories/${catId}`, { name: "Teacher Updated Name" }, teacherToken);
-    assert.equal(upd.status, 200);
-    const data = await upd.json();
-    assert.equal(data.category.name, "Teacher Updated Name");
+  it("PUT /api/categories/:id teacher cannot update", async () => {
+    const res=await postJson(baseUrl,"/api/categories",{name:"Teacher Update Test"},adminToken);
+    const catId=(await res.json()).category.id;
+    const upd=await putJson(baseUrl,`/api/categories/${catId}`,{name:"Forbidden rename"},teacherToken);
+    assert.equal(upd.status,403);
   });
 
   it("DELETE /api/categories/:id — teacher tries to delete → 403", async () => {
@@ -288,7 +276,7 @@ describe("gallery browse endpoint (public)", () => {
 
     await query(
       `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status, reviewed_by, reviewed_at, created_at)
-       VALUES ($1, $2, 'video', '/uploads/gallery/videos/test2.mp4', 'test2.mp4', 'Test Video', 'approved', $3, NOW(), NOW())`,
+       VALUES ($1, $2, 'image', '/uploads/gallery/images/test2.png', 'test2.png', 'Test Image', 'approved', $3, NOW(), NOW())`,
       [adminId, categoryId, adminId]
     );
 
@@ -328,12 +316,9 @@ describe("gallery browse endpoint (public)", () => {
     data.media.forEach((m) => assert.equal(m.category_id, categoryId));
   });
 
-  it("GET /api/gallery?media_type=video — filters by type", async () => {
+  it("GET /api/gallery?media_type=video rejects unsupported type", async () => {
     const res = await getJson(baseUrl, "/api/gallery?media_type=video", null);
-    assert.equal(res.status, 200);
-    const data = await res.json();
-    assert.ok(data.media);
-    data.media.forEach((m) => assert.equal(m.media_type, "video"));
+    assert.equal(res.status, 400);
   });
 
   it("GET /api/gallery/:id — returns approved media only", async () => {
@@ -413,7 +398,7 @@ describe("gallery search endpoint (public)", () => {
     );
     await query(
       `INSERT INTO gallery_media (uploader_id, category_id, media_type, file_url, original_filename, caption, status, reviewed_by, reviewed_at, created_at)
-       VALUES ($1, $2, 'video', '/uploads/gallery/videos/school.mp4', 'school.mp4', 'School Event Highlights', 'approved', $3, NOW(), $4)`,
+       VALUES ($1, $2, 'image', '/uploads/gallery/images/school.png', 'school.png', 'School Event Highlights', 'approved', $3, NOW(), $4)`,
       [adminId, categoryId, adminId, now]
     );
 

@@ -1,4 +1,5 @@
 import { query } from '../../shared/config/db.js';
+import { safeAuditDetails } from './auditDetails.js';
 
 export const listLogs = async ({ action, entity_type, user_id, limit, offset } = {}) => {
   const conditions = [];
@@ -42,7 +43,8 @@ export const listLogs = async ({ action, entity_type, user_id, limit, offset } =
     params.slice(0, params.length - 2)
   );
 
-  return { logs, total: countRows[0]?.total ?? 0 };
+  // Legacy free-text details are preserved in storage but never returned to clients.
+  return { logs: logs.map(log => ({ ...log, details: safeAuditDetails(log.details) })), total: countRows[0]?.total ?? 0 };
 };
 
 export default { listLogs };

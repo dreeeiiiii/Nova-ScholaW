@@ -83,7 +83,7 @@ describe('B1.3 status=scheduled bypass + ?upcoming=true', () => {
     assert.equal(r1.status, 201);
     createdIds.push((await r1.json()).announcement.id);
 
-    const r2 = await postJson(baseUrl, '/api/announcements/general', { title: 'UPCOMING_General_Future_2', content: 'future general 2', publish_at: future2 }, teacherToken);
+    const r2 = await postJson(baseUrl, '/api/announcements/general', { title: 'UPCOMING_General_Future_2', content: 'future general 2', publish_at: future2 }, adminToken);
     assert.equal(r2.status, 201);
     createdIds.push((await r2.json()).announcement.id);
 
@@ -93,7 +93,7 @@ describe('B1.3 status=scheduled bypass + ?upcoming=true', () => {
     createdIds.push((await r3.json()).announcement.id);
 
     // Class scheduled NOT targeted to student (other section) — should NOT appear for student
-    const r4 = await postJson(baseUrl, '/api/announcements/class', { title: 'UPCOMING_Class_Untargeted_B', content: 'untargeted', publish_at: future1, section_ids: [otherSectionId] }, adminToken);
+    const r4 = await postJson(baseUrl, '/api/announcements/class', { title: 'UPCOMING_Class_Untargeted_B', content: 'untargeted', publish_at: future1, section_ids: [otherSectionId] }, teacherToken);
     assert.equal(r4.status, 201);
     createdIds.push((await r4.json()).announcement.id);
 

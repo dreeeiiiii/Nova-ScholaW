@@ -18,18 +18,18 @@ const benefits = [
   },
   {
     index: "04",
-    title: "Targeted announcements",
-    description: "Send to everyone, or just to specific classes and students.",
+    title: "General, Department and Class Announcements",
+    description: "Administrator publishes General and Department Announcements. Teachers publish Class Announcements for intended Students.",
   },
   {
     index: "05",
     title: "Searchable gallery",
-    description: "Find memories by category, year, or media type in seconds.",
+    description: "Find memories by category and year in seconds.",
   },
   {
     index: "06",
     title: "Audit trail",
-    description: "Every write action is logged, from logins to approvals.",
+    description: "The Administrator can review significant account, announcement and event actions.",
   },
 ];
 
@@ -48,7 +48,7 @@ export default function Benefits() {
           items={benefits}
         />
 
-        {/* Dev panel — token dark block (layout preserved) */}
+        {/* School community panel */}
         <div style={{ marginTop: "var(--space-24)" }}>
           <div
             className="relative overflow-hidden p-8 md:p-12 lg:p-16 xl:p-20"
@@ -56,22 +56,22 @@ export default function Benefits() {
           >
             <div className="relative z-10" style={{ maxWidth: "42rem" }}>
               <span className="tokens-eyebrow" style={{ color: "var(--color-accent)" }}>
-                For developers
+                For Nova Schola Tanauan
               </span>
               <h3
                 className="tokens-heading-2 text-balance"
                 style={{ color: "var(--color-surface)", marginTop: "var(--space-4)" }}
               >
-                Open source. Extensible.
+                Official updates.
                 <br />
-                Built on modern standards.
+                Shared school memories.
               </h3>
               <p
                 className="tokens-body-lg"
                 style={{ color: "rgba(255, 255, 255, 0.6)", marginTop: "var(--space-6)", maxWidth: "32rem" }}
               >
-                Next.js 16, Express, PostgreSQL, TypeScript end-to-end. Clean
-                architecture, ready to extend.
+                Read school announcements, keep up with your department and class,
+                and share event images through Administrator review.
               </p>
             </div>
           </div>

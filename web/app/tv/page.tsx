@@ -7,6 +7,9 @@ type Announcement = {
   content: string;
   image_url?: string | null;
   created_at: string;
+  type?: string;
+  publish_at?: string | null;
+  expires_at?: string | null;
 };
 
 export default async function TvPage({
@@ -26,5 +29,5 @@ export default async function TvPage({
   const raw = typeof sp.animate === "string" ? sp.animate.toLowerCase().trim() : "";
   const animate = !(raw === "0" || raw === "off" || raw === "false");
 
-  return <TvSlideshow initialAnnouncements={announcements} animate={animate} />;
+  return <main id="main-content" tabIndex={-1}><TvSlideshow initialAnnouncements={announcements} animate={animate} /></main>;
 }

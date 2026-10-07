@@ -17,8 +17,8 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: "NovaSchola Web",
-  description: "Nova Schola Hub — web scaffold",
+  title: "Nova Schola Hub: A Web-Based Announcement and Event Management System for Nova Schola Tanauan",
+  description: "Official announcements and image-only Event Management for Nova Schola Tanauan.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -28,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${dmSans.variable} ${raleway.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body">
+        <a href="#main-content" className="skip-link">Skip to content</a>
         {children}
       </body>
     </html>

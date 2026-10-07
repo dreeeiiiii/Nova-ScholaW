@@ -30,21 +30,10 @@ function formatDate(iso?: string) {
 function TileVisual({ m, src, title }: { m: Media; src: string; title: string }) {
   return (
     <span className="relative block aspect-[4/3] overflow-hidden" style={{ backgroundColor: "var(--color-background-deep)" }}>
-      {m.media_type === "video" ? (
-        <video src={src} preload="metadata" className="h-full w-full object-cover" />
-      ) : (
+
         <img src={src} alt={title} loading="lazy" className="h-full w-full object-cover" />
-      )}
-      {m.media_type === "video" && (
-        <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
-          <span
-            className="flex h-10 w-10 items-center justify-center text-sm"
-            style={{ borderRadius: "var(--radius-pill)", backgroundColor: "var(--color-surface)", color: "var(--color-text)" }}
-          >
-            ▶
-          </span>
-        </span>
-      )}
+
+
       <span
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 hidden p-4 opacity-0 transition-opacity duration-200 motion-reduce:transition-none md:block md:group-hover/tile:opacity-100"
@@ -68,10 +57,10 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
     return (
       <EmptyState
         icon={<Images size={20} strokeWidth={1.5} aria-hidden="true" />}
-        message="No media found. Try adjusting filters or share a memory."
+        message="No images found. Try adjusting filters or share a memory."
         action={
           <Link href="/gallery/upload" className="tokens-btn tokens-btn-primary !min-h-[44px] !px-5 !py-2 text-sm">
-            Upload media
+            Upload image
           </Link>
         }
       />
@@ -94,8 +83,8 @@ export default function GalleryGrid({ media }: { media: Media[] }) {
               style={{ borderRadius: "var(--radius-small)", overflow: "hidden" }}
             >
               <TileVisual m={m} src={src} title={title} />
-              <span className="block md:hidden" style={{ paddingBlock: "var(--space-2)" }}>
-                <span className="block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>
+              <span className="block" style={{ paddingBlock: "var(--space-4)" }}>
+                <span className="block text-base font-bold" style={{ color: "var(--color-text)" }}>
                   {title}
                 </span>
                 <span className="tokens-small mt-0.5 block" style={{ color: "var(--color-muted)" }}>

@@ -5,15 +5,20 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import AudiencePicker from "./AudiencePicker";
 
+function toLocalInput(value: string) { const d = new Date(value); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
+
 type Targets = { section_ids: (number | string)[]; course_ids: (number | string)[]; student_ids: (number | string)[] };
 
 type Props = {
   mode: "create" | "edit";
+  role: "admin" | "teacher";
   initial?: {
     id?: number | string;
     title?: string;
     content?: string;
     type?: string;
+    department_id?: number | string | null;
+    b2_key?: string | null;
     image_url?: string;
     publish_at?: string | null;
     expires_at?: string | null;
@@ -22,31 +27,33 @@ type Props = {
   };
 };
 
-export default function AnnouncementForm({ mode, initial }: Props) {
+export default function AnnouncementForm({ mode, initial, role }: Props) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
-  const [type, setType] = useState(initial?.type ?? "general");
+  const [type, setType] = useState(initial?.type ?? (role === "teacher" ? "class" : "general"));
   const [targets, setTargets] = useState<Targets>(
     initial?.targets ?? { section_ids: [], course_ids: [], student_ids: [] },
   );
   const [publishAt, setPublishAt] = useState(
-    initial?.publish_at ? new Date(initial.publish_at).toISOString().slice(0, 16) : "",
+    initial?.publish_at ? toLocalInput(initial.publish_at) : "",
   );
   const [expiresAt, setExpiresAt] = useState(
-    initial?.expires_at ? new Date(initial.expires_at).toISOString().slice(0, 16) : "",
+    initial?.expires_at ? toLocalInput(initial.expires_at) : "",
   );
 
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
   const [b2Key, setB2Key] = useState((initial as { b2_key?: string })?.b2_key ?? "");
-  const [showOnTv, setShowOnTv] = useState<boolean>((initial as { show_on_tv?: boolean })?.show_on_tv ?? true);
+  const [departmentId, setDepartmentId] = useState(String(initial?.department_id ?? ""));
+  const [departments, setDepartments] = useState<{id: string; name: string}[]>([]);
   const [previewUrl, setPreviewUrl] = useState(initial?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
   const [error, setError] = useState("");
+  useEffect(() => { fetch("/api/auth/departments").then(r => r.json()).then(d => setDepartments(d.departments ?? [])).catch(() => setError("Cannot load departments.")); }, []);
   const [saving, setSaving] = useState(false);
 
   const isClass = type === "class";
@@ -69,16 +76,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
     }
   }, [previewUrl]);
 
-  useEffect(() => {
-    return () => {
-      if (prevPreviewRef.current && prevPreviewRef.current.startsWith("blob:")) {
-        URL.revokeObjectURL(prevPreviewRef.current);
-      }
-      if (previewUrl && previewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, []);
+
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -155,6 +153,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
       return;
     }
 
+    if (type === "department" && !departmentId) { setError("Select a department."); return; }
     if (isClass) {
       const total = targets.section_ids.length + targets.course_ids.length + targets.student_ids.length;
       if (total === 0) {
@@ -168,10 +167,10 @@ export default function AnnouncementForm({ mode, initial }: Props) {
       const payload: Record<string, unknown> = {
         title: title.trim(),
         content: content.trim(),
-        image_url: imageUrl || undefined,
-        b2_key: b2Key || undefined,
-        publish_at: publishAt ? new Date(publishAt).toISOString() : undefined,
-        expires_at: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+        image_url: imageUrl || null,
+        b2_key: b2Key || null,
+        publish_at: publishAt ? new Date(publishAt).toISOString() : null,
+        expires_at: expiresAt ? new Date(expiresAt).toISOString() : null,
       };
       if (isClass) {
         payload.show_on_tv = false;
@@ -179,10 +178,10 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         payload.course_ids = targets.course_ids;
         payload.student_ids = targets.student_ids;
       } else {
-        payload.show_on_tv = showOnTv;
+        if (type === "department") payload.department_id = Number(departmentId);
       }
 
-      const endpoint = isClass ? "/api/announcements/class" : "/api/announcements/general";
+      const endpoint = "/api/announcements/" + type;
       const method = mode === "edit" && initial?.id ? "PUT" : "POST";
       const url =
         mode === "edit" && initial?.id ? `/api/announcements/${encodeURIComponent(String(initial.id))}` : endpoint;
@@ -218,7 +217,8 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         <div className="mb-4 tokens-small" style={{ borderRadius: "var(--radius-small)", backgroundColor: "var(--color-danger-bg)", color: "var(--color-danger)", padding: "var(--space-3) var(--space-4)", fontWeight: 600 }}>{uploadError}</div>
       )}
 
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="composer-form space-y-4" noValidate>
+        <h2 className="tokens-heading-3">Write your update</h2>
         <div>
           <label htmlFor="ann-title" className="label-token">
             Title *
@@ -252,7 +252,7 @@ export default function AnnouncementForm({ mode, initial }: Props) {
         <div>
           <p className="label-token">Type</p>
           <div className="flex gap-6" style={{ borderBottom: "1px solid var(--color-line)" }}>
-            {["general", "class"].map((t) => (
+            {(mode === "edit" ? [type] : role === "teacher" ? ["class"] : ["general", "department"]).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -265,14 +265,14 @@ export default function AnnouncementForm({ mode, initial }: Props) {
                   paddingInline: "2px",
                 }}
               >
-                {t === "general" ? "General" : "Class"}
+                {t === "general" ? "General" : t === "department" ? "Department" : "Class"}
               </button>
             ))}
           </div>
         </div>
 
         <div>
-          <label className="label-token">Image</label>
+          <label htmlFor="ann-image-file" className="label-token">Image</label>
           <input
             ref={fileInputRef}
             id="ann-image-file"
@@ -328,25 +328,12 @@ export default function AnnouncementForm({ mode, initial }: Props) {
           </div>
         </div>
 
-        {!isClass && (
-          <label className="flex items-start gap-3 rounded-xl p-3" style={{ border: "1px solid var(--color-line)", backgroundColor: "var(--color-surface)" }}>
-            <input
-              type="checkbox"
-              checked={showOnTv}
-              onChange={(e) => setShowOnTv(e.target.checked)}
-              className="mt-1 h-4 w-4"
-              style={{ accentColor: "var(--color-primary)" }}
-            />
-            <span className="flex-1">
-              <span className="block text-sm font-semibold" style={{ color: "var(--color-text)" }}>Show on TV display</span>
-              <span className="block text-xs" style={{ color: "var(--color-muted)" }}>Appears on the school lobby TV slideshow.</span>
-            </span>
-          </label>
-        )}
+        {type === "general" && <p className="tokens-small">School-wide; displayed on the public homepage, dashboards, and TV.</p>}
+        {type === "department" && <label className="block"><span className="label-token">Department *</span><select aria-label="Department *" className={inputCls} value={departmentId} onChange={e => setDepartmentId(e.target.value)} required><option value="">Select department</option>{departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>}
 
-        {isClass && <AudiencePicker value={targets} onChange={setTargets} />}
+        {isClass && <section className="composer-audience" aria-labelledby="audience-title"><h2 id="audience-title" className="tokens-heading-3 mb-4">Who should receive this?</h2><AudiencePicker value={targets} onChange={setTargets} /></section>}
 
-        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+        <div className="composer-actions flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={() => router.push("/announcements")}

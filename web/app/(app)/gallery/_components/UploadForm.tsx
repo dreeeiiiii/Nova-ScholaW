@@ -6,14 +6,13 @@ import ReviewModal from "./ReviewModal";
 
 type Category = { id: number | string; name: string };
 
-export default function UploadForm({ categories }: { categories: Category[] }) {
+export default function UploadForm({ categories, administrator = false }: { categories: Category[]; administrator?: boolean }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isVideo, setIsVideo] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -47,42 +46,9 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
   }, [previewUrl]);
 
   function validateFile(f: File): string | null {
-    const isImage = f.type.startsWith("image/");
-    const isVideo = f.type === "video/mp4";
-
-    if (isImage) {
-      if (f.size > 10 * 1024 * 1024) return "Image too large. Maximum 10 MB.";
-      if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
-        return "Invalid image type. Only JPEG, PNG, WebP allowed.";
-      }
-    } else if (isVideo) {
-      if (f.size > 50 * 1024 * 1024) return "Video too large. Maximum 50 MB.";
-    } else {
-      return "Invalid file type. Only JPEG, PNG, WebP images and MP4 videos allowed.";
-    }
+    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) return "Only JPEG, PNG, WebP images are allowed.";
+    if (f.size > 10 * 1024 * 1024) return "Image too large. Maximum 10 MB.";
     return null;
-  }
-
-  async function checkVideoDuration(f: File): Promise<string | null> {
-    if (f.type !== "video/mp4") return null;
-    const url = URL.createObjectURL(f);
-    try {
-      const duration = await new Promise<number>((resolve, reject) => {
-        const video = document.createElement("video");
-        video.preload = "metadata";
-        video.onloadedmetadata = () => resolve(video.duration);
-        video.onerror = () => reject(new Error("Could not load video metadata"));
-        video.src = url;
-      });
-      if (duration > 120) {
-        return "Video too long. Maximum 2 minutes.";
-      }
-      return null;
-    } catch {
-      return "Could not validate video duration.";
-    } finally {
-      URL.revokeObjectURL(url);
-    }
   }
 
   async function handleFile(f: File | null) {
@@ -91,7 +57,6 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
       setFile(null);
       if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
-      setIsVideo(false);
       return;
     }
 
@@ -105,23 +70,11 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
       return;
     }
 
-    if (f.type === "video/mp4") {
-      const durErr = await checkVideoDuration(f);
-      if (durErr) {
-        setError(durErr);
-        setFile(null);
-        if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
-    }
 
     if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     const blobUrl = URL.createObjectURL(f);
     setFile(f);
     setPreviewUrl(blobUrl);
-    setIsVideo(f.type === "video/mp4");
   }
 
   function onFileInput(e: React.ChangeEvent<HTMLInputElement>) {
@@ -149,7 +102,6 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
     setFile(null);
     if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
-    setIsVideo(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -204,7 +156,6 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
       setFile(null);
       if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
-      setIsVideo(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch {
       setError("Upload failed. Please try again.");
@@ -298,28 +249,26 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
             >
               <FileUp size={24} strokeWidth={1.5} />
             </div>
-            <p className="mt-3 text-sm font-semibold" style={{ color: "var(--color-text)" }}>Drop a file here or choose a sample file</p>
-            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>JPEG, PNG, WebP, MP4 · Images max 10 MB · Videos max 50 MB and 2 minutes</p>
-            <label className="tokens-btn tokens-btn-primary mt-4 !min-h-[44px] !px-5 !py-2 text-sm" style={{ cursor: "pointer" }}>
-              Choose file
+            <p className="mt-3 text-base font-semibold" style={{ color: "var(--color-text)" }}>Drop your school event image here</p>
+            <p className="tokens-small mt-1" style={{ color: "var(--color-muted)" }}>JPEG / PNG / WebP · Maximum 10 MB per image</p>
+            <button type="button" onClick={() => fileInputRef.current?.click()} className="tokens-btn tokens-btn-brand mt-4">Choose file</button>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,video/mp4"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={onFileInput}
-                className="hidden"
+                aria-label="School event image"
+                className="sr-only"
+                tabIndex={-1}
               />
-            </label>
             {file && <p className="tokens-small mt-3 font-medium" style={{ color: "var(--color-text)" }}>{file.name} · {(file.size / 1024 / 1024).toFixed(2)} MB</p>}
           </div>
 
           {previewUrl && (
             <div className="relative mt-4 inline-block">
-              {isVideo ? (
-                <video src={previewUrl} controls className="max-h-64 w-full rounded-xl bg-black" />
-              ) : (
+
                 <img src={previewUrl} alt="Preview" className="max-h-64 w-full rounded-xl object-contain" style={{ backgroundColor: "var(--color-background-deep)" }} />
-              )}
+
               <button
                 type="button"
                 onClick={clearFile}
@@ -338,13 +287,13 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
           disabled={pending}
           className="tokens-btn tokens-btn-primary mt-6 w-full text-sm disabled:opacity-60"
         >
-          {pending ? "Uploading…" : "Submit for review"}
+          {pending ? "Uploading..." : administrator ? "Upload Image" : "Submit for review"}
         </button>
-        <p className="tokens-small mt-2 text-center" style={{ color: "var(--color-muted)" }}>Uploads enter the moderation queue. Your photo or video will appear in the gallery after an admin approves it.</p>
+        <p className="tokens-small mt-2 text-center" style={{ color: "var(--color-muted)" }}>Student and Teacher images enter the moderation queue. Administrator uploads are approved directly.</p>
       </form>
 
       {showReview && (
-        <ReviewModal
+        <ReviewModal approved={administrator}
           onClose={() => {
             setShowReview(false);
           }}

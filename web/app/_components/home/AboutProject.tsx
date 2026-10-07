@@ -1,10 +1,10 @@
 import { RevealOnScroll } from "../ui/RevealOnScroll";
 
 const facts = [
-  { label: "Frontend", value: "Next.js 16 · React 19 · TypeScript · Tailwind CSS 4" },
-  { label: "Backend", value: "Express 4 · Node.js · PostgreSQL · Prisma ORM" },
-  { label: "Auth & Security", value: "JWT + HttpOnly Cookies · Role-based Access · Rate Limiting · Audit Logging" },
-  { label: "Infrastructure", value: "Vercel · Docker · GitHub Actions · Managed PostgreSQL" },
+  { label: "General Announcements", value: "Official school-wide updates published by the Administrator." },
+  { label: "Department Announcements", value: "Updates for College, Senior High School, or Junior High School." },
+  { label: "Class Announcements", value: "Teacher updates for intended Students, classes, and sections." },
+  { label: "Event Gallery", value: "Approved event images shared by the school community." },
 ];
 
 export default function AboutProject() {
@@ -51,9 +51,8 @@ export default function AboutProject() {
               style={{ color: "var(--color-muted)", marginTop: "var(--space-6)", maxWidth: "60ch", textWrap: "pretty" }}
             >
               Nova Schola Hub centralizes school announcements and event memories into a single
-              moderated platform — built as a capstone project for the Bachelor of Science in
-              Information Systems program, with role-based access, content moderation, and a
-              modern web stack.
+              moderated platform for Nova Schola Tanauan. Students and Teachers can read
+              applicable announcements and submit event images for Administrator review.
             </p>
           </div>
         </RevealOnScroll>

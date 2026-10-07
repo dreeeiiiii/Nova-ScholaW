@@ -14,7 +14,7 @@ type PageHeaderProps = {
  */
 export function PageHeader({ eyebrow, title, description, actions, className = "" }: PageHeaderProps) {
   return (
-    <div className={className} style={{ marginBottom: "var(--space-8)" }}>
+    <div className={`page-header ${className}`} style={{ marginBottom: "var(--space-8)" }}>
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div style={{ maxWidth: "720px" }}>
           {eyebrow && (
@@ -45,7 +45,7 @@ export function PageHeader({ eyebrow, title, description, actions, className = "
           )}
         </div>
         {actions && (
-          <div className="flex flex-wrap items-center gap-3 md:justify-end">{actions}</div>
+          <div className="page-header-actions md:justify-end">{actions}</div>
         )}
       </div>
       <div aria-hidden="true" className="h-px w-full" style={{ backgroundColor: "var(--color-line)", marginTop: "var(--space-6)" }} />

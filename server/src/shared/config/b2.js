@@ -43,11 +43,8 @@ export async function uploadBuffer(buffer, { folder, contentType, filename }) {
   } catch (error) {
     console.error('[b2] upload failed:', {
       folder,
-      key,
       contentType,
-      message: error.message,
       http_code: error.$metadata?.httpStatusCode,
-      name: error.name,
     });
     throw error;
   }
@@ -63,12 +60,9 @@ export async function deleteObject(key) {
     );
   } catch (error) {
     console.error('[b2] delete failed:', {
-      key,
-      message: error.message,
       http_code: error.$metadata?.httpStatusCode,
-      name: error.name,
     });
-    throw new Error(`Failed to delete B2 object ${key}: ${error.message}`);
+    throw new Error('Failed to delete B2 object');
   }
 }
 
@@ -84,10 +78,7 @@ export async function getPresignedUrl(key, expiresIn = config.b2PresignExpirySec
     );
   } catch (error) {
     console.error('[b2] presign GET failed:', {
-      key,
       expiresIn,
-      message: error.message,
-      name: error.name,
     });
     throw error;
   }
@@ -106,11 +97,8 @@ export async function getPresignedUploadUrl(key, contentType, expiresIn = config
     );
   } catch (error) {
     console.error('[b2] presign PUT failed:', {
-      key,
       contentType,
       expiresIn,
-      message: error.message,
-      name: error.name,
     });
     throw error;
   }

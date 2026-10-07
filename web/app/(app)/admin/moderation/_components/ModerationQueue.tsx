@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { resolveMediaUrl } from "@/lib/url";
-import { Image as ImageIcon, Video as VideoIcon, ShieldCheck } from "lucide-react";
+import { Image as ImageIcon,  ShieldCheck } from "lucide-react";
 import { EmptyState } from "../../../_components/EmptyState";
 import RejectModal from "./RejectModal";
 
@@ -236,15 +236,12 @@ export default function ModerationQueue({
           return (
             <li
               key={String(m.id)}
-              className="flex min-h-[44px] flex-col gap-4 lg:flex-row"
-              style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
+              className="hub-card mb-6 flex min-h-[44px] flex-col gap-6 lg:flex-row"
             >
-              <span className="block aspect-[4/3] w-full shrink-0 overflow-hidden sm:max-w-xs lg:w-64" style={{ backgroundColor: "var(--color-background-deep)" }}>
-                {m.media_type === "video" ? (
-                  <video src={src} preload="metadata" className="h-full w-full object-cover" />
-                ) : (
-                  <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
-                )}
+              <span className="block aspect-[4/3] w-full shrink-0 overflow-hidden lg:w-72" style={{ backgroundColor: "var(--color-background-deep)", borderRadius:"var(--radius-medium)" }}>
+
+                  <img src={src} alt={title} loading="lazy" className="h-full w-full object-contain" />
+
               </span>
 
               <span className="min-w-0 flex-1">
@@ -255,7 +252,7 @@ export default function ModerationQueue({
                       borderRadius: "var(--radius-pill)",
                       padding: "2px var(--space-3)",
                       fontWeight: 700,
-                      fontSize: "0.6875rem",
+                      fontSize: "var(--text-small)",
                       letterSpacing: "0.08em",
                       textTransform: "uppercase",
                       backgroundColor: "var(--color-warning-bg)",
@@ -264,13 +261,11 @@ export default function ModerationQueue({
                   >
                     Pending review
                   </span>
-                  {m.media_type === "video" ? (
-                    <VideoIcon size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: "var(--color-muted)" }} />
-                  ) : (
+
                     <ImageIcon size={16} strokeWidth={1.5} aria-hidden="true" style={{ color: "var(--color-muted)" }} />
-                  )}
+
                 </span>
-                <span className="mt-2 block truncate text-sm font-bold" style={{ color: "var(--color-text)" }}>{title}</span>
+                <span className="tokens-heading-3 mt-3 block" style={{ color: "var(--color-text)" }}>{title}</span>
                 <span className="tokens-small mt-1 block" style={{ color: "var(--color-muted)" }}>
                   Uploaded by {uploader} · {formatDate(m.created_at)}
                 </span>

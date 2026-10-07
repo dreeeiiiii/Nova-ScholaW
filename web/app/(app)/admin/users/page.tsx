@@ -22,7 +22,7 @@ type Course = { id: number | string; name: string };
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string; search?: string; page?: string }>;
+  searchParams: Promise<{ role?: string; search?: string; page?: string; department_id?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
@@ -39,6 +39,7 @@ export default async function UsersPage({
   const qs = new URLSearchParams();
   qs.set("limit", String(limit));
   qs.set("offset", String(offset));
+  if (sp.department_id) qs.set("department_id",sp.department_id);
   if (role) qs.set("role", role);
   if (search) qs.set("search", search);
 
@@ -102,6 +103,7 @@ export default async function UsersPage({
       <PageHeader eyebrow="Workspace" title="Users" description="Manage accounts, roles, and access." />
 
       <UserManagement
+        departmentId={sp.department_id}
         initialUsers={users}
         initialTotal={total}
         sections={sections}
