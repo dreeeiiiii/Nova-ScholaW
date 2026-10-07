@@ -1,6 +1,7 @@
 "use client";
 import { useEffect,useRef,useState } from "react";
 import Link from "next/link";
+import { notifySectionsChanged, subscribeSectionChanges } from "@/lib/section-sync";
 import { AuthShell } from "../_components/AuthShell";
 
 type Option={id:string|number;name:string;grade_level?:string};
@@ -16,21 +17,39 @@ export default function RegisterForm({initialRole}:{initialRole:"student"|"teach
   useEffect(()=>{let cancelled=false;fetch("/api/auth/departments").then(async r=>{if(!r.ok)throw new Error("Unable to load departments.");return r.json();}).then(d=>{if(!cancelled)setDepartments(d.departments??[]);}).catch(e=>{if(!cancelled)setError(e.message);});return()=>{cancelled=true;};},[]);
   useEffect(()=>{
     if(!department || role!=="student")return;
-    let cancelled=false;
-    fetch("/api/auth/sections?department_id="+encodeURIComponent(department)).then(async r=>{if(!r.ok)throw new Error("Unable to load sections.");return r.json();}).then(d=>{if(!cancelled){setSections(d.sections??[]);setCourses(d.courses??[]);setLevels(d.levels??[]);}}).catch(e=>{if(!cancelled)setError(e.message);}).finally(()=>{if(!cancelled)setLoading(false);});
-    return()=>{cancelled=true;};
-  },[department,role]);
+    let cancelled=false, requestId=0;
+    async function refresh(){
+      const current=++requestId;
+      try {
+        const r=await fetch("/api/auth/sections?department_id="+encodeURIComponent(department),{cache:"no-store"});
+        if(!r.ok)throw new Error("Unable to load sections.");
+        const d=await r.json();
+        if(!cancelled&&current===requestId){
+          const nextSections:Option[]=d.sections??[];
+          setSections(nextSections);setCourses(d.courses??[]);setLevels(d.levels??[]);
+          setSection(selected=>selected&&selected!=="new"&&!nextSections.some(s=>String(s.id)===selected&&s.grade_level?.trim().toLowerCase()===level.toLowerCase())?"":selected);
+        }
+      }catch(e){if(!cancelled&&current===requestId)setError(e instanceof Error?e.message:"Unable to load sections.");}
+      finally{if(!cancelled&&current===requestId)setLoading(false);}
+    }
+    void refresh();
+    const unsubscribe=subscribeSectionChanges(()=>{void refresh();});
+    return()=>{cancelled=true;unsubscribe();};
+  },[department,role,level]);
   function clearSection(){setSection("");setNewSection("");}
   function chooseDepartment(value:string){setDepartment(value);clearSection();setCourse("");setLevel("");setSections([]);setCourses([]);setLevels([]);setLoading(Boolean(value)&&role==="student");}
   const availableSections=sections.filter(s=>s.grade_level?.trim().toLowerCase()===level.toLowerCase());
+  const noSections=Boolean(department&&level&&!loading&&availableSections.length===0);
+  const sectionChoice=noSections?"new":section;
   async function submit(e:React.FormEvent){
     e.preventDefault();if(submitting.current)return;setError("");
     if(password!==confirm){setError("Passwords do not match.");return;}
-    if(role==="student"&&(!level||!section||(section==="new"&&!newSection.trim()))){setError("Select your student level and section, or enter your official missing section name.");return;}
+    if(role==="student"&&(!level||!sectionChoice||(sectionChoice==="new"&&!newSection.trim())||(sectionChoice!=="new"&&!availableSections.some(s=>String(s.id)===sectionChoice)))){setError("Select your student level and section, or enter your official missing section name.");return;}
     submitting.current=true;setPending(true);
     try{
-      const response=await fetch("/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({role,full_name:fullName.trim(),email:email.trim(),password,department_id:department,section_id:role==="student"&&section!=="new"?section:null,course_id:role==="student"?course:null,grade_level:role==="student"?level:undefined,new_section_name:role==="student"&&section==="new"?newSection:undefined})});
+      const response=await fetch("/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({role,full_name:fullName.trim(),email:email.trim(),password,department_id:department,section_id:role==="student"&&sectionChoice!=="new"?sectionChoice:null,course_id:role==="student"?course:null,grade_level:role==="student"?level:undefined,new_section_name:role==="student"&&sectionChoice==="new"?newSection:undefined})});
       const data=await response.json();if(!response.ok)throw new Error(data.message??"Registration failed.");
+      if(role==="student")notifySectionsChanged();
       setSuccess(data.message);
     }catch(e){setError(e instanceof Error?e.message:"Registration failed.");}finally{submitting.current=false;setPending(false);}
   }
@@ -45,8 +64,9 @@ export default function RegisterForm({initialRole}:{initialRole:"student"|"teach
       {role==="student"&&<>
         {courses.length>0&&<label className="block"><span className="label-token">Course / Program (if applicable)</span><select aria-label="Course / Program" className="input-token" disabled={loading} value={course} onChange={e=>{setCourse(e.target.value);clearSection();}}><option value="">Select course / program</option>{courses.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
         <label className="block"><span className="label-token">Student Level</span><select aria-label="Student Level" className="input-token" required disabled={!department||loading} value={level} onChange={e=>{setLevel(e.target.value);clearSection();}}><option value="">Select student level</option>{levels.map(l=><option key={l} value={l}>{l}</option>)}</select></label>
-        <label className="block"><span className="label-token">Section</span><select aria-label="Section" className="input-token" required disabled={!department||!level||loading} value={section} onChange={e=>{setSection(e.target.value);setNewSection("");}}><option value="">{loading?"Loading sections…":"Select your section"}</option>{availableSections.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}<option value="new">+ My section is not listed</option></select></label>
-        {section==="new"&&<div><h2 className="tokens-heading-3">Create Section</h2><label className="block mt-3"><span className="label-token">New Section Name</span><input aria-label="New Section Name" aria-describedby="section-help" className="input-token" required maxLength={100} placeholder="BSIS 1-C" value={newSection} onChange={e=>setNewSection(e.target.value)}/></label><p id="section-help" className="tokens-small mt-2">If your section is not listed, enter the official section name provided by Nova Schola Tanauan.</p></div>}
+        <label className="block"><span className="label-token">Section</span><select aria-label="Section" className="input-token" required disabled={!department||!level||loading} value={sectionChoice} onChange={e=>{setSection(e.target.value);setNewSection("");}}><option value="">{loading?"Loading sections…":"Select your section"}</option>{availableSections.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}<option value="new">My section is not listed</option></select></label>
+        {noSections&&<p role="status" className="tokens-small">No existing sections found.</p>}
+        {sectionChoice==="new"&&<div><h2 className="tokens-heading-3">Create Section</h2><label className="block mt-3"><span className="label-token">New Section Name</span><input aria-label="New Section Name" aria-describedby="section-help" className="input-token" required maxLength={100} placeholder="BSIS 1-C" value={newSection} onChange={e=>{setSection("new");setNewSection(e.target.value);}}/></label><p id="section-help" className="tokens-small mt-2">If your section is not listed, enter the official section name provided by Nova Schola Tanauan.</p></div>}
       </>}
       <label className="block"><span className="label-token">Password</span><input className="input-token" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)}/></label>
       <label className="block"><span className="label-token">Confirm password</span><input className="input-token" type="password" required minLength={8} autoComplete="new-password" value={confirm} onChange={e=>setConfirm(e.target.value)}/></label>

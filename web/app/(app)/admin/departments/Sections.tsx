@@ -1,5 +1,6 @@
 ﻿"use client";
 import { useEffect, useState } from "react";
+import { notifySectionsChanged, subscribeSectionChanges } from "@/lib/section-sync";
 import { Dialog } from "../../../_components/ui/Dialog";
 type Section = { id: string | number; name: string; grade_level: string; student_count: number };
 export default function Sections({ departmentId }: { departmentId: string }) {
@@ -11,19 +12,26 @@ export default function Sections({ departmentId }: { departmentId: string }) {
   const [editing, setEditing] = useState<Section | null>(null);
   const [deleting, setDeleting] = useState<Section | null>(null);
   async function load() {
-    const response = await fetch(`/api/sections?department_id=${departmentId}`);
+    const response = await fetch(`/api/sections?department_id=${departmentId}`, { cache: "no-store" });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Cannot load sections.");
     setSections(data.sections ?? []);
   }
   useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/sections?department_id=${departmentId}`).then(async response => {
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Cannot load sections.");
-      if (!cancelled) setSections(data.sections ?? []);
-    }).catch(error => { if (!cancelled) setError(error.message); }).finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+    let cancelled = false, requestId = 0;
+    async function refresh() {
+      const current = ++requestId;
+      try {
+        const response = await fetch(`/api/sections?department_id=${departmentId}`, { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Cannot load sections.");
+        if (!cancelled && current === requestId) setSections(data.sections ?? []);
+      } catch (error) { if (!cancelled && current === requestId) setError(error instanceof Error ? error.message : "Cannot load sections."); }
+      finally { if (!cancelled && current === requestId) setLoading(false); }
+    }
+    void refresh();
+    const unsubscribe = subscribeSectionChanges(() => { void refresh(); });
+    return () => { cancelled = true; unsubscribe(); };
   }, [departmentId]);
   async function mutate(url: string, method: string, body?: unknown) {
     setBusy(true); setError(""); setMessage("");
@@ -32,6 +40,7 @@ export default function Sections({ departmentId }: { departmentId: string }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Operation failed.");
       await load();
+      notifySectionsChanged();
       setMessage(method === "POST" ? "Section created." : method === "PUT" ? "Section updated." : "Section deleted.");
       return true;
     } catch (error) { setError(error instanceof Error ? error.message : "Operation failed."); return false; }
