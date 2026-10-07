@@ -1,3 +1,4 @@
+import { AnnouncementVisual } from "@/app/_components/ui/AnnouncementVisual";
 import Link from "next/link";
 import Image from "next/image";
 import { nstImages } from "@/lib/nst-images";
@@ -15,6 +16,8 @@ type Announcement = {
   title: string;
   content: string;
   type: string;
+  image_url?: string | null;
+  display_import_key?: string | null;
   publish_at?: string | null;
   created_at?: string;
 };
@@ -159,6 +162,7 @@ export default async function DashboardPage() {
                   className="flex min-h-[44px] flex-col gap-1"
                   style={{ paddingBlock: "var(--space-4)", borderBottom: "1px solid var(--color-line)" }}
                 >
+                  <AnnouncementVisual image={a.image_url} title={a.title} />
                   <span className="flex flex-wrap items-center gap-3">
                     <span
                       className="tokens-small"
@@ -172,9 +176,9 @@ export default async function DashboardPage() {
                         color: a.type === "general" ? "var(--color-info)" : "var(--color-primary-ink)",
                       }}
                     >
-                      {a.type === "general" ? "GENERAL" : a.type === "department" ? "DEPARTMENT" : "CLASS"}
+                      {a.type === "general" ? (a.display_import_key ? "GENERAL · DEMO DISPLAY" : "GENERAL") : a.type === "department" ? "DEPARTMENT" : "CLASS"}
                     </span>
-                    {(a.created_at || a.publish_at) && (
+                    {(a.created_at || a.publish_at) && !(a.display_import_key && !a.publish_at) && (
                       <span className="tokens-small" style={{ color: "var(--color-muted)" }}>
                         {formatDate(a.publish_at ?? a.created_at)}
                       </span>

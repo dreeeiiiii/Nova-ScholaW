@@ -37,3 +37,22 @@ Screenshots: `web/ui-test-results/nst/`. Visual review sheets: `.batch1-validati
 - Five previously removed unused starter SVGs remain removed. Existing upload test fixtures, favicon, seed and storage maintenance scripts remain intact.
 
 This verification supersedes the earlier interrupted status that reported an empty manifest and unavailable runtime tools. No production deployment or production migration was performed.
+
+
+## Announcement TV and display imports (October 8, 2026)
+
+No new downloads. All 36 existing assets were inspected; the following local WebP files are reused. Historical story imagery is illustrative unless it is the matching article graphic. Gallery fallbacks remain decorative and are never inserted into managed gallery records.
+
+| Local filename | Original NST page | Original image URL | Category | Hub use |
+| --- | --- | --- | --- | --- |
+| `/nst/misc/m50-shs-12-41e59256.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2024/12/M50-SHS-12.jpg | misc | NST: Now Stronger at Twelve; Archived: 2025 Foundation Celebration Preview; TV fallback/empty state; existing gallery fallback |
+| `/nst/misc/m50-shs-18-32a1dd37.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2024/12/M50-SHS-18.jpg | misc | Celebrating Victory: 12th Foundation Winners |
+| `/nst/misc/jhs-male-crazy-walk-copy02-8f06f869.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Male-Crazy-Walk-copy02.png | misc | The JHS Uniforms Just Got an Update |
+| `/nst/misc/jhs-f05-9387be68.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2022/05/JHS-F05.jpg | misc | NST Junior High Now Offers Foreign Language Class |
+| `/nst/misc/wp-shs-teachers-day-1fb8a9c1.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2025/10/WP-SHS-Teachers-Day.jpg | misc | Sa Huli, Sila: Last Years of Highschool with the SHS Department |
+| `/nst/misc/teachers-day-jhs-3d0446b0.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2025/10/Teachers-Day-JHS.jpg | misc | Nurturing in the Garden that Blooms |
+| `/nst/misc/img_2819-969097a2.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2819.jpg | misc | Start Your Journey: NST Admissions; Draft: NST Online Registration Resource |
+| `/nst/misc/shs-02-d9b6836d.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2022/06/SHS-02.jpg | misc | Discover NST College Programs; Draft: Exploring Information Systems at NST |
+| `/nst/misc/m100-shs-25-31bd19fc.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2024/12/M100-SHS-25.jpg | misc | Explore Senior High School Pathways |
+| `/nst/misc/jhs-activity-01-bc6356fb.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2022/05/JHS-Activity-01.jpg | misc | Learning Together at NST Junior High |
+| `/nst/branding/cropped-nova-schola-ntc-batangas-logos-2-a6775e70.webp` | https://nst.edu.ph/ | https://nst.edu.ph/wp-content/uploads/2020/03/cropped-Nova-Schola-NTC-Batangas-Logos-2.png | branding | TV NST brand mark |

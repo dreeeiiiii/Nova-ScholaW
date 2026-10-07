@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Monitor } from "lucide-react";
-import { resolveMediaUrl } from "@/lib/url";
+import { AnnouncementVisual } from "@/app/_components/ui/AnnouncementVisual";
 
 type Announcement = {
   id: number | string;
@@ -14,6 +14,9 @@ type Announcement = {
   image_url?: string | null;
   show_on_tv?: boolean;
   created_at?: string;
+  publish_at?: string | null;
+  display_import_key?: string | null;
+  status?: string;
 };
 
 type CurrentUser = {
@@ -41,6 +44,7 @@ export default function AnnouncementCard({
     <li
       className="announcement-card flex min-h-[44px] flex-col gap-3"
     >
+      <AnnouncementVisual image={announcement.image_url} title={announcement.title} />
       <span className="flex flex-wrap items-center gap-3">
         <span
           className="tokens-small"
@@ -56,7 +60,7 @@ export default function AnnouncementCard({
         >
           {isGeneral ? "GENERAL · PUBLIC" : announcement.type === "department" ? "DEPARTMENT · PRIVATE" : "CLASS · PRIVATE"}
         </span>
-        {isGeneral && (
+        {isGeneral && announcement.status === "published" && (
           <span
             title="Shows on TV display"
             className="inline-flex items-center gap-1"
@@ -79,21 +83,14 @@ export default function AnnouncementCard({
             By {announcement.author_name}
           </span>
         )}
-        {announcement.created_at && (
+        {announcement.display_import_key && <span className="tokens-small">Demo display · Email excluded</span>}
+        {announcement.status && <span className="tokens-small capitalize">{announcement.status}</span>}
+        {announcement.created_at && !(announcement.display_import_key && !announcement.publish_at) && (
           <span className="tokens-small" style={{ color: "var(--color-muted)" }}>
-            {new Date(announcement.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+            {new Date(announcement.publish_at ?? announcement.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
           </span>
         )}
       </span>
-      {announcement.image_url && (
-        <img
-          src={resolveMediaUrl(announcement.image_url)}
-          alt={announcement.title}
-          loading="lazy"
-          className="aspect-[16/9] w-full object-cover sm:max-w-xs"
-          style={{ borderRadius: "var(--radius-small)" }}
-        />
-      )}
       <h2 className="announcement-title font-heading font-bold" style={{ color: "var(--color-text)" }}>
         {announcement.title}
       </h2>

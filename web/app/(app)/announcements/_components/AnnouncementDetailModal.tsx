@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnnouncementVisual } from "@/app/_components/ui/AnnouncementVisual";
 import { X } from "lucide-react";
 
 type Target = {
@@ -155,6 +156,7 @@ export default function AnnouncementDetailModal({
 
         {data && !loading && !error && (
           <>
+            <div className="mt-4"><AnnouncementVisual image={data.announcement.image_url} title={data.announcement.title} /></div>
             <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed" style={{ color: "var(--color-text)" }}>{data.announcement.content}</p>
 
             {data.targets.length > 0 && (

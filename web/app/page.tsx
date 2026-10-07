@@ -9,7 +9,8 @@ import Footer from "./_components/home/Footer";
 import { SectionHeader } from "./_components/ui/Primitives";
 import { NstGalleryEmpty } from "./_components/ui/NstGalleryEmpty";
 import { nstImages } from "@/lib/nst-images";
-type Announcement = { id: string; title: string; content: string; created_at?: string; publish_at?: string };
+import { AnnouncementVisual } from "./_components/ui/AnnouncementVisual";
+type Announcement = { image_url?: string | null; display_import?: boolean; id: string; title: string; content: string; created_at?: string; publish_at?: string };
 type Media = { id: string; file_url: string; caption?: string };
 export default async function HomePage() {
   const [announcements, gallery] = await Promise.all([
@@ -21,7 +22,7 @@ export default async function HomePage() {
     <section className="home-section tokens-container" id="latest" aria-labelledby="latest-title">
       <SectionHeader id="latest-title" eyebrow="The school bulletin" title="Good to know." description="The latest General Announcements for our school community." action={<Link href="/announcements" className="tokens-btn tokens-btn-secondary">All announcements <ArrowUpRight size={18} aria-hidden="true" /></Link>} />
       {announcements.announcements.length === 0 ? <div className="empty-panel"><p className="tokens-heading-3">A little quiet here.</p><p>Published school announcements will appear here. Check back soon.</p></div> : <div className="bulletin-grid">{announcements.announcements.map((a, index) => <article key={a.id} className={`bulletin-card ${index === 0 ? "bulletin-feature" : ""}`}>
-        <div className="flex flex-wrap items-center justify-between gap-3"><span className="eyebrow">General</span>{(a.publish_at || a.created_at) && <time className="tokens-small" dateTime={a.publish_at || a.created_at}>{new Date((a.publish_at || a.created_at)!).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" })}</time>}</div>
+        <AnnouncementVisual image={a.image_url} title={a.title} /><div className="flex flex-wrap items-center justify-between gap-3"><span className="eyebrow">{a.display_import ? "General · Demo display" : "General"}</span>{(a.publish_at || a.created_at) && !(a.display_import && !a.publish_at) && <time className="tokens-small" dateTime={a.publish_at || a.created_at}>{new Date((a.publish_at || a.created_at)!).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" })}</time>}</div>
         <h3>{a.title}</h3><p className="line-clamp-3 whitespace-pre-wrap">{a.content}</p><details className="bulletin-details"><summary>Read More <span aria-hidden="true">↗</span></summary><p className="whitespace-pre-wrap">{a.content}</p></details>
       </article>)}</div>}
     </section>

@@ -63,7 +63,10 @@
     "category": "misc",
     "alt": "Nova Schola wp shs teachers day",
     "bytes": 171328,
-    "sha256": "39fcb55e6ad7f3d0c1601d3bad48cd80a05644b9bb0de1b2d07bd0060d04d0b6"
+    "sha256": "39fcb55e6ad7f3d0c1601d3bad48cd80a05644b9bb0de1b2d07bd0060d04d0b6",
+    "hubUses": [
+      "Sa Huli, Sila: Last Years of Highschool with the SHS Department"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2025/10/Teachers-Day-JHS.jpg",
@@ -76,7 +79,10 @@
     "category": "misc",
     "alt": "Nova Schola teachers day jhs",
     "bytes": 75138,
-    "sha256": "71b047edec28aeb371ef39757f101876af349a787de31cbfa9b3736bf778d2a9"
+    "sha256": "71b047edec28aeb371ef39757f101876af349a787de31cbfa9b3736bf778d2a9",
+    "hubUses": [
+      "Nurturing in the Garden that Blooms"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/06/JHS-Male-Crazy-Walk-copy02.png",
@@ -89,7 +95,10 @@
     "category": "misc",
     "alt": "Nova Schola jhs male crazy walk copy02",
     "bytes": 46514,
-    "sha256": "7098d6721740bac25498ede252d02475cde96a042b3e8b0f562440c0e5e1f04d"
+    "sha256": "7098d6721740bac25498ede252d02475cde96a042b3e8b0f562440c0e5e1f04d",
+    "hubUses": [
+      "The JHS Uniforms Just Got an Update"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2020/03/cropped-cropped-Nova-Schola-NTC-Batangas-Logos-7-scaled.png",
@@ -145,7 +154,10 @@
     "category": "branding",
     "alt": "Nova Schola cropped nova schola ntc batangas logos 2",
     "bytes": 8688,
-    "sha256": "12d188918531fbea0d2877acae919fd039d309c76bb217acda26bf622d0754b9"
+    "sha256": "12d188918531fbea0d2877acae919fd039d309c76bb217acda26bf622d0754b9",
+    "hubUses": [
+      "TV NST brand mark"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/M50-SHS-18.jpg",
@@ -158,7 +170,10 @@
     "category": "misc",
     "alt": "Nova Schola m50 shs 18",
     "bytes": 226698,
-    "sha256": "65e121ff3ba8aeced15150ed2bf106ecf6d02c682766e23d21a9baf9c9112711"
+    "sha256": "65e121ff3ba8aeced15150ed2bf106ecf6d02c682766e23d21a9baf9c9112711",
+    "hubUses": [
+      "Celebrating Victory: 12th Foundation Winners"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3455.jpg",
@@ -262,7 +277,10 @@
     "category": "misc",
     "alt": "Nova Schola m100 shs 25",
     "bytes": 205226,
-    "sha256": "a991ed29e8b389e8913a44bee0a26c59a0c7bd9a8e0077e72b05bf041037026b"
+    "sha256": "a991ed29e8b389e8913a44bee0a26c59a0c7bd9a8e0077e72b05bf041037026b",
+    "hubUses": [
+      "Explore Senior High School Pathways"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/M50-SHS-12.jpg",
@@ -275,7 +293,10 @@
     "category": "misc",
     "alt": "Nova Schola m50 shs 12",
     "bytes": 249634,
-    "sha256": "a9a9ee9c29f277ef6a892006f839789c32ecb28e55c147ca91b2149c46508449"
+    "sha256": "a9a9ee9c29f277ef6a892006f839789c32ecb28e55c147ca91b2149c46508449",
+    "hubUses": [
+      "NST: Now Stronger at Twelve; Archived: 2025 Foundation Celebration Preview; TV fallback/empty state; existing gallery fallback"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_2679-1113x628.jpg",
@@ -301,7 +322,10 @@
     "category": "misc",
     "alt": "Nova Schola jhs f05",
     "bytes": 66456,
-    "sha256": "942d4ecc0f880a6e15c06ac487fce89c9029b5d58d6442a107065bee90419a05"
+    "sha256": "942d4ecc0f880a6e15c06ac487fce89c9029b5d58d6442a107065bee90419a05",
+    "hubUses": [
+      "NST Junior High Now Offers Foreign Language Class"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_9441.jpg",
@@ -418,7 +442,10 @@
     "category": "misc",
     "alt": "Nova Schola img 2819",
     "bytes": 141498,
-    "sha256": "6b55e61a504f39a29254ab2ed40ed25b5ab2ba39e085937abc17ea173099be4e"
+    "sha256": "6b55e61a504f39a29254ab2ed40ed25b5ab2ba39e085937abc17ea173099be4e",
+    "hubUses": [
+      "Start Your Journey: NST Admissions; Draft: NST Online Registration Resource"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/06/SHS-02.jpg",
@@ -431,7 +458,10 @@
     "category": "misc",
     "alt": "Nova Schola shs 02",
     "bytes": 53216,
-    "sha256": "a3505c3615586f29ea8fdcb194cd5dbb3722341e933fcef1229db3d03ea2ee06"
+    "sha256": "a3505c3615586f29ea8fdcb194cd5dbb3722341e933fcef1229db3d03ea2ee06",
+    "hubUses": [
+      "Discover NST College Programs; Draft: Exploring Information Systems at NST"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2022/05/JHS-Class-Night-01-scaled.jpg",
@@ -457,7 +487,10 @@
     "category": "misc",
     "alt": "Nova Schola jhs activity 01",
     "bytes": 428178,
-    "sha256": "d1e1f0e525f61bfa99da978b5d9535ff0c5301e29d62e569d1a6a01de88e06a8"
+    "sha256": "d1e1f0e525f61bfa99da978b5d9535ff0c5301e29d62e569d1a6a01de88e06a8",
+    "hubUses": [
+      "Learning Together at NST Junior High"
+    ]
   },
   {
     "sourceUrl": "https://nst.edu.ph/wp-content/uploads/2024/12/IMG_3415.jpg",

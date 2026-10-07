@@ -112,13 +112,14 @@ export const updateAnnouncement=async(req,res,next)=>{
 export const tvAnnouncements=async(req,res,next)=>{
   try{
     const limit=Math.min(Math.max(parseInt(req.query.limit,10)||20,1),100);
-    const rows=await repo.listAnnouncements({type:'general',limit});
+    const offset=Math.max(parseInt(req.query.offset,10)||0,0);
+    const [rows,total]=await Promise.all([repo.listAnnouncements({type:'general',limit,offset}),repo.countAnnouncements({type:'general'})]);
     const announcements=await Promise.all(rows.map(async row=>{
       await attach(row);
-      const {id,type,title,content,image_url,created_at,publish_at,expires_at}=row;
-      return {id,type,title,content,image_url,created_at,publish_at,expires_at};
+      const {id,type,title,content,image_url,created_at,publish_at,expires_at,status}=row;
+      return {id,type,title,content,image_url,created_at,publish_at,expires_at,status,display_import:!!row.display_import_key};
     }));
-    res.json({announcements});
+    res.json({announcements,total});
   }catch(e){next(e);}
 };
 export const deleteAnnouncement=async(req,res,next)=>{

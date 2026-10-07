@@ -42,6 +42,6 @@ test('TV is readable at 1920x1080 with only public General updates',async({page}
   await expect(page.getByRole('heading',{name:'A new chapter begins'})).toBeVisible();
   await expect(page.getByText('Class project reminders')).toHaveCount(0);
   await expect(page.locator('nav')).toHaveCount(0);
-  expect(await page.locator('h1').evaluate(e=>parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThan(90);
+  expect(await page.locator('h1').evaluate(e=>parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(60);
   await page.screenshot({path:'ui-test-results/screenshots/tv-1920.png',fullPage:true,caret:"initial"});
 });

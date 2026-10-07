@@ -50,3 +50,7 @@ Browser tests require a current Next.js production build and locally installed C
 See [the deployment runbook](scripts/DEPLOY.md) for Render/Vercel variables, backup, schema preflight, migration order and commands, verification SQL, controlled Brevo test and rollback. Nothing deploys automatically. Preserve the existing B2 bucket and credentials. Do not run historical production demo seeds.
 
 For verified personal senders, the exact Render checklist, recipient delivery details, and Class-first live rollout, follow [Production Brevo setup](scripts/BREVO_PRODUCTION.md). Brevo may replace Gmail/free-mail sender addresses; check the actual received From address.
+
+## Display-only NST announcements
+
+For the capstone bulletin and image-forward TV view, see [Display announcements](docs/DISPLAY_ANNOUNCEMENTS.md). From `server`, use `npm run seed:display-announcements -- --dry-run` for the offline plan and `npm run seed:display-announcements -- --apply` only after migration 010 is deployed to the intended database. This import creates 13 sourced General display records with explicit email exclusion; it never seeds users, gallery rows, or B2 objects. Preserve the existing email settings and scheduler state. Do not use the legacy broad `seed:production` for this task.

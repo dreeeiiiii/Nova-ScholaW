@@ -333,3 +333,10 @@
   .nst-dashboard-welcome .eyebrow { font-size: var(--text-small); }
 }
 @media (min-width: 1024px) { .nst-tv-callout > div { grid-template-columns: 1.1fr 1fr; gap: var(--space-12); } }
+
+/* Editorial announcement imagery uses the full original frame. */
+.announcement-visual { margin: 0 0 1rem; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-medium); background: var(--color-dark); }
+.announcement-visual img { width: 100%; height: 100%; object-fit: contain; }
+.announcement-card .announcement-visual { max-height: 320px; }
+.dashboard-feed .announcement-visual { max-height: 240px; }
+.bulletin-feature .announcement-visual { aspect-ratio: 3 / 2; }

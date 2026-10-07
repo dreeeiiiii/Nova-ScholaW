@@ -1,33 +1,19 @@
 import { serverFetch } from "@/lib/api";
+import { loadTvAnnouncements, type TvAnnouncement } from "@/lib/tv-announcements";
 import TvSlideshow from "./_components/TvSlideshow";
 
-type Announcement = {
-  id: number | string;
-  title: string;
-  content: string;
-  image_url?: string | null;
-  created_at: string;
-  type?: string;
-  publish_at?: string | null;
-  expires_at?: string | null;
-};
-
-export default async function TvPage({
-  searchParams,
-}: {
+export default async function TvPage({ searchParams }: {
   searchParams?: Promise<{ animate?: string }>;
 }) {
-  let announcements: Announcement[] = [];
+  let announcements: TvAnnouncement[] = [];
   try {
-    const data = (await serverFetch("/api/announcements/tv")) as { announcements: Announcement[] };
-    announcements = data.announcements ?? [];
-  } catch {
-    announcements = [];
-  }
-
+    announcements = await loadTvAnnouncements(async offset =>
+      await serverFetch("/api/announcements/tv?limit=100&offset=" + offset) as {
+        announcements: TvAnnouncement[]; total?: number;
+      });
+  } catch { announcements = []; }
   const sp = searchParams ? await searchParams : {};
   const raw = typeof sp.animate === "string" ? sp.animate.toLowerCase().trim() : "";
-  const animate = !(raw === "0" || raw === "off" || raw === "false");
-
-  return <main id="main-content" tabIndex={-1}><TvSlideshow initialAnnouncements={announcements} animate={animate} /></main>;
+  return <main id="main-content" tabIndex={-1}><TvSlideshow initialAnnouncements={announcements}
+    animate={!["0", "off", "false"].includes(raw)} /></main>;
 }
