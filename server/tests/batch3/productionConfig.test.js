@@ -9,3 +9,18 @@ test('production configuration needs no obsolete upload/domain variables',()=>{
  assert.equal(r.status,0,r.stderr);
  assert.deepEqual(JSON.parse(r.stdout.trim()),{student:'my.nst.edu.ph',teacher:'tr.nst.edu.ph',admin:'nst.edu.ph',emailMode:'mock'});
 });
+
+test('live config requires key/sender/name/UTC cutoff but not a test recipient',()=>{
+ const env={...process.env,NODE_ENV:'production',EMAIL_MODE:'live',DATABASE_URL:'postgresql://fake@localhost/test',JWT_SECRET:'fake-secret',CLIENT_ORIGIN:'https://frontend.example.test',BREVO_API_KEY:'fake-api-secret',EMAIL_SENDER_ADDRESS:'controlled@gmail.com',EMAIL_SENDER_NAME:'Nova Schola Hub',EMAIL_ENABLED_AT:'2026-10-07T00:00:00Z',DOTENV_CONFIG_PATH:'no-such.env'};
+ delete env.EMAIL_TEST_RECIPIENT;
+ const run=e=>spawnSync(process.execPath,['--input-type=module','-e',"import './src/shared/config/env.js';"],{cwd:new URL('../../',import.meta.url),env:e,encoding:'utf8',windowsHide:true});
+ assert.equal(run(env).status,0);
+ for(const key of ['BREVO_API_KEY','EMAIL_SENDER_ADDRESS','EMAIL_SENDER_NAME','EMAIL_ENABLED_AT']){
+  const invalid={...env};delete invalid[key];const r=run(invalid);assert.notEqual(r.status,0);assert.ok(r.stderr.includes(key));assert.ok(!r.stderr.includes('fake-api-secret'));
+ }
+ for(const value of ['invalid','2026-10-07','2026-10-07T08:00:00+08:00','2026-02-30T00:00:00Z'])assert.notEqual(run({...env,EMAIL_ENABLED_AT:value}).status,0);
+ assert.notEqual(run({...env,EMAIL_MODE:'test'}).status,0);
+ const defaultEnv={...env};delete defaultEnv.EMAIL_MODE;
+ const r=spawnSync(process.execPath,['--input-type=module','-e',"import c from './src/shared/config/env.js'; console.log(c.emailMode);"],{cwd:new URL('../../',import.meta.url),env:defaultEnv,encoding:'utf8',windowsHide:true});
+ assert.equal(r.stdout.trim(),'disabled');
+});

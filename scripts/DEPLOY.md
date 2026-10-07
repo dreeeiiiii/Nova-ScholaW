@@ -2,6 +2,8 @@
 
 Prepared in Batch 3. Nothing here has been executed against production. The revised capstone paper is authoritative. Deployment requires separate authorization.
 
+For the current verified personal sender rollout, follow [Production Brevo setup](BREVO_PRODUCTION.md). Keep the scheduler disabled and make the first live send a Class Announcement to one active Student.
+
 ## Architecture and service configuration
 
 Next.js 16 / React 19 in `web` on Vercel; Node.js / Express in `server` on Render; Neon PostgreSQL; existing private Backblaze B2 bucket; backend-only Brevo transactional email. One centralized Administrator manages College, Senior High School and Junior High School.
@@ -25,13 +27,13 @@ Render: root directory `server`, Node 22 (local validation: 22.14.0), build `npm
 | B2_REGION | Existing region |
 | B2_KEY_ID, B2_APPLICATION_KEY | Existing backend-only secrets; preserve |
 | B2_PRESIGN_EXPIRY_SECONDS | 3600 unless an approved existing value is required |
-| ANNOUNCEMENT_SCHEDULER_ENABLED | false during rollout; true after smoke tests and scheduled-publication review |
+| ANNOUNCEMENT_SCHEDULER_ENABLED | false; do not enable automatically |
 | EMAIL_MODE | disabled during rollout; test for the controlled mailbox test; live only after receipt verification |
 | BREVO_API_KEY | Backend-only transactional API key, stored in Render secrets |
 | EMAIL_SENDER_ADDRESS | Verified Brevo sender address |
 | EMAIL_SENDER_NAME | Nova Schola Hub or approved school sender name |
 | EMAIL_ENABLED_AT | ISO UTC cutoff set immediately before each test/live activation |
-| EMAIL_TEST_RECIPIENT | Reviewed official NST mailbox for test mode |
+| EMAIL_TEST_RECIPIENT | Controlled mailbox for test mode only; not required in live mode |
 
 The image limit is fixed at 10 MiB by validation. `MAX_IMAGE_SIZE_MB` and `UPLOAD_DIR` are unused and were removed; do not configure them. No video setting is required. Never set test-database variables in production.
 
@@ -83,6 +85,7 @@ Run the migration in the configured backend operator environment (`DATABASE_URL`
 1. `004_paper_departments.sql`: departments, nullable relationships, token version, Department Announcement constraints, single Administrator index.
 2. `005_department_integrity.sql`: membership consistency and academic-history protection triggers.
 3. `006_email_publication.sql`: existing announcements email-ineligible; new announcements eligible; unique delivery ledger.
+4. `008_email_delivery_details.sql`: additive recipient attempt/result JSONB, preserving existing claims.
 
 There is no Batch 3 schema migration. Historical users, announcements, targets, gallery records and B2 keys are preserved. Legacy gallery format metadata remains for retention, but current APIs only expose image workflows. Check all before/after counts and key/target exports; counts alone do not prove identity preservation. The verification SQL reports departments, unassigned users, migration versions and delivery eligibility. An upgrade of an unmigrated legacy database should have existing announcement eligibility FALSE and an empty delivery ledger before new publications. On an already migrated database, preserve its existing eligibility/ledger values.
 
@@ -95,9 +98,9 @@ There is no Batch 3 schema migration. Historical users, announcements, targets, 
 5. Deploy Next.js frontend with the production backend origins.
 6. Run all smoke tests below with email disabled.
 7. Configure verified Brevo sender/key, EMAIL_MODE=test, reviewed EMAIL_TEST_RECIPIENT and a fresh EMAIL_ENABLED_AT cutoff; restart backend.
-8. Publish ONE new controlled General Announcement using the Administrator. Test mode sends to ONE override mailbox; it does not send to resolved Student addresses.
+8. Publish ONE new controlled Class Announcement as Teacher, targeting one active Student. Test mode sends to ONE override mailbox; it does not send to resolved Student addresses.
 9. Verify NST Gmail receipt and delivery ledger/audit results.
-10. Set EMAIL_MODE=live with another fresh cutoff; clear the test recipient if desired, restart, then enable the scheduler after reviewing due announcements. Monitor safe email/audit logs.
+10. Set EMAIL_MODE=live with another fresh cutoff; clear the test recipient if desired and restart. Publish a NEW Class Announcement to ONE real active Student. Verify receipt, sender, subject/body, ledger/audit and no duplicate. Then test Department, then General. Keep scheduler false. See the exact procedure in [Production Brevo setup](BREVO_PRODUCTION.md).
 
 This deliberately verifies one mailbox in production test mode before enabling unrestricted live recipients. A live General Announcement emails all active registered Students; it is unsuitable as a one-mailbox smoke test. Messages accepted by Brevo are not proof of Gmail receipt. See the [transactional email API](https://developers.brevo.com/reference/send-transac-email).
 

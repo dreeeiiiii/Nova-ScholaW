@@ -7,7 +7,7 @@ NST announcements and image-only Event Gallery. The revised capstone paper is au
 | Frontend | Next.js 16, React 19, Tailwind CSS 4; App Router and authenticated API proxies |
 | Backend | Node.js, Express 4, PostgreSQL `pg`, bcrypt, JWT |
 | Database | Neon PostgreSQL; additive, checksummed migrations |
-| Email | Backend-only Brevo; mock by default, controlled test override, explicit live activation |
+| Email | Backend-only Brevo HTTP API; production defaults to disabled, controlled test override, explicit live activation |
 | Event storage | Existing private Backblaze B2 bucket; JPEG/PNG/WebP, 10 MiB maximum |
 | Hosting | Vercel frontend, Render backend, Neon database |
 
@@ -48,3 +48,5 @@ Browser tests require a current Next.js production build and locally installed C
 ## Manual production preparation
 
 See [the deployment runbook](scripts/DEPLOY.md) for Render/Vercel variables, backup, schema preflight, migration order and commands, verification SQL, controlled Brevo test and rollback. Nothing deploys automatically. Preserve the existing B2 bucket and credentials. Do not run historical production demo seeds.
+
+For verified personal senders, the exact Render checklist, recipient delivery details, and Class-first live rollout, follow [Production Brevo setup](scripts/BREVO_PRODUCTION.md). Brevo may replace Gmail/free-mail sender addresses; check the actual received From address.

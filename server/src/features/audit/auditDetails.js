@@ -1,7 +1,7 @@
 // Audit summaries deliberately exclude free text, credentials, URLs and request bodies.
 const enums = {
   role: ['student', 'teacher', 'admin'], type: ['general', 'department', 'class'],
-  status: ['draft', 'scheduled', 'published', 'archived', 'pending', 'approved', 'rejected', 'failed', 'partial_failure', 'configuration_blocked'],
+  status: ['draft', 'scheduled', 'published', 'archived', 'pending', 'approved', 'rejected', 'failed', 'partial_failure', 'configuration_blocked', 'accepted', 'skipped', 'mock', 'no_recipients'],
   media_type: ['image'],
 };
 const ids = new Set(['department_id', 'previous_department_id', 'section_id', 'previous_section_id', 'course_id', 'previous_course_id', 'category_id']);

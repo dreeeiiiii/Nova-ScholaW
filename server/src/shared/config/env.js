@@ -68,6 +68,18 @@ const adminEmailDomain = resolveDomain('NST_ADMIN_EMAIL_DOMAIN', null, 'nst.edu.
 const teacherEmailDomain = resolveDomain('NST_TEACHER_EMAIL_DOMAIN', null, 'tr.nst.edu.ph');
 const studentEmailDomain = resolveDomain('NST_STUDENT_EMAIL_DOMAIN', 'NST_EMAIL_DOMAIN', 'my.nst.edu.ph');
 
+const emailMode = process.env.EMAIL_MODE || (isProduction ? 'disabled' : 'mock');
+if (!['disabled', 'mock', 'test', 'live'].includes(emailMode)) throw new Error('EMAIL_MODE must be disabled, mock, test, or live.');
+if (['live', 'test'].includes(emailMode)) {
+  ['BREVO_API_KEY', 'EMAIL_SENDER_ADDRESS', 'EMAIL_SENDER_NAME', 'EMAIL_ENABLED_AT'].forEach(key => {
+    if (!requireEnv(key).trim()) throw new Error(`${key} must not be blank.`);
+  });
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(process.env.EMAIL_SENDER_ADDRESS)) throw new Error('EMAIL_SENDER_ADDRESS must be a valid email address.');
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(process.env.EMAIL_ENABLED_AT) || !Number.isFinite(Date.parse(process.env.EMAIL_ENABLED_AT))) throw new Error('EMAIL_ENABLED_AT must be an ISO UTC timestamp ending in Z.');
+  if (new Date(process.env.EMAIL_ENABLED_AT).toISOString().replace('.000Z', 'Z') !== process.env.EMAIL_ENABLED_AT.replace('.000Z', 'Z')) throw new Error('EMAIL_ENABLED_AT must be a valid calendar timestamp.');
+  if (emailMode === 'test' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(requireEnv('EMAIL_TEST_RECIPIENT'))) throw new Error('EMAIL_TEST_RECIPIENT must be a valid email address.');
+}
+
 const config = Object.freeze({
   nodeEnv,
   isProduction,
@@ -80,7 +92,7 @@ const config = Object.freeze({
   adminEmailDomain,
   teacherEmailDomain,
   studentEmailDomain,
-  emailMode: process.env.EMAIL_MODE || 'mock',
+  emailMode,
   brevoApiKey: process.env.BREVO_API_KEY || '',
   emailSender: process.env.EMAIL_SENDER_ADDRESS || '',
   emailSenderName: process.env.EMAIL_SENDER_NAME || 'Nova Schola Hub',
