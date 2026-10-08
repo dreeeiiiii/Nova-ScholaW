@@ -6,11 +6,11 @@ import { application } from '../batch1/harness.js';
 // Only the provider transport is stubbed. No Brevo account is contacted.
 const settings = {emailMode:'live',isProduction:true,brevoApiKey:'fake-key',emailSender:'controlled@gmail.com',emailSenderName:'Nova Schola Hub',emailEnabledAt:'2026-01-01T00:00:00Z'};
 const calls=[];
-let providerStatus=201;
+let providerStatus=201, networkFailure=false;
 mock.module('../../src/shared/services/emailService.js', {namedExports:{sendAnnouncementEmail:async (announcement,recipients,options) => {
  const {sendAnnouncementEmail}=await import('../../src/shared/services/emailService.js?real');
  return sendAnnouncementEmail(announcement,recipients,{...options,settings,transport:async(url,init)=>{
-  calls.push(JSON.parse(init.body));return {ok:providerStatus===201,status:providerStatus,json:async()=>({messageId:`<fake-${calls.length}>`})};
+  calls.push(JSON.parse(init.body));if(networkFailure)throw new Error('fake-key');return {ok:providerStatus===201,status:providerStatus,json:async()=>({messageId:`<fake-${calls.length}>`})};
  }});
 }}});
 
@@ -45,9 +45,27 @@ test('live publication uses real recipient rules, persists detail and never rese
   await app.db.query("UPDATE announcements SET publish_at=NOW()-INTERVAL '1 second' WHERE id=$1",[scheduled.id]);
   const {publishScheduled}=await import('../../src/features/announcements/announcementScheduler.js');
   await Promise.all([publishScheduled(),publishScheduled()]);await deliverPublication(scheduled.id);assert.equal(calls.length,1);calls.length=0;
-  providerStatus=429;const failed=await publish('class',teacher,{student_ids:[student.id]});calls.length=0;
-  await deliverPublication(failed.id);assert.equal(calls.length,0);
-  const failure=(await app.db.query('SELECT * FROM announcement_email_deliveries WHERE announcement_id=$1',[failed.id])).rows[0];assert.equal(failure.delivery_details[0].error,'rate_limited');assert.equal(failure.failed_count,1);providerStatus=201;
+  for (const [status,category] of [[400,'provider_request_rejected'],[401,'authentication_rejected'],[403,'sender_or_permission_rejected'],[429,'rate_limited'],[null,'network_or_timeout']]) {
+   providerStatus=status;networkFailure=status===null;
+   const failed=await publish('class',teacher,{student_ids:[student.id]});calls.length=0;
+   await deliverPublication(failed.id);assert.equal(calls.length,0);
+   const failure=(await app.db.query('SELECT * FROM announcement_email_deliveries WHERE announcement_id=$1',[failed.id])).rows[0];
+   assert.equal(failure.status,'failed');assert.equal(failure.delivery_details[0].error,category);assert.equal(failure.failed_count,1);
+   assert.equal(failure.delivery_details[0].http_status??null,status);
+  }
+  providerStatus=201;networkFailure=false;
+  // A no-recipient skip must not create a permanent claim before a first send.
+  const empty=(await app.request('/announcements/class',{token:teacher,method:'POST',body:{title:'No active recipient',content:'one',status:'draft',student_ids:[student.id]}})).data.announcement;
+  await app.db.query('UPDATE users SET is_active=FALSE WHERE id=$1',[student.id]);
+  await app.db.query("UPDATE announcements SET status='published' WHERE id=$1",[empty.id]);
+  const {resolveRecipients}=await import('../../src/features/announcements/announcementModel.js');
+  assert.equal((await resolveRecipients(empty.id)).length,0);
+  await deliverPublication(empty.id);
+  assert.equal((await app.db.query('SELECT * FROM announcement_email_deliveries WHERE announcement_id=$1',[empty.id])).rowCount,0);
+  assert.equal(calls.length,0);
+  await app.db.query('UPDATE users SET is_active=TRUE WHERE id=$1',[student.id]);
+  assert.equal((await resolveRecipients(empty.id)).length,1);
+  await deliverPublication(empty.id);assert.equal(calls.length,1);calls.length=0;
   const old=(await app.request('/announcements/class',{token:teacher,method:'POST',body:{title:'Old draft',content:'old',status:'draft',student_ids:[student.id]}})).data.announcement;
   await app.db.query("UPDATE announcements SET created_at='2025-01-01' WHERE id=$1",[old.id]);
   await app.request(`/announcements/${old.id}`,{token:teacher,method:'PUT',body:{status:'published'}});assert.equal(calls.length,0);

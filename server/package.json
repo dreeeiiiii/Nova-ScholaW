@@ -17,7 +17,8 @@
     "test": "cross-env NODE_ENV=test node --import ./tests/safe-network.js --experimental-test-module-mocks --test --test-concurrency=1 tests/requireRole.test.js tests/utils.test.js tests/sectionInput.test.js tests/displayImport.test.js tests/nstGalleryImport.test.js tests/batch1/*.test.js tests/batch2/*.test.js tests/batch3/*.test.js",
     "test:batch2": "node --experimental-test-module-mocks --test tests/batch2/email.test.js tests/batch2/integration.test.js",
     "seed:display-announcements": "node scripts/seed-display-announcements.js",
-    "import:nst-gallery": "node scripts/import-nst-gallery.js"
+    "import:nst-gallery": "node scripts/import-nst-gallery.js",
+    "email:test": "node scripts/test-brevo-email.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.616.0",

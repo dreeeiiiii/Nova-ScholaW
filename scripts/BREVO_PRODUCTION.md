@@ -12,7 +12,7 @@ Sender name and address come exclusively from `EMAIL_SENDER_NAME` and `EMAIL_SEN
 
 ## Modes, cutoff, duplicate protection and ledger
 
-- `live`: real resolved recipients; ignores `EMAIL_TEST_RECIPIENT`; requires `NODE_ENV=production` for transport.
+- `live`: real resolved recipients; ignores `EMAIL_TEST_RECIPIENT`; uses `EMAIL_MODE=live` as the transport control, independent of `NODE_ENV`.
 - `test`: a real Brevo request to ONE controlled `EMAIL_TEST_RECIPIENT` when there are resolved recipients. Intended recipient addresses are not sent to Brevo.
 - `disabled`: no outgoing email; ledger status `skipped`.
 - `mock`: local test mode, no network. Production defaults to disabled when EMAIL_MODE is absent.
@@ -21,11 +21,11 @@ Startup validates mode and requires nonblank API key, valid sender address, expl
 
 An announcement must be published and `email_eligible=true`. Migration 006 preserved existing announcements as ineligible. For live/test, `created_at >= EMAIL_ENABLED_AT` is enforced immediately before sending. This is a creation cutoff: an old draft published later remains blocked. Exact equality is allowed. Missing/invalid cutoff or creation date blocks transport. There is no catch-up scan on deployment/restart; scheduler stays disabled.
 
-The ledger primary key is announcement_id. `INSERT ... ON CONFLICT DO NOTHING` atomically claims the announcement before transport. The claim survives failures, concurrent publication, retries, republishing, restart and scheduler overlap. There are **no automatic retries**, including failed, blocked, mock, disabled or processing claims. Do not delete/reset ledger rows to resend. Create a fresh announcement for a reviewed test after changing modes/cutoff. A crash after provider acceptance can leave an uncertain/processing claim; inspect Brevo logs and retained details before deciding on any manual recovery. This favors preventing duplicate mail over automatic guaranteed delivery.
+The ledger primary key is announcement_id. `INSERT ... ON CONFLICT DO NOTHING` atomically claims the announcement after recipient/configuration/cutoff checks and the migration 008 schema check, before transport. Skipped preflight checks do not create claims. The claim survives failures, concurrent publication, retries, republishing, restart and scheduler overlap. There are **no automatic retries**, including existing failed, blocked, mock, disabled or processing claims. Previously stored claims remain untouched. Do not delete/reset ledger rows to resend. Create a fresh announcement for a reviewed test after changing modes/cutoff. A crash after provider acceptance can leave an uncertain/processing claim; inspect Brevo logs and retained details before deciding on any manual recovery. This favors preventing duplicate mail over automatic guaranteed delivery.
 
 The required additive migration `008_email_delivery_details.sql` adds JSONB `delivery_details` to the existing ledger, preserving all claims. It stores actual transport recipient email (test override in test mode), attempt/completion timestamps, processing/accepted/failed/uncertain state, provider message ID when returned, HTTP status and safe error category. Existing announcement ID, mode, resolved recipient count, accepted/failed totals and timestamps remain. Persisting the attempt fails closed before transport; recording fails stop subsequent sends. `accepted` means Brevo accepted the request, not confirmed inbox delivery. No delivery webhook was added.
 
-Authentication rejection, sender rejection/unverified sender, 4xx, rate limiting and 5xx produce safe categories. Timeout/network failure is uncertain because the provider may have accepted the request. Zero recipients produces `no_recipients` without transport. Provider errors never crash the publication route or unpublish the announcement. Publication audit remains; email outcomes add `email.delivery_result` or `email.delivery_failure` with safe counts. Arbitrary provider error text, API keys, headers, passwords and JWT secrets are not logged. A DB/logging failure is reported without exception payloads; retained claims still prevent resend.
+Authentication rejection, sender rejection/unverified sender, 4xx, rate limiting and 5xx produce safe categories. Timeout/network failure is uncertain because the provider may have accepted the request. Zero recipients produces a `no_valid_recipients` eligibility log without transport or a delivery claim. Provider errors never crash the publication route or unpublish the announcement. Publication audit remains; email outcomes add `email.delivery_result` or `email.delivery_failure` with safe counts. Arbitrary provider error text, API keys, headers, passwords and JWT secrets are not logged. A DB/logging failure is reported without exception payloads; retained claims still prevent resend.
 
 ## Exact Render backend checklist
 
@@ -136,3 +136,7 @@ Validation on Node 22.14.0:
 - Backend has no configured lint/typecheck scripts; frontend unchanged, so no frontend build was required.
 
 Verdict: **PRODUCTION BREVO EMAIL SENDING NOT READY** until the manual production blockers above are completed. Implementation and automated checks are ready for that rollout.
+
+## October 8 email pipeline repair
+
+See [the repair report](BREVO_EMAIL_FIX_REPORT.md) for current validation, direct test commands, preflight ordering and the evidence still needed to identify the production incident.

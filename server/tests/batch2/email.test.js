@@ -26,8 +26,8 @@ test('HTTP errors, timeout/network exceptions remain redacted and do not throw',
  const result=await sendAnnouncementEmail(announcement,recipients,{settings,transport});assert.equal(result.status,'failed');assert.equal(result.failed,1);assert.ok(!JSON.stringify(result).includes('secret-never-log'));
  }
 });
-test('historical cutoff, unsafe live mode and missing override block network',async()=>{
- for(const config of [{...settings,emailEnabledAt:'2026-10-07T00:00:00Z'},{...settings,emailMode:'live'},{...settings,emailTestRecipient:''},{...settings,emailEnabledAt:''}]){
+test('historical cutoff and missing override block network',async()=>{
+ for(const config of [{...settings,emailEnabledAt:'2026-10-07T00:00:00Z'},{...settings,emailTestRecipient:''},{...settings,emailEnabledAt:''}]){
  const result=await sendAnnouncementEmail(announcement,recipients,{settings:config,transport:()=>assert.fail('Unsafe request')});assert.equal(result.status,'configuration_blocked');
  }
 });
@@ -66,4 +66,27 @@ test('401/403/400/429/5xx and uncertain network attempts persist safe useful err
 });
 test('ledger write failure prevents an unrecorded send',async()=>{
  await assert.rejects(sendAnnouncementEmail(announcement,recipients,{settings,onDelivery:async()=>{throw new Error('ledger unavailable');},transport:()=>assert.fail('unrecorded network')}),/ledger unavailable/);
+});
+
+test('live mode after production UTC cutoff sends regardless of NODE_ENV', async () => {
+ const { emailEligibility } = await import('../../src/shared/services/emailEligibility.js');
+ const live = { ...settings, emailMode: 'live', isProduction: false, emailEnabledAt: '2026-10-07T15:50:00Z' };
+ const fresh = { ...announcement, type: 'class', status: 'published', email_eligible: true, created_at: '2026-10-07T23:50:00.001+08:00' };
+ assert.deepEqual(emailEligibility(fresh, recipients, live), { eligible: true, reason: 'eligible' });
+ let count = 0;
+ assert.equal((await sendAnnouncementEmail(fresh, recipients, { settings: live, transport: async () => { count++; return { ok: true, status: 201, json: async () => ({ messageId: '<utc-test>' }) }; } })).status, 'accepted');
+ assert.equal(count, 2);
+ assert.equal(emailEligibility({ ...fresh, created_at: '2026-10-07T15:49:59.999Z' }, recipients, live).reason, 'announcement_before_cutoff');
+});
+
+test('eligibility explains skips before transport', async () => {
+ const { emailEligibility } = await import('../../src/shared/services/emailEligibility.js');
+ for (const [a, r, s, reason] of [
+  [{...announcement,status:'draft'},recipients,settings,'announcement_not_published'],
+  [{...announcement,type:'other'},recipients,settings,'unsupported_type'],
+  [{...announcement,email_eligible:false},recipients,settings,'announcement_email_ineligible'],
+  [announcement,[],settings,'no_valid_recipients'],
+  [announcement,recipients,{...settings,emailMode:'disabled'},'email_mode_not_live'],
+  [announcement,recipients,{...settings,brevoApiKey:''},'configuration_missing'],
+ ]) assert.deepEqual(emailEligibility(a,r,s),{eligible:false,reason});
 });
